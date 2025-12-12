@@ -1,0 +1,49 @@
+project:
+  name: neurosymbolic-iot-pipeline
+  seed: 42
+
+paths:
+  raw_root: data/raw
+  processed_root: data/processed
+  logs_root: logs
+
+datasets:
+  casas:
+    raw_dir: data/raw/casas
+    # If your CASAS logs are nested, the loader will scan recursively.
+    file_globs: ["**/*.txt", "**/*.log", "**/*.csv"]
+    timezone: "UTC"   # keep stable; adjust if needed
+    # Windowing
+    window_minutes: 30
+    stride_minutes: 5
+    min_events_per_window: 1
+    # Features/labels
+    feature_mode: "event_counts"   # event_counts | sequence_ids (future)
+    label_mode: "majority"         # majority | last_event | none
+    label_column_candidates: ["activity", "label", "Activity", "Label"]
+
+  sphere:
+    raw_dir: data/raw/sphere
+    file_globs: ["**/*.csv", "**/*.tsv"]
+    # Windowing for SPHERE is seconds-based (multimodal alignment is dataset-specific)
+    window_seconds: 30
+    stride_seconds: 5
+    min_rows_per_window: 1
+    time_column_candidates: ["timestamp", "time", "Time", "t"]
+    label_column_candidates: ["activity", "label", "Activity", "Label"]
+    # Splits
+    split:
+      train: 0.7
+      val: 0.15
+      test: 0.15
+      stratify: true
+      seed: 42
+
+output:
+  casas_windows: data/processed/casas_windows.parquet
+  casas_meta: data/processed/casas_meta.json
+  sphere_windows: data/processed/sphere_windows.parquet
+  sphere_meta: data/processed/sphere_meta.json
+
+logging:
+  level: INFO

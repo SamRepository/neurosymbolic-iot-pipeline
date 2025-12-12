@@ -1,0 +1,6 @@
+inherits: ["config/base.yaml"]
+pipeline:
+  enable_neural: true
+  enable_kg: true
+  enable_symbolic: true
+  enable_feedback: false
