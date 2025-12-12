@@ -1,6 +1,8 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .env
 .venv/
 venv/
@@ -8,8 +10,7 @@ venv/
 # VS Code
 .vscode/
 
-# Data & outputs
-data/raw/
+# Outputs / artifacts
 data/processed/
 outputs/
 logs/
@@ -17,19 +18,3 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
-
-
-datasets/
-*.zip
-*.tar.gz
-
-data/raw/
-data/processed/
-datasets/
-*.zip
-
-*.pth
-outputs/
-
-
-
