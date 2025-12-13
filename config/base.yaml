@@ -26,11 +26,13 @@ datasets:
     raw_dir: data/raw/sphere
     file_globs: ["**/*.csv", "**/*.tsv"]
     # Windowing for SPHERE is seconds-based (multimodal alignment is dataset-specific)
+    label_file_preference: ["activity.csv"]
+    stream_file_preference: ["acceleration_corrected.csv", "acceleration.csv", "accel.csv", "pir.csv"]
+    time_column_candidates: ["t", "timestamp", "time", "ts", "datetime"]
+    label_join_tolerance_seconds: 10
     window_seconds: 30
-    stride_seconds: 5
-    min_rows_per_window: 1
-    time_column_candidates: ["timestamp", "time", "Time", "t"]
-    label_column_candidates: ["activity", "label", "Activity", "Label"]
+    stride_seconds: 15
+    min_rows_per_window: 5
     # Splits
     split:
       train: 0.7
@@ -47,3 +49,5 @@ output:
 
 logging:
   level: INFO
+
+
