@@ -2,15 +2,12 @@ from __future__ import annotations
 
 import argparse
 import logging
-from pathlib import Path
-from typing import Dict
 
 from neurosymbolic_iot.data_processing.preprocess_casas import preprocess_casas
 from neurosymbolic_iot.data_processing.preprocess_sphere import preprocess_sphere
 from neurosymbolic_iot.utils.config import ensure_dirs, load_config
 from neurosymbolic_iot.utils.logging import setup_logging
 from neurosymbolic_iot.utils.seed import set_global_seed
-
 
 log = logging.getLogger(__name__)
 
