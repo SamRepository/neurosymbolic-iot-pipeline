@@ -21,6 +21,7 @@ def _find_files(root: Path, globs: List[str]) -> List[Path]:
         files.extend(root.glob(g))
     return sorted(set([f for f in files if f.is_file()]))
 
+# updated for casas preprocessing
 
 def _is_header_row(row: List[str]) -> bool:
     joined = ",".join(row).lower()
@@ -171,3 +172,5 @@ def preprocess_casas(cfg: Dict) -> Dict[str, object]:
 
     log.info("CASAS preprocessing complete: %s", out_windows.as_posix())
     return {"windows_path": str(out_windows), "meta_path": str(out_meta), "timings": timings}
+
+

@@ -23,3 +23,9 @@ datasets/
 *.zip
 *.tar.gz
 
+data/raw/
+data/processed/
+datasets/
+*.zip
+
+

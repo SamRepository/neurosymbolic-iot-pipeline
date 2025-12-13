@@ -5,14 +5,18 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 from neurosymbolic_iot.data_processing.splits import split_train_val_test
 from neurosymbolic_iot.utils.timer import timed
 
-
 log = logging.getLogger(__name__)
+
+
+DEFAULT_TIME_CANDS = ["timestamp", "time", "t", "ts", "datetime", "date_time", "start_time", "start", "Time"]
+DEFAULT_LABEL_CANDS = ["activity", "label", "class", "Activity", "Label"]
 
 
 def _find_files(root: Path, globs: List[str]) -> List[Path]:
@@ -22,162 +26,242 @@ def _find_files(root: Path, globs: List[str]) -> List[Path]:
     return sorted(set([f for f in files if f.is_file()]))
 
 
-def _guess_column(df: pd.DataFrame, candidates: List[str]) -> Optional[str]:
+def _pick_col(columns: List[str], candidates: List[str]) -> Optional[str]:
+    # exact match first
     for c in candidates:
-        if c in df.columns:
+        if c in columns:
             return c
-    # fallback: try case-insensitive
-    lower_map = {c.lower(): c for c in df.columns}
+    # case-insensitive match
+    lower_map = {c.lower(): c for c in columns}
     for c in candidates:
         if c.lower() in lower_map:
             return lower_map[c.lower()]
     return None
 
 
-def load_sphere_table(cfg: Dict) -> pd.DataFrame:
+def _parse_timestamp_series(s: pd.Series) -> pd.Series:
+    """
+    Robust timestamp parsing:
+    - string datetimes
+    - numeric epoch seconds/ms
+    - HH:MM:SS(.fff) time-only -> treated as timedelta from origin
+    """
+    if s is None:
+        return pd.Series(dtype="datetime64[ns, UTC]")
+
+    # If numeric -> epoch
+    if pd.api.types.is_numeric_dtype(s):
+        x = pd.to_numeric(s, errors="coerce")
+        # Heuristic: ms if very large
+        median = np.nanmedian(x.values) if np.isfinite(x.values).any() else np.nan
+        if np.isfinite(median) and median > 1e12:
+            return pd.to_datetime(x, errors="coerce", unit="ms", utc=True)
+        if np.isfinite(median) and median > 1e9:
+            return pd.to_datetime(x, errors="coerce", unit="s", utc=True)
+        # otherwise seconds offset
+        base = pd.Timestamp("1970-01-01", tz="UTC")
+        td = pd.to_timedelta(x, unit="s")
+        return base + td
+
+    # Try normal datetime parsing
+    dt = pd.to_datetime(s.astype(str).str.strip(), errors="coerce", utc=True)
+    if dt.notna().mean() >= 0.5:
+        return dt
+
+    # Try time-only parsing (HH:MM:SS)
+    td = pd.to_timedelta(s.astype(str).str.strip(), errors="coerce")
+    if td.notna().mean() >= 0.5:
+        base = pd.Timestamp("1970-01-01", tz="UTC")
+        return base + td
+
+    return dt  # whatever we got
+
+
+def _load_one_csv(fp: Path) -> pd.DataFrame:
+    # SPHERE CSVs are standard; keep this simple
+    return pd.read_csv(fp)
+
+
+def load_sphere_labeled_table(cfg: Dict) -> Tuple[pd.DataFrame, Dict[str, object]]:
     ds = cfg["datasets"]["sphere"]
     raw_dir = Path(ds["raw_dir"])
-    files = _find_files(raw_dir, ds.get("file_globs", ["**/*.csv"]))
 
+    globs = ds.get("file_globs", ["*.csv", "**/*.csv"])
+    files = _find_files(raw_dir, globs)
     if not files:
         raise FileNotFoundError(f"No SPHERE files found under: {raw_dir}")
 
-    parts: List[pd.DataFrame] = []
+    time_cands = ds.get("time_column_candidates", DEFAULT_TIME_CANDS)
+    label_cands = ds.get("label_column_candidates", DEFAULT_LABEL_CANDS)
+
+    kept = []
+    kept_info = []
+
     for fp in tqdm(files, desc="Loading SPHERE files"):
-        if fp.suffix.lower() == ".tsv":
-            df = pd.read_csv(fp, sep="\t")
-        else:
-            df = pd.read_csv(fp)
-        df["__source_file"] = fp.name
-        parts.append(df)
+        try:
+            # Read a small sample to detect columns quickly
+            sample = pd.read_csv(fp, nrows=5)
+            cols = list(sample.columns)
 
-    df_all = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
-    return df_all
+            tcol = _pick_col(cols, time_cands)
+            lcol = _pick_col(cols, label_cands)
 
+            # Phase 1 baseline: only keep files that have BOTH time and label
+            if not tcol or not lcol:
+                continue
 
-def window_sphere_rows(
-    df: pd.DataFrame,
-    time_col: str,
-    label_col: Optional[str],
-    window_seconds: int,
-    stride_seconds: int,
-    min_rows: int = 1,
-) -> pd.DataFrame:
-    """Simple time-based windowing for SPHERE-like tables.
+            df = _load_one_csv(fp)
+            df = df.rename(columns={tcol: "timestamp", lcol: "label"})
 
-    This skeleton assumes a *flat table* with a timestamp column. Real SPHERE
-    multimodal alignment can be plugged in later without changing downstream APIs.
-    """
-    df = df.copy()
-    df[time_col] = pd.to_datetime(df[time_col], errors="coerce", utc=True)
-    df = df.dropna(subset=[time_col]).sort_values(time_col).reset_index(drop=True)
-    if df.empty:
-        return pd.DataFrame()
+            df["timestamp"] = _parse_timestamp_series(df["timestamp"])
+            df = df.dropna(subset=["timestamp", "label"]).copy()
+            df["label"] = df["label"].astype(str).str.strip()
 
-    start = df[time_col].min()
-    end = df[time_col].max()
+            # Keep numeric columns as features
+            feature_cols = [c for c in df.columns if c not in ["timestamp", "label"] and pd.api.types.is_numeric_dtype(df[c])]
+            # If none numeric, create a dummy feature so windowing still works
+            if not feature_cols:
+                df["dummy_feature"] = 1.0
+                feature_cols = ["dummy_feature"]
 
-    w = pd.Timedelta(seconds=window_seconds)
-    s = pd.Timedelta(seconds=stride_seconds)
+            df = df[["timestamp", "label"] + feature_cols].copy()
+            kept.append(df)
 
-    rows = []
-    window_id = 0
-    cur = start
-    feature_cols = [c for c in df.columns if c not in {time_col, label_col, "__source_file"}]
-
-    while cur <= end:
-        cur_end = cur + w
-        wdf = df[(df[time_col] >= cur) & (df[time_col] < cur_end)]
-        if len(wdf) >= min_rows:
-            # Aggregation strategy: mean for numeric columns; mode for non-numeric
-            feats = {}
-            for c in feature_cols:
-                if pd.api.types.is_numeric_dtype(wdf[c]):
-                    feats[c] = float(wdf[c].mean())
-                else:
-                    vc = wdf[c].astype(str).value_counts()
-                    feats[c] = vc.idxmax() if not vc.empty else None
-
-            label = None
-            if label_col and label_col in wdf.columns:
-                vc = wdf[label_col].dropna().astype(str).value_counts()
-                label = vc.idxmax() if not vc.empty else None
-
-            rows.append(
+            kept_info.append(
                 {
-                    "window_id": window_id,
-                    "start_time": cur,
-                    "end_time": cur_end,
-                    "n_rows": int(len(wdf)),
-                    "label": label,
-                    **feats,
+                    "file": fp.name,
+                    "rows_after_clean": int(len(df)),
+                    "time_col": tcol,
+                    "label_col": lcol,
+                    "n_features": int(len(feature_cols)),
                 }
             )
-            window_id += 1
-        cur = cur + s
+        except Exception as e:
+            log.warning("Failed reading %s: %s", fp.name, e)
 
-    return pd.DataFrame(rows)
+    if not kept:
+        raise RuntimeError(
+            "No SPHERE CSV contained BOTH a timestamp column and an activity label column. "
+            "Adjust datasets.sphere.file_globs and *_column_candidates in config/base.yaml."
+        )
+
+    data = pd.concat(kept, ignore_index=True)
+    data = data.sort_values("timestamp").reset_index(drop=True)
+
+    meta = {
+        "kept_files": kept_info,
+        "n_rows_total": int(len(data)),
+        "n_labels": int(data["label"].nunique()),
+        "min_time": str(data["timestamp"].min()),
+        "max_time": str(data["timestamp"].max()),
+    }
+    return data, meta
+
+
+def make_time_windows(
+    df: pd.DataFrame,
+    window_seconds: int,
+    stride_seconds: int,
+    min_rows_per_window: int = 5,
+) -> pd.DataFrame:
+    df = df.sort_values("timestamp").reset_index(drop=True)
+    numeric_cols = [c for c in df.columns if c not in ["timestamp", "label"] and pd.api.types.is_numeric_dtype(df[c])]
+    if not numeric_cols:
+        df["dummy_feature"] = 1.0
+        numeric_cols = ["dummy_feature"]
+
+    start = df["timestamp"].min()
+    end = df["timestamp"].max()
+    win = pd.Timedelta(seconds=int(window_seconds))
+    stride = pd.Timedelta(seconds=int(stride_seconds))
+
+    out_rows = []
+    window_id = 0
+    t = start
+
+    while t + win <= end:
+        wdf = df[(df["timestamp"] >= t) & (df["timestamp"] < t + win)]
+        if len(wdf) >= min_rows_per_window:
+            feats = wdf[numeric_cols].mean().to_dict()
+            label = wdf["label"].mode(dropna=True)
+            label = label.iloc[0] if not label.empty else None
+
+            row = {
+                "window_id": window_id,
+                "start_time": t,
+                "end_time": t + win,
+                "n_rows": int(len(wdf)),
+                "label": label,
+            }
+            row.update(feats)
+            out_rows.append(row)
+            window_id += 1
+
+        t = t + stride
+
+    return pd.DataFrame(out_rows)
 
 
 def preprocess_sphere(cfg: Dict) -> Dict[str, object]:
     ds = cfg["datasets"]["sphere"]
+
     out_windows = Path(cfg["output"]["sphere_windows"])
     out_meta = Path(cfg["output"]["sphere_meta"])
 
+    window_seconds = int(ds.get("window_seconds", 30))
+    stride_seconds = int(ds.get("stride_seconds", 15))
+    min_rows_per_window = int(ds.get("min_rows_per_window", 5))
+
     timings: Dict[str, float] = {}
     with timed("load", timings):
-        df = load_sphere_table(cfg)
-
-    time_col = _guess_column(df, ds.get("time_column_candidates", ["timestamp"]))
-    if not time_col:
-        raise ValueError(
-            "Could not find a timestamp column in SPHERE data. "
-            f"Candidates tried: {ds.get('time_column_candidates')}. "
-            f"Columns found: {list(df.columns)[:30]} ..."
-        )
-
-    label_col = _guess_column(df, ds.get("label_column_candidates", ["label", "activity"]))
+        data, load_meta = load_sphere_labeled_table(cfg)
 
     with timed("windowing", timings):
-        windows = window_sphere_rows(
-            df=df,
-            time_col=time_col,
-            label_col=label_col,
-            window_seconds=int(ds["window_seconds"]),
-            stride_seconds=int(ds["stride_seconds"]),
-            min_rows=int(ds.get("min_rows_per_window", 1)),
+        windows = make_time_windows(
+            data,
+            window_seconds=window_seconds,
+            stride_seconds=stride_seconds,
+            min_rows_per_window=min_rows_per_window,
         )
 
-    if windows.empty:
-        raise RuntimeError("No SPHERE windows created. Check window params / timestamp parsing.")
+    if windows.empty or len(windows) < 3:
+        raise RuntimeError(
+            f"SPHERE produced too few windows (n_windows={len(windows)}). "
+            "This typically means timestamp parsing failed or the chosen input file has too little labeled data. "
+            "Try restricting file_globs to activity.csv or per_ann_activity_*.csv."
+        )
 
-    # Split train/val/test at window level (Phase 1 baseline)
-    split_cfg = ds.get("split", {"train": 0.7, "val": 0.15, "test": 0.15, "seed": 42, "stratify": True})
-    stratify_col = "label" if split_cfg.get("stratify", True) else None
-    with timed("split", timings):
+    with timed("splitting", timings):
         splits = split_train_val_test(
             windows,
-            train=float(split_cfg["train"]),
-            val=float(split_cfg["val"]),
-            test=float(split_cfg["test"]),
-            seed=int(split_cfg.get("seed", 42)),
-            stratify_col=stratify_col,
+            train=float(ds.get("train_ratio", 0.7)),
+            val=float(ds.get("val_ratio", 0.15)),
+            test=float(ds.get("test_ratio", 0.15)),
+            seed=int(cfg.get("project", {}).get("seed", 42)),
+            stratify_col="label",
         )
+
+        # Add split column
+        windows_split = []
+        for split_name, sdf in splits.items():
+            sdf = sdf.copy()
+            sdf["split"] = split_name
+            windows_split.append(sdf)
+        all_windows = pd.concat(windows_split, ignore_index=True)
 
     with timed("persist", timings):
         out_windows.parent.mkdir(parents=True, exist_ok=True)
-        # Persist all windows and provide split indices via meta (simple, portable)
-        windows.to_parquet(out_windows, index=False)
+        all_windows.to_parquet(out_windows, index=False)
 
         meta = {
             "dataset": "SPHERE",
-            "n_raw_rows": int(len(df)),
-            "n_windows": int(len(windows)),
-            "time_col": time_col,
-            "label_col": label_col,
-            "window_seconds": int(ds["window_seconds"]),
-            "stride_seconds": int(ds["stride_seconds"]),
+            "n_rows_input": int(load_meta["n_rows_total"]),
+            "n_windows": int(all_windows["window_id"].nunique()),
+            "window_seconds": window_seconds,
+            "stride_seconds": stride_seconds,
+            "min_rows_per_window": min_rows_per_window,
             "splits": {k: int(len(v)) for k, v in splits.items()},
+            "load_details": load_meta,
             "timings_sec": timings,
         }
         out_meta.write_text(json.dumps(meta, indent=2), encoding="utf-8")
