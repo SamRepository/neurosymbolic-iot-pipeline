@@ -7,3 +7,4 @@ tqdm>=4.66
 psutil>=5.9
 pyarrow>=14.0
 matplotlib>=3.8
+torch>=2.0

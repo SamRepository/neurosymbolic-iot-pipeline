@@ -1,0 +1,46 @@
+inherits: "config/base.yaml"
+
+neural_perception:
+  output_dir: "outputs/neural_perception"
+  device: "auto"
+
+  casas:
+    # windowing on raw events (must match your Phase 1 logic for comparability)
+    window_minutes: 30
+    stride_minutes: 5
+    min_events: 5
+
+    # GRU model
+    max_seq_len: 256
+    embedding_dim: 64
+    hidden_size: 128
+    num_layers: 1
+    dropout: 0.15
+
+    # training
+    batch_size: 32
+    epochs: 35
+    lr: 0.001
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+
+  sphere:
+    # windowing on labeled acceleration stream
+    window_seconds: 30
+    stride_seconds: 15
+    min_rows: 10
+    seq_len: 128
+
+    # LSTM model
+    hidden_size: 128
+    num_layers: 1
+    dropout: 0.20
+
+    # training
+    batch_size: 64
+    epochs: 45
+    lr: 0.001
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
