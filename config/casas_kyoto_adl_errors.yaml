@@ -1,0 +1,41 @@
+project:
+  seed: 42
+
+datasets:
+  casas:
+    # Point this to where you unzip adl_error.zip + adl_noerror.zip
+    # Expected:
+    #   data/raw/casas_kyoto_adl/adl_error/*.csv
+    #   data/raw/casas_kyoto_adl/adl_noerror/*.csv
+    raw_dir: data/raw/casas_kyoto_adl
+
+    # NEW: tell preprocessing which CASAS loader to use
+    format: kyoto_adl_errors
+
+    file_globs:
+      - "adl_error/*.csv"
+      - "adl_noerror/*.csv"
+
+    # Keep your existing windowing parameters (tune later)
+    window_minutes: 30
+    stride_minutes: 5
+    min_events_per_window: 1
+    label_mode: majority
+    feature_mode: event_counts
+
+  sphere:
+    # unchanged (kept here only if you want a single “all datasets” config file)
+    raw_dir: data/raw/sphere
+    window_seconds: 30
+    stride_seconds: 15
+    min_rows_per_window: 5
+    label_join_tolerance_seconds: 5.0
+    train_ratio: 0.7
+    val_ratio: 0.15
+    test_ratio: 0.15
+
+output:
+  casas_windows: data/processed/casas_windows.parquet
+  casas_meta: data/processed/casas_meta.json
+  sphere_windows: data/processed/sphere_windows.parquet
+  sphere_meta: data/processed/sphere_meta.json

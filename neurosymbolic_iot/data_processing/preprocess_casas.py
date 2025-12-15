@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import logging
 import json
 import logging
 from pathlib import Path
@@ -10,6 +11,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from neurosymbolic_iot.data_processing.windowing import rolling_event_windows
+from neurosymbolic_iot.data_processing.casas_kyoto_adl_errors import load_kyoto_adl_errors_events
 from neurosymbolic_iot.utils.timer import timed
 
 log = logging.getLogger(__name__)
@@ -110,8 +112,21 @@ def _parse_casas_text_like(path: Path) -> pd.DataFrame:
 def load_casas_events(cfg: Dict) -> pd.DataFrame:
     ds = cfg["datasets"]["casas"]
     raw_dir = Path(ds["raw_dir"])
-    files = _find_files(raw_dir, ds.get("file_globs", ["**/*.csv", "**/*.txt", "**/*.log"]))
+ #   files = _find_files(raw_dir, ds.get("file_globs", ["**/*.csv", "**/*.txt", "**/*.log"]))
+    casas_format = str(ds.get("format", "auto")).lower().strip()
+    if casas_format == "kyoto_adl_errors":
+        # Zenodo 10.5281/zenodo.15712834: pXX.tY.csv files inside adl_error/ and adl_noerror/ :contentReference[oaicite:3]{index=3}
+        events = load_kyoto_adl_errors_events(
+            raw_dir=raw_dir,
+            file_globs=ds.get("file_globs", ["**/*.csv"]),
+        )
+        # Ensure expected columns exist
+        if "activity" not in events.columns:
+            events["activity"] = None
+        return events
 
+    files = _find_files(raw_dir, ds.get("file_globs", ["**/*.csv", "**/*.txt", "**/*.log"]))
+ 
     if not files:
         raise FileNotFoundError(f"No CASAS files found under: {raw_dir}")
 
