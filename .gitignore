@@ -28,4 +28,8 @@ data/processed/
 datasets/
 *.zip
 
+*.pth
+outputs/
+
+
 
