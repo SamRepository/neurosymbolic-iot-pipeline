@@ -9,26 +9,17 @@ paths:
 
 datasets:
   casas:
-    # Kyoto ADL Errors dataset root (contains adl_error/ and adl_noerror/)
-    raw_dir: data/raw/casas_kyoto_adl
-
-    # Tell the pipeline which loader/layout to use
-    format: kyoto_adl_errors
-
-    file_globs:
-      - "adl_error/*.csv"
-      - "adl_noerror/*.csv"
-
-    timezone: "UTC"
-
+    raw_dir: data/raw/casas
+    # If your CASAS logs are nested, the loader will scan recursively.
+    file_globs: ["**/*.txt", "**/*.log", "**/*.csv"]
+    timezone: "UTC"   # keep stable; adjust if needed
     # Windowing
     window_minutes: 30
     stride_minutes: 5
     min_events_per_window: 1
-
     # Features/labels
-    feature_mode: "event_counts"
-    label_mode: "majority"
+    feature_mode: "event_counts"   # event_counts | sequence_ids (future)
+    label_mode: "majority"         # majority | last_event | none
     label_column_candidates: ["activity", "label", "Activity", "Label"]
 
   sphere:

@@ -6,17 +6,17 @@ Reproducible experimental setup and evaluation code for:
 
 This repository currently provides:
 
-- ✅ Phase 0: environment setup + project structure  
-- ✅ Phase 1: dataset preprocessing (windowing, basic feature extraction, splits)  
-- ✅ Phase 2 (CASAS): neural perception experiments (tabular baseline + GRU, including transition classification)  
-- ⏳ Next: Phase 2 (SPHERE), Phase 3 (KG building), Phase 4 (symbolic reasoning), Phase 5 (feedback loop)  
+- ✅ Phase 0: environment setup + project structure
+- ✅ Phase 1: dataset preprocessing (windowing, basic feature extraction, splits)
+- ✅ Phase 2 (CASAS): neural perception experiments (tabular baseline + GRU, including transition classification)
+- ⏳ Next: Phase 2 (SPHERE), Phase 3 (KG building), Phase 4 (symbolic reasoning), Phase 5 (feedback loop)
 
 ---
 
 ## Requirements
 
-- Python 3.10+ recommended  
-- Tested on Windows 11 (PowerShell); should work on Linux/macOS  
+- Python 3.10+ recommended
+- Tested on Windows 11 (PowerShell); should work on Linux/macOS
 
 Install dependencies:
 
@@ -120,7 +120,7 @@ Preprocessing writes results to:
 - `data/processed/casas_windows.parquet` and `data/processed/casas_meta.json`
 - `data/processed/sphere_windows.parquet` and `data/processed/sphere_meta.json`
 
-The `*_windows.parquet` files contain window-level features and labels.  
+The `*_windows.parquet` files contain window-level features and labels.
 The `*_meta.json` files contain counts and timing information (load, windowing, etc.).
 
 ---
@@ -153,9 +153,9 @@ python -c "import pandas as pd; df=pd.read_parquet('data/processed/sphere_window
 
 Phase 2 for CASAS includes:
 
-1) **Tabular baseline** (event-count windows; scikit-learn Logistic Regression)  
-2) **Sequence model** (GRU over event-token sequences)  
-3) **Transition task** (binary classifier predicting whether the next window is a *label change*)  
+1) **Tabular baseline** (event-count windows; scikit-learn Logistic Regression)
+2) **Sequence model** (GRU over event-token sequences)
+3) **Transition task** (binary classifier predicting whether the next window is a *label change*)
 
 ### A) Sanity checks we used (CASAS)
 
@@ -296,7 +296,7 @@ PY
 
 ### 1) `KeyError: 'datasets'` when running `train_neural`
 
-Cause: you passed a config that did not contain a `datasets:` section (e.g., a neural-only config).  
+Cause: you passed a config that did not contain a `datasets:` section (e.g., a neural-only config).
 
 Fix: run with `config/base.yaml` (or a dataset config like `config/casas_kyoto_adl_errors.yaml`) that includes `datasets.casas`.
 
@@ -335,9 +335,9 @@ outputs/
 
 If you need to distribute datasets, use:
 
-- download scripts (preferred), or  
-- Git LFS, or  
-- external storage (Zenodo / Drive) with links in the README.  
+- download scripts (preferred), or
+- Git LFS, or
+- external storage (Zenodo / Drive) with links in the README.
 
 ---
 
@@ -355,12 +355,3 @@ Add this entry to your `.bib` file:
   note         = {Accessed: 2025-12-15}
 }
 ```
-
-Then cite it in the paper as:
-
-```latex
-\paragraph{Code availability.}
-All experiments are reproducible using our public implementation \cite{neurosymbolic_iot_pipeline_repo}.
-```
-
-(If you prefer author names, add an `author = {...}` field to the BibTeX entry.)
