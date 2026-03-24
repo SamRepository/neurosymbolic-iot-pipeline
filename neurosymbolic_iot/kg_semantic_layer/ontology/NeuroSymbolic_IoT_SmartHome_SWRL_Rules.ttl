@@ -1,0 +1,158 @@
+### =====================================================================
+### PART 1: NEURO-SYMBOLIC IOT SMART HOME ONTOLOGY (Turtle Format)
+### Save this section as: ontology.ttl
+### =====================================================================
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix saref: <https://saref.etsi.org/core/> .
+@prefix nsiot: <http://example.org/neuro-symbolic-iot#> .
+
+nsiot:NeuroSymbolicIoTOntology rdf:type owl:Ontology ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:label "Neuro-Symbolic IoT Smart Home Ontology" ;
+    owl:imports <http://www.w3.org/ns/sosa/>, <http://www.w3.org/2006/time#> .
+
+### --- SPATIAL TOPOLOGY ---
+nsiot:Location rdf:type owl:Class .
+nsiot:Room rdf:type owl:Class ; rdfs:subClassOf nsiot:Location .
+nsiot:Kitchen rdf:type owl:Class ; rdfs:subClassOf nsiot:Room ; owl:disjointWith nsiot:Bedroom, nsiot:Bathroom, nsiot:LivingRoom .
+nsiot:Bedroom rdf:type owl:Class ; rdfs:subClassOf nsiot:Room ; owl:disjointWith nsiot:Bathroom, nsiot:LivingRoom .
+nsiot:Bathroom rdf:type owl:Class ; rdfs:subClassOf nsiot:Room ; owl:disjointWith nsiot:LivingRoom .
+nsiot:LivingRoom rdf:type owl:Class ; rdfs:subClassOf nsiot:Room .
+
+nsiot:isLocatedIn rdf:type owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:domain[ owl:unionOf (nsiot:Person sosa:Sensor) ] ;
+    rdfs:range nsiot:Location .
+
+### --- SENSORS & STATES ---
+nsiot:PIRMotionSensor rdf:type owl:Class ; rdfs:subClassOf sosa:Sensor .
+nsiot:SmartAppliancePlug rdf:type owl:Class ; rdfs:subClassOf sosa:Sensor .
+
+nsiot:SensorState rdf:type owl:Class .
+nsiot:StateON rdf:type nsiot:SensorState .
+nsiot:StateOFF rdf:type nsiot:SensorState .
+nsiot:StateMotionDetected rdf:type nsiot:SensorState .
+nsiot:StateQuiet rdf:type nsiot:SensorState .
+
+nsiot:hasState rdf:type owl:ObjectProperty ;
+    rdfs:domain sosa:Sensor ;
+    rdfs:range nsiot:SensorState .
+
+### --- HUMAN CONTEXT & ACTIVITIES ---
+nsiot:Person rdf:type owl:Class .
+nsiot:Activity rdf:type owl:Class .
+nsiot:MealPreparation rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+nsiot:Housekeeping rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+nsiot:Sleeping rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+nsiot:PersonalHygiene rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+
+nsiot:Posture rdf:type owl:Class .
+nsiot:Standing rdf:type owl:Class ; rdfs:subClassOf nsiot:Posture ; owl:disjointWith nsiot:Sitting, nsiot:Lying .
+nsiot:Sitting rdf:type owl:Class ; rdfs:subClassOf nsiot:Posture ; owl:disjointWith nsiot:Lying .
+nsiot:Lying rdf:type owl:Class ; rdfs:subClassOf nsiot:Posture .
+
+nsiot:performsActivity rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Person ;
+    rdfs:range nsiot:Activity .
+
+### --- NEURO-SYMBOLIC BRIDGE (AI PREDICTIONS) ---
+nsiot:NeuralPrediction rdf:type owl:Class .
+nsiot:predictsActivity rdf:type owl:ObjectProperty ; rdfs:domain nsiot:NeuralPrediction ; rdfs:range nsiot:Activity .
+nsiot:predictsPosture rdf:type owl:ObjectProperty ; rdfs:domain nsiot:NeuralPrediction ; rdfs:range nsiot:Posture .
+nsiot:hasConfidenceScore rdf:type owl:DatatypeProperty ; rdfs:domain nsiot:NeuralPrediction ; rdfs:range xsd:float .
+
+### --- EVENTS & ANOMALIES ---
+nsiot:Event rdf:type owl:Class .
+nsiot:ValidatedEvent rdf:type owl:Class ; rdfs:subClassOf nsiot:Event .
+nsiot:CriticalAnomaly rdf:type owl:Class ; rdfs:subClassOf nsiot:Event .
+nsiot:BehavioralAnomaly rdf:type owl:Class ; rdfs:subClassOf nsiot:Event .
+
+nsiot:involvesPerson rdf:type owl:ObjectProperty ; rdfs:domain nsiot:Event ; rdfs:range nsiot:Person .
+nsiot:isBasedOnPrediction rdf:type owl:ObjectProperty ; rdfs:domain nsiot:Event ; rdfs:range nsiot:NeuralPrediction .
+nsiot:hasAlertType rdf:type owl:ObjectProperty ; rdfs:domain nsiot:Event .
+
+nsiot:FallAlert rdf:type owl:NamedIndividual .
+nsiot:UnattendedFireHazard rdf:type owl:NamedIndividual .
+nsiot:SleepDisturbance rdf:type owl:NamedIndividual .
+
+### --- FEEDBACK LOOP FLAGS ---
+nsiot:FeedbackRequired rdf:type owl:Class .
+nsiot:hasErrorType rdf:type owl:ObjectProperty .
+nsiot:FalsePositiveHallucination rdf:type owl:NamedIndividual .
+nsiot:ContextualMismatch rdf:type owl:NamedIndividual .
+nsiot:MutuallyExclusiveActivities rdf:type owl:NamedIndividual .
+
+### --- CONTEXTUAL TIME ---
+nsiot:TimeContext rdf:type owl:Class .
+nsiot:NightTimeContext rdf:type owl:Class ; rdfs:subClassOf nsiot:TimeContext .
+
+
+
+### =====================================================================
+### PART 2: NEURO-SYMBOLIC SWRL RULEBASE (Standard Syntax)
+### These rules run within Protégé, HermiT, or Pellet over the TTL above.
+### =====================================================================
+
+# -----------------------------------------------------------------------
+# CATEGORY 1: SENSOR-TO-SYMBOLIC GROUNDING (Deterministic Physics)
+# -----------------------------------------------------------------------
+
+# Rule 1: Spatial inference via PIR Motion Sensor
+nsiot:Person(?p) ^ nsiot:PIRMotionSensor(?s) ^ nsiot:isLocatedIn(?s, ?room) ^ nsiot:hasState(?s, nsiot:StateMotionDetected) 
+-> nsiot:isLocatedIn(?p, ?room)
+
+# Rule 2: Spatial inference via Smart Appliance Interaction
+nsiot:Person(?p) ^ nsiot:SmartAppliancePlug(?plug) ^ nsiot:isLocatedIn(?plug, ?room) ^ nsiot:hasState(?plug, nsiot:StateON) 
+-> nsiot:isLocatedIn(?p, ?room)
+
+
+# -----------------------------------------------------------------------
+# CATEGORY 2: NEURO-SYMBOLIC VALIDATION (AI + Logic)
+# -----------------------------------------------------------------------
+
+# Rule 3: High-Confidence Meal Preparation Validation
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:isBasedOnPrediction(?e, ?pred) ^ nsiot:predictsActivity(?pred, nsiot:MealPreparation) ^ nsiot:hasConfidenceScore(?pred, ?conf) ^ swrlb:greaterThan(?conf, 0.85) ^ nsiot:isLocatedIn(?p, ?room) ^ nsiot:Kitchen(?room) 
+-> nsiot:performsActivity(?p, nsiot:MealPreparation) ^ nsiot:ValidatedEvent(?e)
+
+# Rule 4: Posture-based Sleeping Validation
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:isBasedOnPrediction(?e, ?pred) ^ nsiot:predictsPosture(?pred, nsiot:Lying) ^ nsiot:hasConfidenceScore(?pred, ?conf) ^ swrlb:greaterThan(?conf, 0.80) ^ nsiot:isLocatedIn(?p, ?room) ^ nsiot:Bedroom(?room) 
+-> nsiot:performsActivity(?p, nsiot:Sleeping) ^ nsiot:ValidatedEvent(?e)
+
+
+# -----------------------------------------------------------------------
+# CATEGORY 3: AAL ANOMALY & HAZARD DETECTION
+# -----------------------------------------------------------------------
+
+# Rule 5: Critical Fall Detection (Lying down in the Bathroom)
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:isBasedOnPrediction(?e, ?pred) ^ nsiot:predictsPosture(?pred, nsiot:Lying) ^ nsiot:hasConfidenceScore(?pred, ?conf) ^ swrlb:greaterThan(?conf, 0.85) ^ nsiot:isLocatedIn(?p, ?room) ^ nsiot:Bathroom(?room) 
+-> nsiot:CriticalAnomaly(?e) ^ nsiot:hasAlertType(?e, nsiot:FallAlert)
+
+# Rule 6: Unattended Fire Hazard (Kitchen active, Person in Bedroom)
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:SmartAppliancePlug(?plug) ^ nsiot:isLocatedIn(?plug, ?k) ^ nsiot:Kitchen(?k) ^ nsiot:hasState(?plug, nsiot:StateON) ^ nsiot:isLocatedIn(?p, ?b) ^ nsiot:Bedroom(?b) 
+-> nsiot:CriticalAnomaly(?e) ^ nsiot:hasAlertType(?e, nsiot:UnattendedFireHazard)
+
+# Rule 7: Night Wandering / Sleep Disturbance
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:NightTimeContext(?time) ^ nsiot:isBasedOnPrediction(?e, ?pred) ^ nsiot:predictsPosture(?pred, nsiot:Standing) ^ nsiot:isLocatedIn(?p, ?room) ^ nsiot:Kitchen(?room) 
+-> nsiot:BehavioralAnomaly(?e) ^ nsiot:hasAlertType(?e, nsiot:SleepDisturbance)
+
+
+# -----------------------------------------------------------------------
+# CATEGORY 4: RUNTIME MONITORS & FEEDBACK TRIGGERS (Self-Correction)
+# -----------------------------------------------------------------------
+
+# Rule 8: Spatial Hallucination (AI predicts action, but room is sensor-quiet)
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:isBasedOnPrediction(?e, ?pred) ^ nsiot:predictsActivity(?pred, nsiot:Housekeeping) ^ nsiot:hasConfidenceScore(?pred, ?conf) ^ swrlb:lessThan(?conf, 0.70) ^ nsiot:isLocatedIn(?p, ?room) ^ nsiot:hasState(?sensor, nsiot:StateQuiet) ^ nsiot:isLocatedIn(?sensor, ?room) 
+-> nsiot:FeedbackRequired(?e) ^ nsiot:hasErrorType(?e, nsiot:FalsePositiveHallucination)
+
+# Rule 9: Contextual Hallucination (AI predicts sleep in Living room while TV is ON)
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:isBasedOnPrediction(?e, ?pred) ^ nsiot:predictsActivity(?pred, nsiot:Sleeping) ^ nsiot:isLocatedIn(?p, ?room) ^ nsiot:LivingRoom(?room) ^ nsiot:SmartAppliancePlug(?tv) ^ nsiot:hasState(?tv, nsiot:StateON) ^ nsiot:isLocatedIn(?tv, ?room)
+-> nsiot:FeedbackRequired(?e) ^ nsiot:hasErrorType(?e, nsiot:ContextualMismatch)
+
+# Rule 10: Mutually Exclusive AI Predictions (Logical Contradiction)
+nsiot:Event(?e) ^ nsiot:isBasedOnPrediction(?e, ?pred1) ^ nsiot:predictsActivity(?pred1, nsiot:PersonalHygiene) ^ nsiot:isBasedOnPrediction(?e, ?pred2) ^ nsiot:predictsActivity(?pred2, nsiot:MealPreparation) 
+-> nsiot:FeedbackRequired(?e) ^ nsiot:hasErrorType(?e, nsiot:MutuallyExclusiveActivities)

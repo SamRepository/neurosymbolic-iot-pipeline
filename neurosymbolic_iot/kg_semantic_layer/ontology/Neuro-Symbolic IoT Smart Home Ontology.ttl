@@ -1,0 +1,109 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix saref: <https://saref.etsi.org/core/> .
+@prefix nsiot: <http://example.org/neuro-symbolic-iot#> .
+
+### =====================================================================
+### METADONNÉES DE L'ONTOLOGIE
+### =====================================================================
+nsiot:NeuroSymbolicIoTOntology rdf:type owl:Ontology ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:label "Neuro-Symbolic IoT Smart Home Ontology" ;
+    rdfs:comment "A production-ready ontology integrating SOSA/SAREF with Neural Network predictions for the CASAS and SPHERE datasets." ;
+    owl:imports <http://www.w3.org/ns/sosa/>, <http://www.w3.org/2006/time#> .
+
+### =====================================================================
+### 1. MODÉLISATION SPATIALE (SMART HOME TOPOLOGY)
+### =====================================================================
+nsiot:Location rdf:type owl:Class .
+nsiot:Room rdf:type owl:Class ; rdfs:subClassOf nsiot:Location .
+
+# Disjointness : Une personne ne peut pas être dans la cuisine ET la chambre
+nsiot:Kitchen rdf:type owl:Class ; rdfs:subClassOf nsiot:Room ; owl:disjointWith nsiot:Bedroom, nsiot:Bathroom .
+nsiot:Bedroom rdf:type owl:Class ; rdfs:subClassOf nsiot:Room ; owl:disjointWith nsiot:Bathroom .
+nsiot:Bathroom rdf:type owl:Class ; rdfs:subClassOf nsiot:Room .
+
+nsiot:isLocatedIn rdf:type owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:domain[ owl:unionOf (nsiot:Person sosa:Sensor) ] ;
+    rdfs:range nsiot:Location .
+
+### =====================================================================
+### 2. DISPOSITIFS IOT & CAPTEURS (EXTENSIONS SAREF/SOSA)
+### =====================================================================
+# Capteurs spécifiques à SPHERE et CASAS
+nsiot:PIRMotionSensor rdf:type owl:Class ; rdfs:subClassOf sosa:Sensor .
+nsiot:DoorContactSensor rdf:type owl:Class ; rdfs:subClassOf sosa:Sensor .
+nsiot:WearableAccelerometer rdf:type owl:Class ; rdfs:subClassOf sosa:Sensor .
+nsiot:SmartAppliancePlug rdf:type owl:Class ; rdfs:subClassOf sosa:Sensor .
+
+nsiot:SensorState rdf:type owl:Class .
+nsiot:StateOpen rdf:type nsiot:SensorState .
+nsiot:StateClosed rdf:type nsiot:SensorState .
+nsiot:StateMotionDetected rdf:type nsiot:SensorState .
+
+### =====================================================================
+### 3. COMPORTEMENT HUMAIN ET ACTIVITÉS (ADL)
+### =====================================================================
+nsiot:Person rdf:type owl:Class .
+
+nsiot:Activity rdf:type owl:Class .
+nsiot:MealPreparation rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+nsiot:Housekeeping rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+nsiot:Sleeping rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+nsiot:PersonalHygiene rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+
+nsiot:Posture rdf:type owl:Class .
+nsiot:Standing rdf:type owl:Class ; rdfs:subClassOf nsiot:Posture ; owl:disjointWith nsiot:Sitting, nsiot:Lying .
+nsiot:Sitting rdf:type owl:Class ; rdfs:subClassOf nsiot:Posture ; owl:disjointWith nsiot:Lying .
+nsiot:Lying rdf:type owl:Class ; rdfs:subClassOf nsiot:Posture .
+
+### =====================================================================
+### 4. PONT NEURO-SYMBOLIQUE (LA VÉRITABLE INNOVATION)
+### =====================================================================
+# On ne relie pas directement "Person -> cuisine" s'il s'agit d'une prédiction.
+# On crée un concept de "Prédiction Neuronale" (Reification).
+nsiot:NeuralPrediction rdf:type owl:Class ;
+    rdfs:comment "Represents an output from the LSTM/GRU perception layer." .
+
+nsiot:predictsActivity rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:NeuralPrediction ;
+    rdfs:range nsiot:Activity .
+
+nsiot:predictsPosture rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:NeuralPrediction ;
+    rdfs:range nsiot:Posture .
+
+nsiot:hasConfidenceScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain nsiot:NeuralPrediction ;
+    rdfs:range xsd:float .
+
+nsiot:generatedByModel rdf:type owl:DatatypeProperty ;
+    rdfs:domain nsiot:NeuralPrediction ;
+    rdfs:range xsd:string .
+
+nsiot:hasLatentVector rdf:type owl:DatatypeProperty ;
+    rdfs:domain nsiot:NeuralPrediction ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Base64 encoded tensor or array string for feedback loop re-training." .
+
+### =====================================================================
+### 5. TEMPS ET ÉVÉNEMENTS (INTEGRATION OWL-TIME)
+### =====================================================================
+# Un événement englobe l'observation du capteur ET/OU la prédiction IA
+nsiot:Event rdf:type owl:Class .
+
+nsiot:hasTemporalEntity rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Event ;
+    rdfs:range time:TemporalEntity .
+
+nsiot:involvesPerson rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Event ;
+    rdfs:range nsiot:Person .
+
+nsiot:isBasedOnPrediction rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Event ;
+    rdfs:range nsiot:NeuralPrediction .

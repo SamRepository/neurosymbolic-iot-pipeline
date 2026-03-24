@@ -1,0 +1,47 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .   # Standard SSN/SOSA
+@prefix saref: <https://saref.etsi.org/core/> . # Standard SAREF
+@prefix ex: <http://example.org/iot-neurosymbolic#> . # Notre extension
+
+### --- 1. ONTOLOGIE DE BASE (Imports et Déclarations) ---
+ex:NeuroSymbolicOntology rdf:type owl:Ontology ;
+    rdfs:comment "Ontology for IoT Smart Homes, extending SOSA and SAREF." .
+
+### --- 2. REUTILISATION DES STANDARDS (60%) ---
+sosa:Sensor rdf:type owl:Class .
+sosa:Observation rdf:type owl:Class .
+saref:MotionSensor rdf:type owl:Class ;
+    rdfs:subClassOf sosa:Sensor .
+
+sosa:madeObservation rdf:type owl:ObjectProperty ;
+    rdfs:domain sosa:Sensor ;
+    rdfs:range sosa:Observation .
+
+sosa:hasSimpleResult rdf:type owl:DatatypeProperty .
+
+### --- 3. EXTENSIONS SPECIFIQUES DOMAINE (CASAS/SPHERE - 40%) ---
+ex:Person rdf:type owl:Class .
+ex:Room rdf:type owl:Class .
+ex:Kitchen rdf:type owl:Class ; rdfs:subClassOf ex:Room .
+ex:Bedroom rdf:type owl:Class ; rdfs:subClassOf ex:Room .
+
+ex:HumanActivity rdf:type owl:Class .
+ex:MealPreparation rdf:type owl:Class ; rdfs:subClassOf ex:HumanActivity .
+ex:Sleeping rdf:type owl:Class ; rdfs:subClassOf ex:HumanActivity .
+
+# Propriétés spatiales et comportementales
+ex:isLocatedIn rdf:type owl:ObjectProperty, owl:FunctionalProperty ; 
+    # Le tag "FunctionalProperty" est CRUCIAL : il indique qu'une personne 
+    # ne peut avoir qu'une SEULE localisation à la fois (prévient les contradictions).
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Room .
+
+ex:performsActivity rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:HumanActivity .
+
+# Règle d'incohérence stricte (Disjoint)
+ex:Kitchen owl:disjointWith ex:Bedroom . # Une cuisine n'est pas une chambre
