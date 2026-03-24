@@ -1,41 +1,29 @@
 # Neuro-Symbolic IoT Pipeline (Reproducible Experiments)
 
-Reproducible experimental setup and evaluation code for the paper:
+Reproducible experimental setup and evaluation code for:
 
 **Building Smarter IoT Systems: A Neuro-Symbolic Approach for Data Federation and Real-Time Processing**
 
-This repository provides the implementation layers for a hybrid AI system that combines deep learning perception with semantic reasoning.
+This repository currently provides:
 
-
-## Architectural Formalization
-
-The implementation strictly follows the formal algorithms defined in the research paper:
-- **Algorithm 1**: Neural-to-Semantic Federation (Maps tensors to RDF triples).
-- **Algorithm 2**: Real-Time Neuro-Symbolic Feedback Loop (Handles self-correction).
-- **Algorithm 3**: Dynamic Edge-Fog-Cloud Task Orchestration (Manages distributed execution).
-
----
-
-## Progression Checklist
-
-- ✅ **Phase 0**: Environment setup & project structure.
-- ✅ **Phase 1**: Dataset preprocessing (windowing, feature extraction, data splits).
-- ✅ **Phase 2**: Neural perception experiments (CASAS GRU models & SPHERE LSTM baselines).
-- ✅ **Phase 3**: KG Semantic Layer (Production-ready RDF/OWL Ontology based on SOSA/SAREF).
-- ✅ **Phase 4**: Symbolic Reasoning (Curated SWRL Rulebase & logic inference engine).
-- ⏳ **Phase 5**: Adaptive Feedback Loop (Integration of automated neural retraining triggers).
+- ✅ Phase 0: environment setup + project structure
+- ✅ Phase 1: dataset preprocessing (windowing, basic feature extraction, splits)
+- ✅ Phase 2 (CASAS): neural perception experiments (tabular baseline + GRU, including transition classification)
+- ⏳ Next: Phase 2 (SPHERE), Phase 3 (KG building), Phase 4 (symbolic reasoning), Phase 5 (feedback loop)
 
 ---
 
 ## Requirements
 
-- **Python**: 3.10+
-- **Triple Store**: GraphDB (recommended) or any RDF4J-compatible store for the Semantic Layer.
-- **Reasoning**: Java (required for the HermiT reasoner backend used by Owlready2).
+- Python 3.10+ recommended
+- Tested on Windows 11 (PowerShell); should work on Linux/macOS
 
-Install Python dependencies:
+Install dependencies:
+
 ```bash
 pip install -r requirements.txt
+```
+
 ---
 
 ## Dataset Placement
@@ -109,7 +97,7 @@ If you keep `config/base.yaml` for other experiments, **do not** point it to the
 
 ---
 
-## Phase 1 - Quickstart
+## Quickstart (Phase 1)
 
 ### 1) Preprocess CASAS (Kyoto ADL errors/noerror)
 
@@ -353,61 +341,6 @@ If you need to distribute datasets, use:
 
 ---
 
-## Phase 3 — KG Semantic Layer (Knowledge Graph)
-
-This phase implements the **Semantic Federation** module. It transforms neural outputs and sensor metadata into a unified Knowledge Graph using industry standards.
-
-### Key Features:
-- **Standards-Compliant**: Extends the `W3C SOSA/SSN` and `ETSI SAREF` ontologies.
-- **Neuro-Symbolic Bridge**: Implements "Reification" to store neural embeddings (`hasLatentVector`) and confidence scores directly in the graph.
-- **Format**: Serialized in **Turtle (.ttl)** for maximum interoperability.
-
-### Artifacts:
-- `neurosymbolic_iot/kg_semantic_layer/ontology/Neuro-Symbolic_IoT_SmartHome.ttl`: The core production-ready ontology.
-
----
-
-## Phase 4 — Symbolic Reasoning Engine
-
-This phase implements the **Symbolic Models (Reasoning)** module. It applies high-level logic to validate neural predictions and detect complex behavioral anomalies.
-
-### Logical Foundation:
-- **Rule Language**: SWRL (Semantic Web Rule Language).
-- **Reasoning Engine**: Python bridge via `Owlready2` and the `HermiT` reasoner.
-- **Curated Rulebase**: includes rules for:
-    - **Spatial Grounding**: Mapping PIR and SmartPlug states to person location.
-    - **AAL Hazard Detection**: Detecting falls in bathrooms or unattended fire hazards.
-    - **Feedback Triggers**: Identifying contradictions between AI predictions and physical constraints.
-
-### Running Inference:
-```bash
-# Core reasoning script (under active development)
-python -m neurosymbolic_iot.cli.reasoning --ontology data/ontology.ttl --rules data/rules.ttl
-```
----
-
-## Troubleshooting & Notes
-
-- **Timezone Handling**: All timestamps are normalized to **UTC-naive** during preprocessing to ensure compatibility across different sensor sources.
-- **Memory Management**: For large Knowledge Graph updates, ensure GraphDB is allocated at least 4GB of heap memory.
-- **Anonymization**: This repository has been anonymized for the double-blind peer-review process.
-
----
-
-## Citation
-
-To cite this repository in your research:
-
-```bibtex
-@misc{neurosymbolic_iot_pipeline_repo,
-  author       = {Anonymous},
-  title        = {Neuro-Symbolic IoT Pipeline: Reproducible Experiments},
-  howpublished = {\url{https://github.com/SamRepository/neurosymbolic-iot-pipeline}},
-  year         = {2026},
-  note         = {Code anonymized for peer-review}
-}
-```
-```
 ## How to cite this repository
 
 ### In LaTeX (recommended)
@@ -422,5 +355,3 @@ Add this entry to your `.bib` file:
   note         = {Accessed: 2025-12-15}
 }
 ```
-
-
