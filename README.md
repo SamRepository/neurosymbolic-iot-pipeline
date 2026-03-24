@@ -407,5 +407,3 @@ To cite this repository in your research:
   note         = {Code anonymized for peer-review}
 }
 ```
-
-
