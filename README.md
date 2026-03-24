@@ -407,20 +407,7 @@ To cite this repository in your research:
   note         = {Code anonymized for peer-review}
 }
 ```
-```
-## How to cite this repository
 
-### In LaTeX (recommended)
-
-Add this entry to your `.bib` file:
-
-```bibtex
-@misc{neurosymbolic_iot_pipeline_repo,
-  title        = {Neuro-Symbolic IoT Pipeline (Reproducible Experiments)},
-  howpublished = {\url{https://github.com/SamRepository/neurosymbolic-iot-pipeline}},
-  year         = {2025},
-  note         = {Accessed: 2025-12-15}
-}
 ```
 
 
