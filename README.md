@@ -174,7 +174,7 @@ Runs all 4 configurations: `ai_only`, `kg_only`, `ns_nofeedback`, `ns_full`.
 ```bash
 python evaluation/run_experiments.py --config config/base.yaml --datasets casas,sphere
 ```
-# PowerShell (default VS Code terminal on Windows):
+#### PowerShell (default VS Code terminal on Windows):
 ```bash
 $env:PYTHONPATH="."; python evaluation/run_experiments.py --config config/base.yaml --datasets casas,sphere
 ```
