@@ -1,402 +1,261 @@
-# Neuro-Symbolic IoT Pipeline (Reproducible Experiments)
+# Neuro-Symbolic IoT Pipeline
 
-Reproducible experimental setup and evaluation code for the paper:
+Reproducible implementation for the paper:
 
 **Building Smarter IoT Systems: A Neuro-Symbolic Approach for Data Federation and Real-Time Processing**
 
-This repository provides the implementation layers for a hybrid AI system that combines deep learning perception with semantic reasoning.
-
-
-## Architectural Formalization
-
-The implementation strictly follows the formal algorithms defined in the research paper:
-- **Algorithm 1**: Neural-to-Semantic Federation (Maps tensors to RDF triples).
-- **Algorithm 2**: Real-Time Neuro-Symbolic Feedback Loop (Handles self-correction).
-- **Algorithm 3**: Dynamic Edge-Fog-Cloud Task Orchestration (Manages distributed execution).
+A hybrid AI system combining deep learning perception with OWL/SWRL symbolic reasoning for smart home activity recognition and ambient assisted living (AAL).
 
 ---
 
-## Progression Checklist
+## Architecture
 
-- ✅ **Phase 0**: Environment setup & project structure.
-- ✅ **Phase 1**: Dataset preprocessing (windowing, feature extraction, data splits).
-- ✅ **Phase 2**: Neural perception experiments (CASAS GRU models & SPHERE LSTM baselines).
-- ✅ **Phase 3**: KG Semantic Layer (Production-ready RDF/OWL Ontology based on SOSA/SAREF).
-- ✅ **Phase 4**: Symbolic Reasoning (Curated SWRL Rulebase & logic inference engine).
-- ⏳ **Phase 5**: Adaptive Feedback Loop (Integration of automated neural retraining triggers).
+The pipeline implements three formal algorithms from the paper:
+
+1. **Algorithm 1** — Neural-to-Semantic Federation: maps neural predictions (tensors) to RDF triples in a knowledge graph
+2. **Algorithm 2** — Real-Time Neuro-Symbolic Feedback Loop: detects contradictions, retracts false positives, adjusts confidence thresholds
+3. **Algorithm 3** — Dynamic Edge-Fog-Cloud Task Orchestration (architecture-level, not in this repo)
+
+### Pipeline Stages
+
+```
+[Raw Sensor Data] → [Preprocessing] → [Neural Perception (GRU/LSTM)]
+        → [KG Federation (RDF)] → [Symbolic Reasoning (OWL+SWRL+HermiT)]
+        → [Feedback Loop (Retraction + Threshold Adaptation)]
+```
+
+Each stage is gated by `pipeline.enable_*` flags in config, enabling ablation studies (Table 6).
+
+---
+
+## Project Structure
+
+```
+neurosymbolic_iot/
+  cli/
+    preprocess.py              # Dataset preprocessing CLI
+    train_neural.py            # Neural model training CLI
+    run_pipeline.py            # Full pipeline CLI (inference → KG → reasoning → feedback)
+  data_processing/             # CASAS + SPHERE dataset loaders, windowing, splits
+  neural_perception/
+    models.py                  # CasasGRUClassifier, SphereLSTMClassifier
+    trainer.py                 # Training loop with class-weighted loss
+    inference.py               # Softmax confidence extraction, per-sample predictions
+    cross_validation.py        # Stratified k-fold CV wrapper
+    casas_sequence.py          # CASAS event → token sequence builder
+    sphere_sequence.py         # SPHERE acceleration → windowed sequences
+  kg_semantic_layer/
+    ontology/
+      Neuro-Symbolic IoT Smart Home Ontology.ttl  # Production OWL ontology (SOSA/SAREF)
+      NeuroSymbolic_IoT_SmartHome_Ontology_SWRL_Rules.ttl  # 11 SWRL rules
+      sensor_map.json          # Sensor ID → ontology class mapping (CASAS + SPHERE)
+    kg_builder/
+      kg_federation_loader.py  # Algorithm 1: predictions → RDF graph
+      rdf_writer.py            # Serialize graph + optional GraphDB push
+  reasoning_feedback/
+    reasoning/
+      symbolic_reasoner.py     # owlready2 + HermiT + 11 SWRL rules via Imp() API
+      ruleset.swrl             # Human-readable rule reference (not parsed at runtime)
+    feedback/
+      feedback_loop.py         # Contradiction detection, retrain buffer, feedback cycles
+      adapt_kg.py              # KG retraction, confidence threshold adaptation
+  utils/
+    config.py                  # YAML config loader with inheritance (extends key)
+    logging.py                 # Logging setup
+    seed.py                    # Global seed (42)
+
+config/
+  base.yaml                   # Root config (datasets, neural, kg, reasoning, feedback)
+  ns_full.yaml                # Full pipeline (all stages enabled)
+  ai_only.yaml                # Neural only (no KG/reasoning/feedback)
+  kg_only.yaml                # KG + reasoning (no neural/feedback)
+  ns_nofeedback.yaml           # Neural + KG + reasoning (no feedback)
+  casas_noise_robustness.yaml  # Noise robustness experiment (adl_error vs adl_noerror)
+
+evaluation/
+  run_experiments.py           # Baselines + pipeline/ablation runner (--mode baseline|pipeline|ablation)
+  metrics_collector.py         # Pipeline metrics framework (Tables 3-5)
+  threshold_sensitivity.py     # Confidence threshold sweep experiment
+  federated_reasoning.py       # Cross-dataset federated reasoning experiment
+```
 
 ---
 
 ## Requirements
 
-- **Python**: 3.10+
-- **Triple Store**: GraphDB (recommended) or any RDF4J-compatible store for the Semantic Layer.
-- **Reasoning**: Java (required for the HermiT reasoner backend used by Owlready2).
+- **Python** 3.10+
+- **Java** (required for the HermiT OWL reasoner used by owlready2)
+- **GraphDB** (optional, for persistent triple store)
 
-Install Python dependencies:
 ```bash
 pip install -r requirements.txt
+```
+
+Key dependencies: PyTorch >= 2.0, rdflib >= 7.0, owlready2 >= 0.46, scikit-learn >= 1.2, pandas >= 2.0
+
 ---
 
-## Dataset Placement
+## Dataset Setup
 
-Place datasets locally (do **not** commit them to GitHub).
+Place datasets locally — they are gitignored.
 
-### Option A — Generic CASAS layout (legacy)
-
-```
-data/
-  raw/
-    casas/
-      p01.csv
-      p02.csv
-      ...
-```
-
-### Option B — CASAS Kyoto ADL (errors/noerror) layout (used for Phase 2 CASAS)
-
-This is the dataset layout expected by the `kyoto_adl_errors` loader:
+### CASAS Kyoto ADL
 
 ```
-data/
-  raw/
-    casas_kyoto_adl/
-      adl_error/
-        *.csv
-      adl_noerror/
-        *.csv
+data/raw/casas_kyoto_adl/
+  adl_error/*.csv
+  adl_noerror/*.csv
 ```
 
-### SPHERE (unchanged)
+### SPHERE
 
 ```
-data/
-  raw/
-    sphere/
-      activity.csv
-      acceleration_corrected.csv
-      pir.csv
-      ...
+data/raw/sphere/
+  activity.csv
+  acceleration_corrected.csv
+  pir.csv
+  ...
+```
+
+---
+
+## Usage
+
+### 1. Preprocess
+
+```bash
+python -m neurosymbolic_iot.cli.preprocess --config config/base.yaml --dataset casas
+python -m neurosymbolic_iot.cli.preprocess --config config/base.yaml --dataset sphere
+```
+
+### 2. Train Neural Models
+
+```bash
+# CASAS GRU (activity classification)
+python -m neurosymbolic_iot.cli.train_neural --config config/base.yaml --dataset casas --task activity
+
+# CASAS GRU (transition detection)
+python -m neurosymbolic_iot.cli.train_neural --config config/base.yaml --dataset casas --task transition
+
+# SPHERE LSTM
+python -m neurosymbolic_iot.cli.train_neural --config config/base.yaml --dataset sphere
+```
+
+### 3. Run Full Pipeline
+
+```bash
+python -m neurosymbolic_iot.cli.run_pipeline \
+  --config config/ns_full.yaml \
+  --dataset casas \
+  --task activity \
+  --model-dir outputs/neural_perception/<tag>/casas/activity
+```
+
+This executes all 4 stages sequentially:
+1. **Neural inference** — loads trained model, runs softmax, outputs per-sample predictions
+2. **KG construction** — builds RDF graph from predictions (Algorithm 1), serializes to `outputs/kg/<dataset>/populated_kg.ttl`
+3. **Symbolic reasoning** — loads ontology + KG into owlready2, defines 11 SWRL rules, runs HermiT
+4. **Feedback loop** — detects contradictions, retracts false positives, adjusts thresholds (Algorithm 2)
+
+### 4. Run Ablation Study (Table 6)
+
+```bash
+python evaluation/run_experiments.py \
+  --config config/ns_full.yaml \
+  --mode ablation \
+  --datasets casas \
+  --model-dir outputs/neural_perception/<tag>/casas/activity
+```
+
+Runs all 4 configurations: `ai_only`, `kg_only`, `ns_nofeedback`, `ns_full`.
+
+### 5. Run Baselines
+
+```bash
+python evaluation/run_experiments.py --config config/base.yaml --datasets casas,sphere
+```
+
+---
+
+## SWRL Rules (11 Rules)
+
+| # | Category | Description |
+|---|----------|-------------|
+| 1 | Sensor Grounding | PIR motion → person location |
+| 2 | Sensor Grounding | Appliance interaction → person location |
+| 3 | Neuro-Symbolic Validation | High-confidence meal preparation (Kitchen + conf > 0.85) |
+| 4 | Neuro-Symbolic Validation | Posture-based sleeping (Bedroom + Lying + conf > 0.80) |
+| 5 | AAL Anomaly Detection | Critical fall detection (Bathroom + Lying) |
+| 6 | AAL Anomaly Detection | Unattended fire hazard (Kitchen appliance ON + person in Bedroom) |
+| 7 | AAL Anomaly Detection | Night wandering / sleep disturbance |
+| 8 | Feedback Trigger | Spatial hallucination (low confidence + quiet sensors) |
+| 9 | Feedback Trigger | Contextual hallucination (sleeping in living room + TV ON) |
+| 10 | Feedback Trigger | Mutually exclusive predictions (PersonalHygiene + MealPreparation) |
+| 11 | Feedback Trigger | Posture-based fall detection (Lying + quiet PIR sensors) |
+
+Rules are defined programmatically via `owlready2.Imp()` in `symbolic_reasoner.py`. Human-readable reference: `ruleset.swrl`.
+
+---
+
+## Experiment Framework
+
+| Experiment | Script / Config | Paper Reference |
+|-----------|----------------|-----------------|
+| 5-fold cross-validation | `cross_validation.py` | Section 4.3 |
+| Noise robustness (error vs clean) | `casas_noise_robustness.yaml` | Section 4.2 |
+| Confidence threshold sensitivity | `evaluation/threshold_sensitivity.py` | Section 4.3 |
+| Cross-dataset federated reasoning | `evaluation/federated_reasoning.py` | Section 3.2.2 |
+| Ablation (4 configs) | `evaluation/run_experiments.py --mode ablation` | Table 6 |
+| Pipeline metrics (Tables 3-5) | `evaluation/metrics_collector.py` | Tables 3, 4, 5 |
+
+---
+
+## Outputs
+
+```
+outputs/
+  neural_perception/<tag>/<dataset>/<task>/
+    model.pth, metrics.json, label_map.json, vocab.json, confusion_*.csv
+  kg/<dataset>/
+    populated_kg.ttl
+  reasoning/<dataset>/
+    reasoning_result.json
+  feedback/<dataset>/
+    feedback_cycles.json
+  pipeline/<dataset>/<tag>/
+    pipeline_result.json
 ```
 
 ---
 
 ## Configuration
 
-### Recommended: dedicated config for CASAS Kyoto ADL (errors/noerror)
+All configs inherit from `config/base.yaml` via the `extends` key. Key sections:
 
-Create (or use) a config file such as `config/casas_kyoto_adl_errors.yaml`:
-
-```yaml
-project:
-  seed: 42
-
-datasets:
-  casas:
-    raw_dir: data/raw/casas_kyoto_adl
-    format: kyoto_adl_errors
-    file_globs:
-      - "adl_error/*.csv"
-      - "adl_noerror/*.csv"
-    window_minutes: 30
-    stride_minutes: 5
-    min_events_per_window: 1
-    label_mode: majority
-    feature_mode: event_counts
-```
-
-If you keep `config/base.yaml` for other experiments, **do not** point it to the Kyoto ADL path unless you want that dataset to become your default CASAS source.
+| Section | Controls |
+|---------|----------|
+| `datasets` | Raw data paths, windowing params, split ratios |
+| `neural_perception` | Model hyperparams (GRU/LSTM), training settings |
+| `kg` | Ontology path, sensor map, GraphDB connection |
+| `reasoning` | Confidence thresholds (validation: 0.85, anomaly: 0.85, feedback: 0.70) |
+| `feedback` | Max cycles (5), retrain buffer size (500), adjustment rate (0.05) |
+| `pipeline` | Stage enable flags (`enable_neural`, `enable_kg`, `enable_symbolic`, `enable_feedback`) |
 
 ---
 
-## Phase 1 - Quickstart
-
-### 1) Preprocess CASAS (Kyoto ADL errors/noerror)
-
-```bash
-python -m neurosymbolic_iot.cli.preprocess --config config/casas_kyoto_adl_errors.yaml --dataset casas
-```
-
-### 2) Preprocess SPHERE
-
-```bash
-python -m neurosymbolic_iot.cli.preprocess --config config/base.yaml --dataset sphere
-```
-
----
-
-## Outputs
-
-Preprocessing writes results to:
-
-- `data/processed/casas_windows.parquet` and `data/processed/casas_meta.json`
-- `data/processed/sphere_windows.parquet` and `data/processed/sphere_meta.json`
-
-The `*_windows.parquet` files contain window-level features and labels.
-The `*_meta.json` files contain counts and timing information (load, windowing, etc.).
-
----
-
-## Quick Inspection
-
-### PowerShell (Windows)
-
-```powershell
-ls data/processed
-
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/casas_windows.parquet'); print('CASAS', df.shape); print(df.columns)"
-
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/sphere_windows.parquet'); print('SPHERE', df.shape); print(df['split'].value_counts()); print(df['label'].value_counts().head(10))"
-```
-
-### Bash (Linux/macOS)
-
-```bash
-ls data/processed
-
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/casas_windows.parquet'); print('CASAS', df.shape); print(df.columns)"
-
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/sphere_windows.parquet'); print('SPHERE', df.shape); print(df['split'].value_counts()); print(df['label'].value_counts().head(10))"
-```
-
----
-
-## Phase 2 — CASAS (Neural Perception)
-
-Phase 2 for CASAS includes:
-
-1) **Tabular baseline** (event-count windows; scikit-learn Logistic Regression)
-2) **Sequence model** (GRU over event-token sequences)
-3) **Transition task** (binary classifier predicting whether the next window is a *label change*)
-
-### A) Sanity checks we used (CASAS)
-
-These checks help confirm you are using the intended dataset and feature space.
-
-```bash
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/casas_windows.parquet'); print('rows', len(df)); print('cols', len(df.columns))"
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/casas_windows.parquet'); ad=[c for c in df.columns if c.startswith('AD1-')]; print('AD1-* columns:', len(ad)); print('Total columns:', len(df.columns))"
-```
-
-If you already computed/added `transition` labels in your dataframe:
-
-```bash
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/casas_windows.parquet'); print(df['transition'].value_counts()); print('transition_rate =', df['transition'].mean())"
-```
-
-### B) Train GRU (CASAS) — transition task (binary)
-
-This uses the `train_neural` CLI and writes a fully self-contained run folder (model + label map + vocab + metrics).
-
-```bash
-python -m neurosymbolic_iot.cli.train_neural --config config/casas_kyoto_adl_errors.yaml --dataset casas --task transition
-```
-
-Outputs are created under:
-
-```
-outputs/
-  neural_perception/
-    <TAG>/
-      casas/
-        transition/
-          model.pth
-          metrics.json
-          label_map.json
-          vocab.json
-          task.json
-```
-
-Quickly inspect metrics:
-
-```bash
-python -c "import json; from pathlib import Path; p=Path('outputs/neural_perception'); d=sorted(p.glob('*/*/transition/metrics.json'))[-1]; print('latest:', d); m=json.loads(d.read_text()); print('val', m.get('val', {})); print('test', m.get('test', {}))"
-```
-
-### C) (Optional) Tabular baseline (LogReg) — reproducible snippet
-
-If you want a minimal “no extra CLI” baseline, this snippet trains a balanced Logistic Regression on event-count features
-from the preprocessed CASAS windows file:
-
-```bash
-python - <<'PY'
-import json
-import numpy as np
-import pandas as pd
-from pathlib import Path
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
-from sklearn.preprocessing import LabelEncoder
-
-df = pd.read_parquet("data/processed/casas_windows.parquet").copy()
-assert "label" in df.columns, "Missing 'label' column"
-
-# Choose feature columns: event-count features usually look like AD1-*
-feat_cols = [c for c in df.columns if c.startswith("AD1-")]
-X = df[feat_cols].fillna(0.0).to_numpy()
-
-le = LabelEncoder()
-y = le.fit_transform(df["label"].astype(str))
-
-# If preprocessing wrote a 'split' column, use it; else do a simple random split.
-if "split" in df.columns:
-    train_mask = df["split"].astype(str).str.lower().eq("train")
-    val_mask   = df["split"].astype(str).str.lower().eq("val")
-    test_mask  = df["split"].astype(str).str.lower().eq("test")
-else:
-    rng = np.random.RandomState(42)
-    idx = np.arange(len(df))
-    rng.shuffle(idx)
-    n = len(df)
-    n_train = int(0.7*n)
-    n_val = int(0.15*n)
-    train_idx = idx[:n_train]
-    val_idx = idx[n_train:n_train+n_val]
-    test_idx = idx[n_train+n_val:]
-    train_mask = np.zeros(n, dtype=bool); train_mask[train_idx]=True
-    val_mask = np.zeros(n, dtype=bool); val_mask[val_idx]=True
-    test_mask = np.zeros(n, dtype=bool); test_mask[test_idx]=True
-
-clf = LogisticRegression(
-    solver="saga",
-    max_iter=5000,
-    class_weight="balanced",
-    random_state=42,
-    n_jobs=None,
-)
-clf.fit(X[train_mask], y[train_mask])
-
-def report(mask):
-    yp = clf.predict(X[mask])
-    return {
-        "accuracy": float(accuracy_score(y[mask], yp)),
-        "f1_macro": float(f1_score(y[mask], yp, average="macro")),
-        "f1_weighted": float(f1_score(y[mask], yp, average="weighted")),
-    }
-
-val = report(val_mask)
-test = report(test_mask)
-
-print("VAL:", val)
-print("TEST:", test)
-print("classes:", list(le.classes_))
-print("confusion_test:\n", confusion_matrix(y[test_mask], clf.predict(X[test_mask])))
-
-Path("outputs/evaluation").mkdir(parents=True, exist_ok=True)
-out = {
-    "dataset":"casas",
-    "seed":42,
-    "n_train": int(train_mask.sum()),
-    "n_val": int(val_mask.sum()),
-    "n_test": int(test_mask.sum()),
-    "n_features": int(len(feat_cols)),
-    "n_classes": int(len(le.classes_)),
-    "classes": list(le.classes_),
-    "model":"LogisticRegression",
-    "val": val,
-    "test": test,
-}
-with open("outputs/evaluation/casas_logreg_metrics.json","w",encoding="utf-8") as f:
-    json.dump(out,f,indent=2)
-print("Wrote outputs/evaluation/casas_logreg_metrics.json")
-PY
-```
-
----
-
-## Troubleshooting Notes (what we hit during Phase 2 CASAS)
-
-### 1) `KeyError: 'datasets'` when running `train_neural`
-
-Cause: you passed a config that did not contain a `datasets:` section (e.g., a neural-only config).
-
-Fix: run with `config/base.yaml` (or a dataset config like `config/casas_kyoto_adl_errors.yaml`) that includes `datasets.casas`.
-
-### 2) Timezone errors (tz-aware vs tz-naive) during sequence building
-
-Symptoms included:
-
-- `TypeError: Cannot interpret 'datetime64[ns, UTC]' as a data type`
-- `TypeError: Invalid comparison between dtype=datetime64[ns, UTC] and Timestamp`
-
-Fix: normalize timestamps to **UTC-naive** (convert with `utc=True` then drop tz). This is handled in the current `train_neural.py`
-implementation; if you reintroduce custom timestamp parsing, keep it consistent.
-
-### 3) Warning: “no grouping columns found” for transition computation
-
-If the windows dataframe has no `source_file/session_id/participant/...` fields, transitions are computed globally (mixing independent timelines).
-
-Recommended improvement: propagate `source_file` (or a similar identifier) into the window dataframe inside preprocessing so transitions are computed per file/session.
-
----
-
-## Git / Data Policy
-
-This repo is designed to be reproducible **without** pushing large datasets to GitHub.
-
-Recommended `.gitignore` entries:
-
-```
-data/raw/
-data/processed/
-datasets/
-outputs/
-*.zip
-*.rar
-```
-
-If you need to distribute datasets, use:
-
-- download scripts (preferred), or
-- Git LFS, or
-- external storage (Zenodo / Drive) with links in the README.
-
----
-
-## Phase 3 — KG Semantic Layer (Knowledge Graph)
-
-This phase implements the **Semantic Federation** module. It transforms neural outputs and sensor metadata into a unified Knowledge Graph using industry standards.
-
-### Key Features:
-- **Standards-Compliant**: Extends the `W3C SOSA/SSN` and `ETSI SAREF` ontologies.
-- **Neuro-Symbolic Bridge**: Implements "Reification" to store neural embeddings (`hasLatentVector`) and confidence scores directly in the graph.
-- **Format**: Serialized in **Turtle (.ttl)** for maximum interoperability.
-
-### Artifacts:
-- `neurosymbolic_iot/kg_semantic_layer/ontology/Neuro-Symbolic_IoT_SmartHome.ttl`: The core production-ready ontology.
-
----
-
-## Phase 4 — Symbolic Reasoning Engine
-
-This phase implements the **Symbolic Models (Reasoning)** module. It applies high-level logic to validate neural predictions and detect complex behavioral anomalies.
-
-### Logical Foundation:
-- **Rule Language**: SWRL (Semantic Web Rule Language).
-- **Reasoning Engine**: Python bridge via `Owlready2` and the `HermiT` reasoner.
-- **Curated Rulebase**: includes rules for:
-    - **Spatial Grounding**: Mapping PIR and SmartPlug states to person location.
-    - **AAL Hazard Detection**: Detecting falls in bathrooms or unattended fire hazards.
-    - **Feedback Triggers**: Identifying contradictions between AI predictions and physical constraints.
-
-### Running Inference:
-```bash
-# Core reasoning script (under active development)
-python -m neurosymbolic_iot.cli.reasoning --ontology data/ontology.ttl --rules data/rules.ttl
-```
----
-
-## Troubleshooting & Notes
-
-- **Timezone Handling**: All timestamps are normalized to **UTC-naive** during preprocessing to ensure compatibility across different sensor sources.
-- **Memory Management**: For large Knowledge Graph updates, ensure GraphDB is allocated at least 4GB of heap memory.
-- **Anonymization**: This repository has been anonymized for the double-blind peer-review process.
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| `KeyError: 'datasets'` | Use a config with `datasets` section (e.g., `base.yaml`) |
+| Timezone errors (tz-aware vs tz-naive) | Handled in `train_neural.py` — timestamps normalized to UTC |
+| Java not found (HermiT fails) | Install JRE/JDK; reasoning stage requires Java |
+| GraphDB push fails | Optional — set `kg.graphdb.enabled: false` (default) |
+| Config `inherits` not working | Use `extends` key (not `inherits`) |
 
 ---
 
 ## Citation
-
-To cite this repository in your research:
 
 ```bibtex
 @misc{neurosymbolic_iot_pipeline_repo,
