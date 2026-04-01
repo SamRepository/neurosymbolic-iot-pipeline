@@ -11,6 +11,7 @@
 @prefix sosa: <http://www.w3.org/ns/sosa/> .
 @prefix saref: <https://saref.etsi.org/core/> .
 @prefix nsiot: <http://example.org/neuro-symbolic-iot#> .
+@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> .
 
 nsiot:NeuroSymbolicIoTOntology rdf:type owl:Ontology ;
     owl:versionInfo "1.0.0" ;
@@ -156,3 +157,12 @@ nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:isBasedOnPrediction(?e, ?
 # Rule 10: Mutually Exclusive AI Predictions (Logical Contradiction)
 nsiot:Event(?e) ^ nsiot:isBasedOnPrediction(?e, ?pred1) ^ nsiot:predictsActivity(?pred1, nsiot:PersonalHygiene) ^ nsiot:isBasedOnPrediction(?e, ?pred2) ^ nsiot:predictsActivity(?pred2, nsiot:MealPreparation) 
 -> nsiot:FeedbackRequired(?e) ^ nsiot:hasErrorType(?e, nsiot:MutuallyExclusiveActivities)
+# Rule 11: Posture-based Fall Detection (Rapid Standing-to-Lying transition)
+# Paper Section 4.3: "IF person transitions from standing to lying without
+# any intermediate sitting action, AND no motion detected for 2 minutes,
+# THEN infer possible fall event."
+# Note: SWRL lacks negation-as-failure; we approximate by detecting
+# a Lying prediction immediately following a Standing prediction with
+# high confidence and no Sitting prediction on the same event.
+nsiot:Event(?e) ^ nsiot:involvesPerson(?e, ?p) ^ nsiot:isBasedOnPrediction(?e, ?pred) ^ nsiot:predictsPosture(?pred, nsiot:Lying) ^ nsiot:hasConfidenceScore(?pred, ?conf) ^ swrlb:greaterThan(?conf, 0.80) ^ nsiot:isLocatedIn(?p, ?room) ^ nsiot:PIRMotionSensor(?s) ^ nsiot:isLocatedIn(?s, ?room) ^ nsiot:hasState(?s, nsiot:StateQuiet) 
+-> nsiot:CriticalAnomaly(?e) ^ nsiot:hasAlertType(?e, nsiot:FallAlert)

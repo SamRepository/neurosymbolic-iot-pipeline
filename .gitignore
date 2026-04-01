@@ -15,6 +15,13 @@ data/processed/
 outputs/
 logs/
 
+# Claude
+.claude/
+CLAUDE.md
+
+# Paper
+.docs/*.pdf
+
 # OS
 .DS_Store
 Thumbs.db

@@ -8,3 +8,5 @@ psutil>=5.9
 pyarrow>=14.0
 matplotlib>=3.8
 torch>=2.0
+rdflib>=7.0
+owlready2>=0.46

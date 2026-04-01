@@ -107,3 +107,84 @@ nsiot:involvesPerson rdf:type owl:ObjectProperty ;
 nsiot:isBasedOnPrediction rdf:type owl:ObjectProperty ;
     rdfs:domain nsiot:Event ;
     rdfs:range nsiot:NeuralPrediction .
+### =====================================================================
+### 1b. EXTENDED SPATIAL MODEL
+### =====================================================================
+nsiot:LivingRoom rdf:type owl:Class ;
+    rdfs:subClassOf nsiot:Room ;
+    owl:disjointWith nsiot:Kitchen, nsiot:Bedroom, nsiot:Bathroom .
+
+# Update existing disjointness to include LivingRoom
+nsiot:Kitchen owl:disjointWith nsiot:LivingRoom .
+nsiot:Bedroom owl:disjointWith nsiot:LivingRoom .
+nsiot:Bathroom owl:disjointWith nsiot:LivingRoom .
+
+### =====================================================================
+### 2b. EXTENDED SENSOR STATES & PROPERTIES
+### =====================================================================
+nsiot:StateON rdf:type nsiot:SensorState .
+nsiot:StateOFF rdf:type nsiot:SensorState .
+nsiot:StateQuiet rdf:type nsiot:SensorState .
+
+nsiot:hasState rdf:type owl:ObjectProperty ;
+    rdfs:domain sosa:Sensor ;
+    rdfs:range nsiot:SensorState .
+
+### =====================================================================
+### 3b. EXTENDED ACTIVITIES & PROPERTIES
+### =====================================================================
+nsiot:PhoneCall rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+nsiot:Eating rdf:type owl:Class ; rdfs:subClassOf nsiot:Activity .
+
+nsiot:performsActivity rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Person ;
+    rdfs:range nsiot:Activity .
+
+nsiot:hasPosture rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Person ;
+    rdfs:range nsiot:Posture .
+
+### =====================================================================
+### 4b. EXTENDED NEURAL PREDICTION PROPERTIES
+### =====================================================================
+nsiot:generatedAt rdf:type owl:DatatypeProperty ;
+    rdfs:domain nsiot:NeuralPrediction ;
+    rdfs:range xsd:dateTime .
+
+### =====================================================================
+### 5b. EVENT SUBCLASSES & REASONING OUTPUTS
+### =====================================================================
+nsiot:ValidatedEvent rdf:type owl:Class ; rdfs:subClassOf nsiot:Event .
+nsiot:CriticalAnomaly rdf:type owl:Class ; rdfs:subClassOf nsiot:Event .
+nsiot:BehavioralAnomaly rdf:type owl:Class ; rdfs:subClassOf nsiot:Event .
+nsiot:FeedbackRequired rdf:type owl:Class ; rdfs:subClassOf nsiot:Event .
+
+### =====================================================================
+### 5c. TEMPORAL CONTEXT
+### =====================================================================
+nsiot:TimeContext rdf:type owl:Class .
+nsiot:NightTimeContext rdf:type owl:Class ; rdfs:subClassOf nsiot:TimeContext .
+nsiot:hasTimeContext rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Event ;
+    rdfs:range nsiot:TimeContext .
+
+### =====================================================================
+### 5d. ALERT & ERROR TYPES (FOR SYMBOLIC REASONING)
+### =====================================================================
+nsiot:AlertType rdf:type owl:Class .
+nsiot:FallAlert rdf:type nsiot:AlertType .
+nsiot:UnattendedFireHazard rdf:type nsiot:AlertType .
+nsiot:SleepDisturbance rdf:type nsiot:AlertType .
+
+nsiot:hasAlertType rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Event ;
+    rdfs:range nsiot:AlertType .
+
+nsiot:ErrorType rdf:type owl:Class .
+nsiot:FalsePositiveHallucination rdf:type nsiot:ErrorType .
+nsiot:ContextualMismatch rdf:type nsiot:ErrorType .
+nsiot:MutuallyExclusiveActivities rdf:type nsiot:ErrorType .
+
+nsiot:hasErrorType rdf:type owl:ObjectProperty ;
+    rdfs:domain nsiot:Event ;
+    rdfs:range nsiot:ErrorType .

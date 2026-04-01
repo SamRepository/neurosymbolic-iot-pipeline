@@ -56,7 +56,72 @@ output:
   sphere_windows: data/processed/sphere_windows.parquet
   sphere_meta: data/processed/sphere_meta.json
 
+
+neural_perception:
+  output_dir: outputs/neural_perception
+  device: auto
+
+  casas:
+    window_minutes: 30
+    stride_minutes: 5
+    min_events: 1
+    max_seq_len: 256
+    emb_dim: 64
+    hidden_size: 128
+    num_layers: 1
+    dropout: 0.1
+    batch_size: 32
+    epochs: 30
+    lr: 0.001
+    train_ratio: 0.7
+    val_ratio: 0.15
+    test_ratio: 0.15
+
+  sphere:
+    window_seconds: 30
+    stride_seconds: 15
+    min_rows: 10
+    seq_len: 128
+    hidden_size: 128
+    num_layers: 1
+    dropout: 0.2
+    batch_size: 64
+    epochs: 40
+    lr: 0.001
+    train_ratio: 0.7
+    val_ratio: 0.15
+    test_ratio: 0.15
+
+kg:
+  ontology_path: neurosymbolic_iot/kg_semantic_layer/ontology/Neuro-Symbolic IoT Smart Home Ontology.ttl
+  rules_path: neurosymbolic_iot/kg_semantic_layer/ontology/NeuroSymbolic_IoT_SmartHome_Ontology_SWRL_Rules.ttl
+  sensor_map_path: neurosymbolic_iot/kg_semantic_layer/ontology/sensor_map.json
+  output_dir: outputs/kg
+  serialization_format: turtle
+  graphdb:
+    enabled: false
+    endpoint: "http://localhost:7200"
+    repository: "neurosymbolic-iot"
+
+reasoning:
+  confidence_threshold_validation: 0.85
+  confidence_threshold_anomaly: 0.85
+  confidence_threshold_feedback: 0.70
+  output_dir: outputs/reasoning
+  reasoner: hermit
+
+feedback:
+  max_cycles: 5
+  retrain_buffer_size: 500
+  retrain_trigger_size: 100
+  confidence_adjustment_rate: 0.05
+  output_dir: outputs/feedback
+
+pipeline:
+  enable_neural: true
+  enable_kg: true
+  enable_symbolic: true
+  enable_feedback: true
+
 logging:
   level: INFO
-
-

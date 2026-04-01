@@ -1,4 +1,4 @@
-inherits: ["config/base.yaml"]
+extends: ["config/base.yaml"]
 pipeline:
   enable_neural: true
   enable_kg: true

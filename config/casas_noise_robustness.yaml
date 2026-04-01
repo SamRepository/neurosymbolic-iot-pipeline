@@ -1,0 +1,26 @@
+# Noise Robustness Experiment (Section 4.2)
+# Compares full pipeline on adl_error vs adl_noerror subsets
+extends: ["config/base.yaml"]
+
+experiment:
+  name: casas_noise_robustness
+  description: >
+    Run the full neuro-symbolic pipeline separately on error-injected
+    and error-free CASAS Kyoto ADL subsets. Compare accuracy, F1,
+    FP rate, and feedback convergence cycles.
+
+  variants:
+    - name: adl_error
+      datasets:
+        casas:
+          file_globs: ["adl_error/*.csv"]
+    - name: adl_noerror
+      datasets:
+        casas:
+          file_globs: ["adl_noerror/*.csv"]
+
+pipeline:
+  enable_neural: true
+  enable_kg: true
+  enable_symbolic: true
+  enable_feedback: true
