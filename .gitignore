@@ -19,7 +19,7 @@ logs/
 .claude/
 CLAUDE.md
 
-# Paper
+# Paper and figures
 .docs/*.pdf
 
 # OS

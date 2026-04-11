@@ -60,11 +60,11 @@ def main():
                 arrowprops=dict(arrowstyle="->", color="#D32F2F", lw=1.2))
 
     out_dir = Path("fig")
-    fig.savefig(out_dir / "noise_robustness_comparison.pdf",
+    fig.savefig(out_dir / "Figure4_noise_robustness_comparison.pdf",
                 format="pdf", bbox_inches="tight", dpi=300)
-    fig.savefig(out_dir / "noise_robustness_comparison.png",
+    fig.savefig(out_dir / "Figure4_noise_robustness_comparison.png",
                 format="png", bbox_inches="tight", dpi=300)
-    print(f"Saved: {out_dir / 'noise_robustness_comparison.pdf'}")
+    print(f"Saved: {out_dir / 'Figure4_noise_robustness_comparison.pdf'}")
     plt.close(fig)
 
     # Print LaTeX table
