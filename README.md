@@ -6,6 +6,10 @@ Reproducible implementation for the paper:
 
 A hybrid AI system combining deep learning perception with OWL/SWRL symbolic reasoning for smart home activity recognition and ambient assisted living (AAL).
 
+![Pipeline Architecture](fig/Figure1_Neuro_Symbolic_IoT_Pipeline.pdf)
+
+**Figure 1.** End-to-end neuro-symbolic pipeline: raw sensor streams, neural perception, knowledge graph federation, symbolic reasoning, and feedback loop.
+
 ---
 
 ## Architecture
@@ -24,7 +28,7 @@ The pipeline implements three formal algorithms from the paper:
         → [Feedback Loop (Retraction + Threshold Adaptation)]
 ```
 
-Each stage is gated by `pipeline.enable_*` flags in config, enabling ablation studies (Table 6).
+Each stage is gated by `pipeline.enable_*` flags in config, enabling ablation studies (Table 7).
 
 ---
 
@@ -73,10 +77,16 @@ config/
   casas_noise_robustness.yaml  # Noise robustness experiment (adl_error vs adl_noerror)
 
 evaluation/
+  run_cv.py                    # Stratified 5-fold CV runner (Table 2)
+  run_noise_robustness.py      # Noise robustness: adl_error vs adl_noerror (Table 3)
   run_experiments.py           # Baselines + pipeline/ablation runner (--mode baseline|pipeline|ablation)
-  metrics_collector.py         # Pipeline metrics framework (Tables 3-5)
+  metrics_collector.py         # Pipeline metrics framework (Tables 4-6)
   threshold_sensitivity.py     # Confidence threshold sweep experiment
   federated_reasoning.py       # Cross-dataset federated reasoning experiment
+
+fig/
+  generate_confusion_matrices.py   # Figure 3: CASAS + SPHERE confusion matrices
+  generate_noise_robustness.py     # Figure 4: Noise robustness bar chart
 ```
 
 ---
@@ -157,7 +167,7 @@ This executes all 4 stages sequentially:
 3. **Symbolic reasoning** — loads ontology + KG into owlready2, defines 11 SWRL rules, runs HermiT
 4. **Feedback loop** — detects contradictions, retracts false positives, adjusts thresholds (Algorithm 2)
 
-### 4. Run Ablation Study (Table 6)
+### 4. Run Ablation Study (Table 7)
 
 ```bash
 python evaluation/run_experiments.py \
@@ -169,7 +179,19 @@ python evaluation/run_experiments.py \
 
 Runs all 4 configurations: `ai_only`, `kg_only`, `ns_nofeedback`, `ns_full`.
 
-### 5. Run Baselines
+### 5. Run 5-Fold Cross-Validation (Table 2)
+
+```bash
+PYTHONPATH=. python evaluation/run_cv.py --config config/base.yaml --k 5
+```
+
+### 6. Run Noise Robustness Experiment (Table 3)
+
+```bash
+PYTHONPATH=. python evaluation/run_noise_robustness.py --config config/base.yaml --k 5
+```
+
+### 7. Run Baselines
 
 ```bash
 python evaluation/run_experiments.py --config config/base.yaml --datasets casas,sphere
@@ -178,6 +200,33 @@ python evaluation/run_experiments.py --config config/base.yaml --datasets casas,
 ```bash
 $env:PYTHONPATH="."; python evaluation/run_experiments.py --config config/base.yaml --datasets casas,sphere
 ```
+
+---
+
+## Noise Robustness Results (Table 3)
+
+GRU activity recognition performance under clean vs. error-injected sensor streams (5-fold stratified CV on CASAS Kyoto ADL):
+
+| Subset | N | Accuracy | F1-macro | F1-weighted |
+|--------|--:|----------|----------|-------------|
+| Clean (adl\_noerror) | 217 | 82.97% +/- 4.19% | 75.13% +/- 15.91% | 82.41% +/- 4.97% |
+| Noisy (adl\_error) | 170 | 68.82% +/- 5.46% | 56.57% +/- 4.63% | 69.12% +/- 4.50% |
+| Combined | 400 | 77.00% +/- 4.78% | 66.48% +/- 5.23% | 76.95% +/- 4.26% |
+| **Delta (Noisy - Clean)** | | **-14.15 pp** | **-18.56 pp** | **-13.29 pp** |
+
+Sensor errors degrade accuracy by ~14 pp and F1-macro by ~19 pp, confirming the need for the symbolic feedback loop (Algorithm 2) to detect and retract noisy predictions.
+
+### Reproduce
+
+```bash
+# Bash
+PYTHONPATH=. python evaluation/run_noise_robustness.py --config config/base.yaml --k 5
+
+# PowerShell
+$env:PYTHONPATH="."; python evaluation/run_noise_robustness.py --config config/base.yaml --k 5
+```
+
+Results: `outputs/noise_robustness/noise_robustness_results.json`
 
 ---
 
@@ -205,12 +254,12 @@ Rules are defined programmatically via `owlready2.Imp()` in `symbolic_reasoner.p
 
 | Experiment | Script / Config | Paper Reference |
 |-----------|----------------|-----------------|
-| 5-fold cross-validation | `cross_validation.py` | Section 4.3 |
-| Noise robustness (error vs clean) | `casas_noise_robustness.yaml` | Section 4.2 |
+| 5-fold cross-validation | `evaluation/run_cv.py` | Table 2 |
+| Noise robustness (error vs clean) | `evaluation/run_noise_robustness.py` | Table 3 |
 | Confidence threshold sensitivity | `evaluation/threshold_sensitivity.py` | Section 4.3 |
 | Cross-dataset federated reasoning | `evaluation/federated_reasoning.py` | Section 3.2.2 |
-| Ablation (4 configs) | `evaluation/run_experiments.py --mode ablation` | Table 6 |
-| Pipeline metrics (Tables 3-5) | `evaluation/metrics_collector.py` | Tables 3, 4, 5 |
+| Ablation (4 configs) | `evaluation/run_experiments.py --mode ablation` | Table 7 |
+| Pipeline metrics (Tables 4-6) | `evaluation/metrics_collector.py` | Tables 4, 5, 6 |
 
 ---
 
