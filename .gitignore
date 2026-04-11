@@ -25,3 +25,7 @@ CLAUDE.md
 # OS
 .DS_Store
 Thumbs.db
+
+# Old README backups
+README_old*.md
+docs/
