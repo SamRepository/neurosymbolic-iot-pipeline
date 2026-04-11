@@ -6,7 +6,7 @@ Reproducible implementation for the paper:
 
 A hybrid AI system combining deep learning perception with OWL/SWRL symbolic reasoning for smart home activity recognition and ambient assisted living (AAL).
 
-![Pipeline Architecture](fig/Figure1_Neuro_Symbolic_IoT_Pipeline.pdf)
+![Pipeline Architecture](fig/Figure1_Neuro_Symbolic_IoT_Pipeline.png)
 
 **Figure 1.** End-to-end neuro-symbolic pipeline: raw sensor streams, neural perception, knowledge graph federation, symbolic reasoning, and feedback loop.
 
