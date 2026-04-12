@@ -63,9 +63,10 @@ def main() -> int:
     ax.grid(axis="both", alpha=0.25, linewidth=0.4)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    show = {500, 1000, 2000, 3000, 5000, 10000, 20000}
     ax.set_xticks(sizes)
-    ax.set_xticklabels([f"{s//1000}K" if s >= 1000 else str(s) for s in sizes],
-                       fontsize=7.5, rotation=45, ha="right")
+    ax.set_xticklabels([(f"{s//1000}K" if s >= 1000 else str(s)) if s in show else "" for s in sizes],
+                       fontsize=8, rotation=45, ha="right")
 
     # (b) Throughput vs KG Size
     ax = axes[1]
@@ -82,9 +83,10 @@ def main() -> int:
     ax.grid(axis="both", alpha=0.25, linewidth=0.4)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    show = {500, 1000, 2000, 3000, 5000, 10000, 20000}
     ax.set_xticks(sizes)
-    ax.set_xticklabels([f"{s//1000}K" if s >= 1000 else str(s) for s in sizes],
-                       fontsize=7.5, rotation=45, ha="right")
+    ax.set_xticklabels([(f"{s//1000}K" if s >= 1000 else str(s)) if s in show else "" for s in sizes],
+                       fontsize=8, rotation=45, ha="right")
 
     # (c) Memory vs KG Size
     ax = axes[2]
@@ -101,9 +103,10 @@ def main() -> int:
     ax.grid(axis="both", alpha=0.25, linewidth=0.4)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    show = {500, 1000, 2000, 3000, 5000, 10000, 20000}
     ax.set_xticks(sizes)
-    ax.set_xticklabels([f"{s//1000}K" if s >= 1000 else str(s) for s in sizes],
-                       fontsize=7.5, rotation=45, ha="right")
+    ax.set_xticklabels([(f"{s//1000}K" if s >= 1000 else str(s)) if s in show else "" for s in sizes],
+                       fontsize=8, rotation=45, ha="right")
 
     fig.tight_layout(w_pad=3.0)
 
