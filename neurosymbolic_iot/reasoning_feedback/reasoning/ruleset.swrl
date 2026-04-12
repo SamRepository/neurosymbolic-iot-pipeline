@@ -1,0 +1,78 @@
+# Neuro-Symbolic IoT Smart Home — SWRL Rulebase Reference
+# ========================================================
+# These 11 rules are executed via owlready2 Imp() API in symbolic_reasoner.py.
+# This file is a human-readable reference only; it is NOT parsed at runtime.
+
+# Category 1: Sensor-to-Symbolic Grounding (Deterministic Physics)
+
+Rule 1 — PIR motion → person location:
+  Person(?p) ∧ PIRMotionSensor(?s) ∧ isLocatedIn(?s, ?room) ∧ hasState(?s, StateMotionDetected)
+  → isLocatedIn(?p, ?room)
+
+Rule 2 — Appliance interaction → person location:
+  Person(?p) ∧ SmartAppliancePlug(?plug) ∧ isLocatedIn(?plug, ?room) ∧ hasState(?plug, StateON)
+  → isLocatedIn(?p, ?room)
+
+# Category 2: Neuro-Symbolic Validation (AI + Logic)
+
+Rule 3 — High-confidence meal preparation validation:
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ isBasedOnPrediction(?e, ?pred)
+  ∧ predictsActivity(?pred, MealPreparation) ∧ hasConfidenceScore(?pred, ?conf)
+  ∧ greaterThan(?conf, 0.85) ∧ isLocatedIn(?p, ?room) ∧ Kitchen(?room)
+  → performsActivity(?p, MealPreparation) ∧ ValidatedEvent(?e)
+
+Rule 4 — Posture-based sleeping validation:
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ isBasedOnPrediction(?e, ?pred)
+  ∧ predictsPosture(?pred, Lying) ∧ hasConfidenceScore(?pred, ?conf)
+  ∧ greaterThan(?conf, 0.80) ∧ isLocatedIn(?p, ?room) ∧ Bedroom(?room)
+  → performsActivity(?p, Sleeping) ∧ ValidatedEvent(?e)
+
+# Category 3: AAL Anomaly & Hazard Detection
+
+Rule 5 — Critical fall detection (lying in bathroom):
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ isBasedOnPrediction(?e, ?pred)
+  ∧ predictsPosture(?pred, Lying) ∧ hasConfidenceScore(?pred, ?conf)
+  ∧ greaterThan(?conf, 0.85) ∧ isLocatedIn(?p, ?room) ∧ Bathroom(?room)
+  → CriticalAnomaly(?e) ∧ hasAlertType(?e, FallAlert)
+
+Rule 6 — Unattended fire hazard:
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ SmartAppliancePlug(?plug)
+  ∧ isLocatedIn(?plug, ?k) ∧ Kitchen(?k) ∧ hasState(?plug, StateON)
+  ∧ isLocatedIn(?p, ?b) ∧ Bedroom(?b)
+  → CriticalAnomaly(?e) ∧ hasAlertType(?e, UnattendedFireHazard)
+
+Rule 7 — Night wandering / sleep disturbance:
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ NightTimeContext(?time)
+  ∧ isBasedOnPrediction(?e, ?pred) ∧ predictsPosture(?pred, Standing)
+  ∧ isLocatedIn(?p, ?room) ∧ Kitchen(?room)
+  → BehavioralAnomaly(?e) ∧ hasAlertType(?e, SleepDisturbance)
+
+# Category 4: Runtime Monitors & Feedback Triggers (Self-Correction)
+
+Rule 8 — Spatial hallucination (low confidence + quiet sensors):
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ isBasedOnPrediction(?e, ?pred)
+  ∧ predictsActivity(?pred, Housekeeping) ∧ hasConfidenceScore(?pred, ?conf)
+  ∧ lessThan(?conf, 0.70) ∧ isLocatedIn(?p, ?room)
+  ∧ hasState(?sensor, StateQuiet) ∧ isLocatedIn(?sensor, ?room)
+  → FeedbackRequired(?e) ∧ hasErrorType(?e, FalsePositiveHallucination)
+
+Rule 9 — Contextual hallucination (sleeping predicted in living room with TV on):
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ isBasedOnPrediction(?e, ?pred)
+  ∧ predictsActivity(?pred, Sleeping) ∧ isLocatedIn(?p, ?room)
+  ∧ LivingRoom(?room) ∧ SmartAppliancePlug(?tv)
+  ∧ hasState(?tv, StateON) ∧ isLocatedIn(?tv, ?room)
+  → FeedbackRequired(?e) ∧ hasErrorType(?e, ContextualMismatch)
+
+Rule 10 — Mutually exclusive predictions:
+  Event(?e) ∧ isBasedOnPrediction(?e, ?pred1)
+  ∧ predictsActivity(?pred1, PersonalHygiene)
+  ∧ isBasedOnPrediction(?e, ?pred2)
+  ∧ predictsActivity(?pred2, MealPreparation)
+  → FeedbackRequired(?e) ∧ hasErrorType(?e, MutuallyExclusiveActivities)
+
+Rule 11 — Posture-based fall detection (lying + quiet room sensors):
+  Event(?e) ∧ involvesPerson(?e, ?p) ∧ isBasedOnPrediction(?e, ?pred)
+  ∧ predictsPosture(?pred, Lying) ∧ hasConfidenceScore(?pred, ?conf)
+  ∧ greaterThan(?conf, 0.80) ∧ isLocatedIn(?p, ?room)
+  ∧ PIRMotionSensor(?s) ∧ isLocatedIn(?s, ?room) ∧ hasState(?s, StateQuiet)
+  → CriticalAnomaly(?e) ∧ hasAlertType(?e, FallAlert)

@@ -1,0 +1,124 @@
+{
+  "nsiot_prefix": "http://example.org/neuro-symbolic-iot#",
+  "casas": {
+    "sensor_type_patterns": {
+      "M\\d+": {
+        "rdf_type": "nsiot:PIRMotionSensor",
+        "state_map": {
+          "ON": "nsiot:StateMotionDetected",
+          "OFF": "nsiot:StateQuiet"
+        }
+      },
+      "D\\d+": {
+        "rdf_type": "nsiot:DoorContactSensor",
+        "state_map": {
+          "OPEN": "nsiot:StateOpen",
+          "CLOSE": "nsiot:StateClosed"
+        }
+      },
+      "AD1-[A-C]": {
+        "rdf_type": "nsiot:SmartAppliancePlug",
+        "state_map": {
+          "ON": "nsiot:StateON",
+          "OFF": "nsiot:StateOFF"
+        }
+      },
+      "T\\d+": {
+        "rdf_type": "nsiot:TemperatureSensor",
+        "state_map": {}
+      },
+      "\\*": {
+        "rdf_type": "nsiot:WaterFlowSensor",
+        "state_map": {
+          "ON": "nsiot:StateON",
+          "OFF": "nsiot:StateOFF"
+        }
+      }
+    },
+    "room_assignments": {
+      "M01": "nsiot:Kitchen",
+      "M02": "nsiot:Kitchen",
+      "M03": "nsiot:Kitchen",
+      "M04": "nsiot:LivingRoom",
+      "M05": "nsiot:LivingRoom",
+      "M06": "nsiot:Bedroom",
+      "M07": "nsiot:Bedroom",
+      "M08": "nsiot:Bathroom",
+      "D01": "nsiot:Kitchen",
+      "D02": "nsiot:Bathroom",
+      "D03": "nsiot:Bedroom",
+      "AD1-A": "nsiot:Kitchen",
+      "AD1-B": "nsiot:Kitchen",
+      "AD1-C": "nsiot:Bathroom"
+    },
+    "activity_map": {
+      "Cook": "nsiot:MealPreparation",
+      "Eat": "nsiot:Eating",
+      "Clean": "nsiot:Housekeeping",
+      "PhoneCall": "nsiot:PhoneCall",
+      "WashHands": "nsiot:PersonalHygiene"
+    }
+  },
+  "sphere": {
+    "pir_columns": {
+      "bath": {
+        "room": "nsiot:Bathroom",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "bed1": {
+        "room": "nsiot:Bedroom",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "bed2": {
+        "room": "nsiot:Bedroom",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "hall": {
+        "room": "nsiot:Location",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "kitchen": {
+        "room": "nsiot:Kitchen",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "living": {
+        "room": "nsiot:LivingRoom",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "stairs": {
+        "room": "nsiot:Location",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "study": {
+        "room": "nsiot:Location",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      },
+      "toilet": {
+        "room": "nsiot:Bathroom",
+        "rdf_type": "nsiot:PIRMotionSensor"
+      }
+    },
+    "activity_map": {
+      "a_ascend": "nsiot:Activity",
+      "a_descend": "nsiot:Activity",
+      "a_jump": "nsiot:Activity",
+      "a_loadwalk": "nsiot:Activity",
+      "a_walk": "nsiot:Activity",
+      "p_bent": "nsiot:Standing",
+      "p_kneel": "nsiot:Standing",
+      "p_lie": "nsiot:Lying",
+      "p_sit": "nsiot:Sitting",
+      "p_squat": "nsiot:Standing",
+      "p_stand": "nsiot:Standing",
+      "t_bend": "nsiot:Standing",
+      "t_kneel_stand": "nsiot:Standing",
+      "t_lie_sit": "nsiot:Sitting",
+      "t_sit_lie": "nsiot:Lying",
+      "t_sit_stand": "nsiot:Standing",
+      "t_stand_kneel": "nsiot:Standing",
+      "t_stand_sit": "nsiot:Sitting",
+      "t_straighten": "nsiot:Standing",
+      "t_turn": "nsiot:Standing"
+    }
+  }
+}
