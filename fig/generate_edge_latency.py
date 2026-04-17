@@ -44,19 +44,22 @@ def main() -> int:
         ds_data = results["datasets"][ds]
         offset = (di - 0.5) * width
         bottom = np.zeros(n_bars)
+        max_total = max(r["total_e2e_ms_mean"] for r in ds_data)
         for si, skey in enumerate(STAGE_KEYS):
             vals = np.array([r[skey + "_mean"] for r in ds_data])
+            # Ensure feedback bar is visible (min 1.5% of max total)
+            display_vals = np.maximum(vals, max_total * 0.015)
             label = STAGE_LABELS[si] if di == 0 else None
-            ax.bar(x + offset, vals, width, bottom=bottom,
+            ax.bar(x + offset, display_vals, width, bottom=bottom,
                    color=STAGE_COLORS[si], label=label, alpha=0.85)
-            bottom += vals
+            bottom += display_vals
 
     ax.set_xlabel("Batch Size (windows)")
     ax.set_ylabel("Total Latency (ms)")
     ax.set_title("(a) Per-Stage Latency Breakdown")
     ax.set_xticks(x)
     ax.set_xticklabels([str(b) for b in batch_sizes])
-    ax.legend(fontsize=8, loc="upper left")
+    ax.legend(fontsize=8, loc="upper center", ncol=1)
 
     # Dataset labels on top bars
     for di, ds in enumerate(datasets):
