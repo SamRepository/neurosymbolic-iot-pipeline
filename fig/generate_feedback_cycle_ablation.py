@@ -112,10 +112,10 @@ def main() -> int:
 
     out_dir = Path("fig")
     out_dir.mkdir(exist_ok=True)
-    fig.savefig(out_dir / "Figure_8_feedback_cycle_ablation.pdf", format="pdf", bbox_inches="tight", dpi=300)
-    fig.savefig(out_dir / "Figure_8_feedback_cycle_ablation.png", format="png", bbox_inches="tight", dpi=300)
-    print("Saved:", out_dir / "Figure_8_feedback_cycle_ablation.pdf")
-    print("Saved:", out_dir / "Figure_8_feedback_cycle_ablation.png")
+    fig.savefig(out_dir / "Figure_6_feedback_cycle_ablation.pdf", format="pdf", bbox_inches="tight", dpi=300)
+    fig.savefig(out_dir / "Figure_6_feedback_cycle_ablation.png", format="png", bbox_inches="tight", dpi=300)
+    print("Saved:", out_dir / "Figure_6_feedback_cycle_ablation.pdf")
+    print("Saved:", out_dir / "Figure_6_feedback_cycle_ablation.png")
     plt.close(fig)
 
     # ---- LaTeX table ----
