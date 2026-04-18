@@ -42,7 +42,7 @@ def main() -> int:
 
     for di, ds in enumerate(datasets):
         ds_data = results["datasets"][ds]
-        offset = (di - 0.5) * width
+        offset = (di - 0.4) * width
         bottom = np.zeros(n_bars)
         max_total = max(r["total_e2e_ms_mean"] for r in ds_data)
         for si, skey in enumerate(STAGE_KEYS):
@@ -63,13 +63,13 @@ def main() -> int:
 
     # Dataset labels on top bars
     for di, ds in enumerate(datasets):
-        offset = (di - 0.5) * width
+        offset = (di - 0.4) * width
         ds_data = results["datasets"][ds]
         totals = [r["total_e2e_ms_mean"] for r in ds_data]
         for xi, total in enumerate(totals):
             if xi == n_bars - 1:
                 lbl = DS_LABELS[ds].split(" ")[0]
-                ax.text(xi + offset, total + 3, lbl, ha="center", fontsize=6)
+                ax.text(xi + offset, total + 4, lbl, ha="center", fontsize=6)
 
     # --- (b) Per-window latency ---
     ax = axes[1]
@@ -107,7 +107,7 @@ def main() -> int:
     plt.tight_layout()
 
     for ext in [".pdf", ".png"]:
-        out = OUT_DIR / f"Figure_10_edge_latency{ext}"
+        out = OUT_DIR / f"Figure_8_edge_latency{ext}"
         fig.savefig(out, dpi=300, bbox_inches="tight")
         print("Saved:", out)
 
