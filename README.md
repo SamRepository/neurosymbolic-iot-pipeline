@@ -27,7 +27,7 @@ A hybrid AI framework combining deep learning perception (GRU / LSTM) with OWL +
 9. [Outputs](#outputs)
 10. [Configuration](#configuration)
 11. [Troubleshooting](#troubleshooting)
-12. [License & Citation](#license--citation)
+12. [License &amp; Citation](#license--citation)
 
 ---
 
@@ -37,7 +37,7 @@ The pipeline implements three formal algorithms from the paper:
 
 1. **Algorithm 1** — Neural-to-Semantic Federation: maps neural predictions to RDF triples
 2. **Algorithm 2** — Real-Time Neuro-Symbolic Feedback Loop: contradiction detection, retraction, threshold adaptation
-3. **Algorithm 3** — Dynamic Edge-Fog-Cloud Task Orchestration (validated empirically in Enhancement G)
+3. **Algorithm 3** — Dynamic Edge-Fog-Cloud Task Orchestration
 
 ### Pipeline Stages
 
@@ -80,7 +80,7 @@ neurosymbolic_iot/
 
 config/                       # YAML configs (inherit from base.yaml)
 evaluation/                   # Experiment runners (see §Reproducing Paper Experiments)
-fig/                          # Figure generators (Figure_1 … Figure_9)
+fig/                          # Figure generators (Figure_1 … Figure_8)
 ```
 
 ---
@@ -122,7 +122,7 @@ data/raw/sphere/
   ...
 ```
 
-Processed parquet + metadata are generated into `data/processed/` by the preprocessing CLI.
+Processed parquet + metadata are generated into `data/processed/` by the preprocessing CLI. The used Raw versions used in experiments are in `data/raw.`
 
 ---
 
@@ -195,19 +195,19 @@ All experiments are deterministic (seed = 42) and write results as JSON under `o
 
 ### Core experiments
 
-| Experiment | Script | Figure / Table | Paper reference |
-|---|---|---|---|
-| 5-fold cross-validation | [evaluation/run_cv.py](evaluation/run_cv.py) | Table 2 | §4.1 |
-| Noise robustness (error vs clean) | [evaluation/run_noise_robustness.py](evaluation/run_noise_robustness.py) | Figure 4, Table 3 | §4.2 |
-| Ablation (4 configs) | [evaluation/run_experiments.py](evaluation/run_experiments.py) `--mode ablation` | Table 7 | §4.5 |
-| Confusion matrices | [fig/generate_confusion_matrices.py](fig/generate_confusion_matrices.py) | Figure 3 | §4.1 |
-| Baselines | [evaluation/run_experiments.py](evaluation/run_experiments.py) `--mode baseline` | Table 2 | §4.1 |
+| Experiment                        | Script                                                                          | Figure / Table    | Paper reference |
+| --------------------------------- | ------------------------------------------------------------------------------- | ----------------- | --------------- |
+| 5-fold cross-validation           | [evaluation/run_cv.py](evaluation/run_cv.py)                                       | Table 2           | §4.1           |
+| Noise robustness (error vs clean) | [evaluation/run_noise_robustness.py](evaluation/run_noise_robustness.py)           | Figure 4, Table 3 | §4.2           |
+| Ablation (4 configs)              | [evaluation/run_experiments.py](evaluation/run_experiments.py) `--mode ablation` | Table 7           | §4.5           |
+| Confusion matrices                | [fig/generate_confusion_matrices.py](fig/generate_confusion_matrices.py)           | Figure 3          | §4.1           |
+| Baselines                         | [evaluation/run_experiments.py](evaluation/run_experiments.py) `--mode baseline` | Table 2           | §4.1           |
 
 ### Experimental enhancements (paper §4.4)
 
 Five additional experiments validate specific paper claims. Each is self-contained: run the experiment, then run the figure generator.
 
-**Enhancement E — KG scalability (query latency vs. KG size).** Validates the "sublinear latency, <50 ms" claim by extending the benchmark from 3K to 20K triples.
+**KG scalability (query latency vs. KG size).** Validates the "sublinear latency, <50 ms" claim by extending the benchmark from 3K to 20K triples.
 
 ```bash
 PYTHONPATH=. python evaluation/run_kg_scalability.py \
@@ -218,7 +218,7 @@ python fig/generate_kg_scalability.py
 # → fig/Figure_5_query_latency_vs_triples.pdf
 ```
 
-**Enhancement F — Cross-dataset federated reasoning.** Demonstrates SWRL rule reuse across CASAS and SPHERE via a shared ontology.
+**Cross-dataset federated reasoning.** Demonstrates SWRL rule reuse across CASAS and SPHERE via a shared ontology.
 
 ```bash
 PYTHONPATH=. python evaluation/run_cross_dataset_federation.py --config config/base.yaml
@@ -226,7 +226,7 @@ python fig/generate_cross_dataset_federation.py
 # → fig/Figure_7_cross_dataset_federation.pdf
 ```
 
-**Enhancement G — Edge deployment latency benchmark.** CPU-only, per-window end-to-end latency grounding Algorithm 3 (neural + KG + reasoning + feedback) across batch sizes {1, 5, 10, 20, 50}.
+**Edge deployment latency benchmark.** CPU-only, per-window end-to-end latency grounding Algorithm 3 (neural + KG + reasoning + feedback) across batch sizes {1, 5, 10, 20, 50}.
 
 ```bash
 PYTHONPATH=. python evaluation/run_edge_latency.py \
@@ -236,7 +236,7 @@ python fig/generate_edge_latency.py
 # → fig/Figure_8_edge_latency.pdf
 ```
 
-**Enhancement H — Feedback-cycle ablation.** Ablates the number of feedback cycles (0, 1, 3, 5) to quantify the contribution of Algorithm 2.
+**Feedback-cycle ablation.** Ablates the number of feedback cycles (0, 1, 3, 5) to quantify the contribution of Algorithm 2.
 
 ```bash
 PYTHONPATH=. python evaluation/run_feedback_cycle_ablation.py --config config/ns_full.yaml
@@ -244,7 +244,7 @@ python fig/generate_feedback_cycle_ablation.py
 # → fig/Figure_6_feedback_cycle_ablation.pdf
 ```
 
-**Enhancement D — Confidence-threshold sensitivity.** Sweeps validation / anomaly / feedback thresholds to characterise operating-point trade-offs.
+**Confidence-threshold sensitivity.** Sweeps validation / anomaly / feedback thresholds to characterise operating-point trade-offs. Not added in the paper cause page number limit.
 
 ```bash
 PYTHONPATH=. python evaluation/run_threshold_sensitivity.py --config config/base.yaml
@@ -254,29 +254,29 @@ python fig/generate_threshold_sensitivity.py
 
 ### Figure-to-generator map
 
-| Figure | Artefact | Generator |
-|---|---|---|
-| Figure 1 | Pipeline architecture | static asset |
-| Figure 2 | Data flow | static asset |
-| Figure 3 | Confusion matrices (CASAS, SPHERE) | [generate_confusion_matrices.py](fig/generate_confusion_matrices.py) |
-| Figure 4 | Noise robustness | [generate_noise_robustness.py](fig/generate_noise_robustness.py) |
-| Figure 5 | Query latency vs. KG size | [generate_kg_scalability.py](fig/generate_kg_scalability.py) |
-| Figure 6 | Feedback-cycle ablation | [generate_feedback_cycle_ablation.py](fig/generate_feedback_cycle_ablation.py) |
-| Figure 7 | Cross-dataset federation | [generate_cross_dataset_federation.py](fig/generate_cross_dataset_federation.py) |
-| Figure 8 | Edge deployment latency | [generate_edge_latency.py](fig/generate_edge_latency.py) |
-| Figure 9 | Threshold sensitivity | [generate_threshold_sensitivity.py](fig/generate_threshold_sensitivity.py) |
+| Figure   | Artefact                           | Generator                                                                     |
+| -------- | ---------------------------------- | ----------------------------------------------------------------------------- |
+| Figure 1 | Pipeline architecture              | static asset                                                                  |
+| Figure 2 | Data flow                          | static asset                                                                  |
+| Figure 3 | Confusion matrices (CASAS, SPHERE) | [generate_confusion_matrices.py](fig/generate_confusion_matrices.py)             |
+| Figure 4 | Noise robustness                   | [generate_noise_robustness.py](fig/generate_noise_robustness.py)                 |
+| Figure 5 | Query latency vs. KG size          | [generate_kg_scalability.py](fig/generate_kg_scalability.py)                     |
+| Figure 6 | Feedback-cycle ablation            | [generate_feedback_cycle_ablation.py](fig/generate_feedback_cycle_ablation.py)   |
+| Figure 7 | Cross-dataset federation           | [generate_cross_dataset_federation.py](fig/generate_cross_dataset_federation.py) |
+| Figure 8 | Edge deployment latency            | [generate_edge_latency.py](fig/generate_edge_latency.py)                         |
+| Figure 9 | Threshold sensitivity              | [generate_threshold_sensitivity.py](fig/generate_threshold_sensitivity.py)       |
 
-### Expected runtime (reference machine: 8-core CPU, 16 GB RAM)
+### Expected runtime (reference machine: 8-core CPU, 32 GB RAM, NVIDIA RTX 3060 GPU)
 
-| Stage | Dataset | Approx. wall time |
-|---|---|---|
-| Preprocess | CASAS | 1–2 min |
-| Preprocess | SPHERE | 2–4 min |
-| Train neural (GRU/LSTM) | each | 3–8 min |
-| Full pipeline (single run) | each | 1–3 min |
-| Enhancement E (full sweep) | both | 10–20 min |
-| Enhancement G (full sweep) | both | 5–10 min |
-| Enhancement D, F, H | each | 2–8 min |
+| Stage                                 | Dataset | Approx. wall time |
+| ------------------------------------- | ------- | ----------------- |
+| Preprocess                            | CASAS   | 1–2 min          |
+| Preprocess                            | SPHERE  | 2–4 min          |
+| Train neural (GRU/LSTM)               | each    | 3–8 min          |
+| Full pipeline (single run)            | each    | 1–3 min          |
+| KG scalability (full sweep)          | both    | 10–20 min        |
+| Edge deployment (full sweep)         | both    | 5–10 min         |
+| Cross-dataset federated and Ablation | each    | 2–8 min          |
 
 ---
 
@@ -284,8 +284,8 @@ python fig/generate_threshold_sensitivity.py
 
 | #  | Category                  | Description                                                        |
 | -- | ------------------------- | ------------------------------------------------------------------ |
-| 1  | Sensor Grounding          | PIR motion → person location                                       |
-| 2  | Sensor Grounding          | Appliance interaction → person location                            |
+| 1  | Sensor Grounding          | PIR motion → person location                                      |
+| 2  | Sensor Grounding          | Appliance interaction → person location                           |
 | 3  | Neuro-Symbolic Validation | High-confidence meal preparation (Kitchen + conf > 0.85)           |
 | 4  | Neuro-Symbolic Validation | Posture-based sleeping (Bedroom + Lying + conf > 0.80)             |
 | 5  | AAL Anomaly Detection     | Critical fall detection (Bathroom + Lying)                         |
@@ -327,14 +327,14 @@ All paths are gitignored.
 
 All configs inherit from [config/base.yaml](config/base.yaml) via the `extends` key. Load configs through `load_config()` in [utils/config.py](neurosymbolic_iot/utils/config.py) — never parse YAML directly.
 
-| Section | Controls |
-|---|---|
-| `datasets` | Raw data paths, windowing, split ratios |
-| `neural_perception` | Model hyperparameters (GRU/LSTM), training settings |
-| `kg` | Ontology path, sensor map, optional GraphDB connection |
-| `reasoning` | Confidence thresholds (validation 0.85, anomaly 0.85, feedback 0.70) |
-| `feedback` | Max cycles (5), retrain buffer size (500), adjustment rate (0.05) |
-| `pipeline` | Stage enable flags (`enable_neural`, `enable_kg`, `enable_symbolic`, `enable_feedback`) |
+| Section                 | Controls                                                                                        |
+| -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `datasets`                     | Raw data paths, windowing, split ratios                                                         |
+| `neural_perception`            | Model hyperparameters (GRU/LSTM), training settings                                             |
+| `kg`                           | Ontology path, sensor map, optional GraphDB connection                                          |
+| `reasoning`                    | Confidence thresholds (validation 0.85, anomaly 0.85, feedback 0.70)                            |
+| `feedback`                     | Max cycles (5), retrain buffer size (500), adjustment rate (0.05)                               |
+| `pipeline`                     | Stage enable flags (`enable_neural`, `enable_kg`, `enable_symbolic`, `enable_feedback`) |
 
 Ablation configs: `ai_only.yaml`, `kg_only.yaml`, `ns_nofeedback.yaml`, `ns_full.yaml`.
 
@@ -342,14 +342,14 @@ Ablation configs: `ai_only.yaml`, `kg_only.yaml`, `ns_nofeedback.yaml`, `ns_full
 
 ## Troubleshooting
 
-| Issue | Fix |
-|---|---|
-| `KeyError: 'datasets'` | Use a config with a `datasets` section (e.g. `base.yaml`) |
-| Timezone errors (tz-aware vs. tz-naive) | Handled in `train_neural.py` — timestamps normalised to UTC |
-| Java not found (HermiT fails) | Install JRE/JDK 11+; owlready2 needs it for reasoning |
-| GraphDB push fails | Optional — set `kg.graphdb.enabled: false` (default) |
-| Config `inherits` not working | Use `extends` (not `inherits`) |
-| `ModuleNotFoundError` on experiment scripts | Run with `PYTHONPATH=.` from the repo root |
+| Issue                                         | Fix                                                            |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| `KeyError: 'datasets'`                      | Use a config with a `datasets` section (e.g. `base.yaml`)  |
+| Timezone errors (tz-aware vs. tz-naive)       | Handled in `train_neural.py` — timestamps normalised to UTC |
+| Java not found (HermiT fails)                 | Install JRE/JDK 11+; owlready2 needs it for reasoning          |
+| GraphDB push fails                            | Optional — set `kg.graphdb.enabled: false` (default)        |
+| Config `inherits` not working               | Use `extends` (not `inherits`)                             |
+| `ModuleNotFoundError` on experiment scripts | Run with `PYTHONPATH=.` from the repo root                   |
 
 ---
 
@@ -361,10 +361,8 @@ This repository is released under the MIT License (see `LICENSE`, if present).
 @misc{neurosymbolic_iot_pipeline_repo,
   author       = {Anonymous Authors},
   title        = {Neuro-Symbolic IoT Pipeline: Reproducible Experiments},
-  howpublished = {\url{<anonymous-repo-url>}},
+  howpublished = {\url{<https://anonymous.4open.science/r/neurosymbolic-iot-pipeline-9556>}},
   year         = {2026},
   note         = {Code anonymised for peer review.}
 }
 ```
-
-Replace `<anonymous-repo-url>` with the anonymous hosting URL before submission.
