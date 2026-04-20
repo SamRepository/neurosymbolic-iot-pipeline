@@ -51,23 +51,19 @@ def plot_cm(ax, cm, labels, title, subtitle, cmap):
             val = cm_norm[i, j]
             count = cm[i, j]
             color = "white" if val > 0.5 else "black"
-            fs = 6.5 if n > 5 else 8
+            fs = 9 if n > 5 else 11
             ax.text(j, i, f"{val:.0%}\n({count})", ha="center", va="center",
                     color=color, fontsize=fs, fontweight="bold")
 
     ax.set_xticks(range(n))
     ax.set_yticks(range(n))
-    tick_fs = 7 if n > 5 else 8
+    tick_fs = 10 if n > 5 else 11
     ax.set_xticklabels(labels, fontsize=tick_fs, rotation=45, ha="right")
     ax.set_yticklabels(labels, fontsize=tick_fs)
-    ax.set_xlabel("Predicted Label", fontsize=8.5, fontweight="bold")
-    ax.set_ylabel("True Label", fontsize=8.5, fontweight="bold")
-    # Title + subtitle with line break
-    ax.set_title(f"{title}\n{subtitle}", fontsize=9.5, fontweight="normal",
+    ax.set_xlabel("Predicted Label", fontsize=12, fontweight="bold")
+    ax.set_ylabel("True Label", fontsize=12, fontweight="bold")
+    ax.set_title(f"{title}\n{subtitle}", fontsize=12, fontweight="normal",
                  pad=6, linespacing=1.6)
-    # Make the first line bold via a manual override — draw title parts separately
-    # Actually use the built-in: first line bold, second italic
-    ax.title.set_fontsize(9)
     return im
 
 
@@ -75,16 +71,18 @@ def main():
     plt.rcParams.update({
         "font.family": "serif",
         "font.serif": ["Times New Roman", "DejaVu Serif"],
-        "font.size": 9,
+        "font.size": 11,
         "axes.linewidth": 0.6,
         "figure.dpi": 300,
     })
 
-    # Narrower gap between panels
-    fig = plt.figure(figsize=(8.2, 4.4))
+    # Side-by-side layout: CASAS (a) on the left, SPHERE (b) on the right.
+    # Small figsize + large font sizes => text stays legible when embedded at
+    # column width in the paper (text grows relative to the cells).
+    fig = plt.figure(figsize=(7.2, 3.8))
     gs = GridSpec(1, 5, figure=fig,
-                  width_ratios=[1, 0.04, 0.18, 1, 0.04],
-                  wspace=0.08)
+                  width_ratios=[1.25, 0.05, 0.45, 1.25, 0.05],
+                  wspace=0.12)
 
     ax_casas   = fig.add_subplot(gs[0, 0])
     cax_casas  = fig.add_subplot(gs[0, 1])
@@ -105,11 +103,6 @@ def main():
                   f"Acc: {sphere_acc:.1%} | F1-macro: 22.48%",
                   "YlOrRd")
 
-    # Make title line 1 bold, line 2 italic gray
-    for ax in (ax_casas, ax_sphere):
-        txt = ax.title
-        txt.set_fontweight("normal")
-
     # Manually draw two-line titles for proper styling
     for ax, line1, line2 in [
         (ax_casas, "(a) CASAS \u2014 GRU",
@@ -118,23 +111,23 @@ def main():
          f"Acc: {sphere_acc:.1%} | F1-macro: 22.48%"),
     ]:
         ax.set_title("")  # clear default
-        ax.text(0.5, 1.10, line1, transform=ax.transAxes, ha="center",
-                fontsize=9.5, fontweight="bold")
-        ax.text(0.5, 1.04, line2, transform=ax.transAxes, ha="center",
-                fontsize=7.5, style="italic", color="0.35")
+        ax.text(0.5, 1.12, line1, transform=ax.transAxes, ha="center",
+                fontsize=12.5, fontweight="bold")
+        ax.text(0.5, 1.05, line2, transform=ax.transAxes, ha="center",
+                fontsize=10, style="italic", color="0.35")
 
     # Individual colorbars
     cb1 = fig.colorbar(im1, cax=cax_casas)
-    cb1.ax.tick_params(labelsize=6.5)
+    cb1.ax.tick_params(labelsize=9)
 
     cb2 = fig.colorbar(im2, cax=cax_sphere)
-    cb2.set_label("Recall", fontsize=8, labelpad=8)
-    cb2.ax.tick_params(labelsize=6.5)
+    cb2.set_label("Recall", fontsize=11, labelpad=8)
+    cb2.ax.tick_params(labelsize=9)
 
     # Drop duplicate y-label on SPHERE
     ax_sphere.set_ylabel("")
 
-    fig.subplots_adjust(left=0.08, right=0.97, bottom=0.20, top=0.88)
+    fig.subplots_adjust(left=0.07, right=0.96, bottom=0.17, top=0.88)
 
     out_dir = Path(__file__).parent
     out_pdf = out_dir / "Figure_3_confusion_matrices_CASAS_SPHERE_upd.pdf"
