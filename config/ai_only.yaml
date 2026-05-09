@@ -1,6 +1,6 @@
 # Phase 0 config override placeholder (used later in run_experiments.py)
 # For now it exists to match the paper's ablation structure.
-extends: ["config/base.yaml"]
+extends: ["base.yaml"]
 pipeline:
   enable_neural: true
   enable_kg: false

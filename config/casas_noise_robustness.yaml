@@ -1,6 +1,6 @@
 # Noise Robustness Experiment (Section 4.2)
 # Compares full pipeline on adl_error vs adl_noerror subsets
-extends: ["config/base.yaml"]
+extends: ["base.yaml"]
 
 experiment:
   name: casas_noise_robustness

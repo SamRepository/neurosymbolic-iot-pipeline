@@ -1,4 +1,4 @@
-extends: ["config/base.yaml"]
+extends: ["base.yaml"]
 pipeline:
   enable_neural: false
   enable_kg: true
