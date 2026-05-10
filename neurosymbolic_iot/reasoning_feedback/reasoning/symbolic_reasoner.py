@@ -275,10 +275,22 @@ def run_reasoning(
 
     define_swrl_rules(onto)
 
+    # Pellet is selected because HermiT does not natively evaluate SWRL
+    # rule bodies that mix data-property comparisons (swrlb:greaterThan,
+    # swrlb:lessThan) with object-property chains. Pellet (bundled with
+    # owlready2) is SWRL-complete and runs the full 11-rule programme.
+    reasoner_name = str(cfg.get("reasoning", {}).get("reasoner", "pellet")).lower()
     try:
         with onto:
-            owlready2.sync_reasoner_hermit(infer_property_values=True)
-        log.info("HermiT reasoning completed successfully.")
+            if reasoner_name == "hermit":
+                owlready2.sync_reasoner_hermit(infer_property_values=True)
+                log.info("HermiT reasoning completed successfully.")
+            else:
+                owlready2.sync_reasoner_pellet(
+                    infer_property_values=True,
+                    infer_data_property_values=True,
+                )
+                log.info("Pellet reasoning completed successfully.")
     except owlready2.OwlReadyInconsistentOntologyError as exc:
         result.inconsistencies.append(f"Ontology inconsistency: {exc}")
         log.warning("Ontology inconsistency detected: %s", exc)

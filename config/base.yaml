@@ -108,7 +108,7 @@ reasoning:
   confidence_threshold_anomaly: 0.85
   confidence_threshold_feedback: 0.70
   output_dir: outputs/reasoning
-  reasoner: hermit
+  reasoner: hermit  # hermit (Java 11+, default) | pellet (Java 25+, requires alternative CLI for full SWRL)
 
 feedback:
   max_cycles: 5
