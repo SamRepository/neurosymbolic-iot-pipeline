@@ -29,3 +29,8 @@ Thumbs.db
 # Old README backups
 README_old*.md
 docs/
+
+# Ablation CV per-fold artefacts (models, populated KGs, intermediate JSON);
+# the aggregated evaluation/results/ablation_cv.json itself IS tracked.
+evaluation/results/fold_*/
+evaluation/results/_smoke/

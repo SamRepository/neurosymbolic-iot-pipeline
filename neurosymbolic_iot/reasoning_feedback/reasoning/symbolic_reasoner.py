@@ -261,6 +261,20 @@ def run_reasoning(
     4. Query inferred facts
     5. Package into ReasoningResult
     """
+    # Two backends are supported:
+    #   * "python" (default) — translates each of the 11 SWRL rules into a
+    #     SPARQL CONSTRUCT and runs them in a fixed-point loop on rdflib.
+    #     This is the only backend that actually executes the rule bodies;
+    #     owlready2's wrappers around HermiT/Pellet only do OWL-DL
+    #     classification and do not fire SWRL rules.
+    #   * "hermit" / "pellet" — kept for ontology-validation use-cases.
+    backend = str(cfg.get("reasoning", {}).get("rule_executor", "python")).lower()
+    if backend == "python":
+        from neurosymbolic_iot.reasoning_feedback.reasoning.rule_executor import (
+            run_python_reasoning,
+        )
+        return run_python_reasoning(populated_kg_path)
+
     import owlready2
 
     if not _check_java():
