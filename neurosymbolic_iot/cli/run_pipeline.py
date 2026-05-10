@@ -82,14 +82,18 @@ def _run_neural_stage(
 
     model, id2label, label2id, task_info = load_trained_model(model_dir, device, dataset, cfg)
 
-    # Rebuild the test DataLoader from the same data pipeline used during training
-    loader = _build_test_loader(cfg, dataset, task, model_dir, label2id)
+    # Rebuild the test DataLoader from the same data pipeline used during training.
+    # Also recover per-window metadata (sensor tokens, timestamps, active PIRs)
+    # so the KG builder can assert sensor states + room locations needed by the
+    # SWRL rule preconditions.
+    loader, window_metadata = _build_test_loader(cfg, dataset, task, model_dir, label2id)
 
     result = run_inference(
         model,
         loader,
         device,
         id2label,
+        window_metadata=window_metadata,
         model_tag=model_dir.name,
         dataset=dataset,
     )
@@ -108,8 +112,17 @@ def _build_test_loader(
     task: str,
     model_dir: Path,
     label2id: Dict[str, int],
-) -> DataLoader:
-    """Reconstruct the test DataLoader for inference."""
+) -> "tuple[DataLoader, List[Dict[str, Any]]]":
+    """Reconstruct the test DataLoader plus per-window metadata for inference.
+
+    The metadata list is aligned with the loader's iteration order. Each entry
+    contains ``window_start`` / ``window_end`` (ISO-8601), and:
+      * for CASAS: ``sensor_tokens`` recovered from the trained vocab
+      * for SPHERE: ``active_pirs`` derived from PIR observations within the
+        window's time interval
+    These fields drive the sensor-state and room-location assertions used by
+    the SWRL rules in the symbolic-reasoning stage.
+    """
     from neurosymbolic_iot.neural_perception.utils import safe_split_df
 
     seed = int(cfg.get("project", {}).get("seed", 42))
@@ -156,7 +169,23 @@ def _build_test_loader(
 
         test_seqs, _ = build_casas_sequences(cfg, splits.test, max_seq_len=max_seq_len, vocab=vocab)
         ds = CasasTorchDataset(test_seqs, label2id, max_seq_len)
-        return DataLoader(ds, batch_size=batch_size, shuffle=False, collate_fn=casas_collate)
+        loader = DataLoader(ds, batch_size=batch_size, shuffle=False, collate_fn=casas_collate)
+
+        # Per-window metadata aligned with test_seqs iteration order.
+        id2tok = {int(idx): str(tok) for tok, idx in vocab.items()}
+        meta: List[Dict[str, Any]] = []
+        for w in test_seqs:
+            tokens = [id2tok.get(int(i), "") for i in w.token_ids]
+            tokens = [t for t in tokens if t and t not in ("<PAD>", "<UNK>")]
+            # Deduplicate while preserving order for KG triple compactness.
+            seen: set = set()
+            uniq_tokens = [t for t in tokens if not (t in seen or seen.add(t))]
+            meta.append({
+                "window_start": w.start_time.isoformat() if w.start_time is not None else None,
+                "window_end": w.end_time.isoformat() if w.end_time is not None else None,
+                "sensor_tokens": uniq_tokens,
+            })
+        return loader, meta
 
     elif dataset == "sphere":
         from neurosymbolic_iot.neural_perception.sphere_sequence import (
@@ -183,10 +212,62 @@ def _build_test_loader(
         splits = safe_split_df(dfw, train=train_ratio, val=val_ratio, test=test_ratio, seed=seed, stratify_col="label")
         test_w = [windows[int(i)] for i in splits.test["idx"].tolist()]
         ds = SphereTorchDataset(test_w, label2id)
-        return DataLoader(ds, batch_size=batch_size, shuffle=False)
+        loader = DataLoader(ds, batch_size=batch_size, shuffle=False)
+
+        # SPHERE per-window metadata: timestamps + active_pirs derived from
+        # the raw PIR observation file, joined to each window's [start, end].
+        meta: List[Dict[str, Any]] = []
+        active_pirs_by_window = _sphere_active_pirs(cfg, test_w)
+        for i, w in enumerate(test_w):
+            meta.append({
+                "window_start": w.start_time.isoformat() if w.start_time is not None else None,
+                "window_end": w.end_time.isoformat() if w.end_time is not None else None,
+                "active_pirs": active_pirs_by_window[i],
+            })
+        return loader, meta
 
     else:
         raise ValueError(f"Unknown dataset: {dataset}")
+
+
+def _sphere_active_pirs(cfg: Dict[str, Any], windows: List[Any]) -> List[List[str]]:
+    """For each SPHERE window, return the list of PIR room names whose value
+    is non-zero anywhere within the window. Returns ``[[]] * len(windows)``
+    if the PIR file is missing — the SWRL rules requiring sensor-state
+    grounding simply will not fire for those windows.
+    """
+    import pandas as pd
+
+    raw_dir = Path(cfg.get("datasets", {}).get("sphere", {}).get("raw_dir", "data/raw/sphere"))
+    pir_path = raw_dir / "pir.csv"
+    if not pir_path.exists():
+        log.info("SPHERE pir.csv not found at %s — skipping active_pirs metadata.", pir_path)
+        return [[] for _ in windows]
+
+    try:
+        pir = pd.read_csv(pir_path)
+    except Exception as exc:
+        log.warning("Failed to read %s: %s", pir_path, exc)
+        return [[] for _ in windows]
+
+    ts_col = next((c for c in ("timestamp", "t", "time") if c in pir.columns), None)
+    if ts_col is None:
+        log.warning("SPHERE pir.csv has no timestamp column — skipping active_pirs.")
+        return [[] for _ in windows]
+    pir[ts_col] = pd.to_datetime(pir[ts_col], errors="coerce", utc=False)
+    pir = pir.dropna(subset=[ts_col]).sort_values(ts_col).reset_index(drop=True)
+
+    pir_cols = [c for c in pir.columns if c != ts_col]
+    out: List[List[str]] = []
+    for w in windows:
+        t0, t1 = w.start_time, w.end_time
+        sub = pir[(pir[ts_col] >= t0) & (pir[ts_col] < t1)]
+        if sub.empty:
+            out.append([])
+            continue
+        active = [c for c in pir_cols if (sub[c].fillna(0).astype(float) > 0).any()]
+        out.append(active)
+    return out
 
 
 # ---------------------------------------------------------------------------
