@@ -88,7 +88,7 @@ fig/                          # Figure generators (Figure_1 … Figure_8)
 ## Requirements
 
 - **Python** 3.10+
-- **Java** 11+ (required by HermiT, invoked through owlready2)
+- **Java** 11+ for HermiT (default reasoner). Java 25+ if you switch `reasoning.reasoner: pellet` in your config — owlready2's bundled Pellet uses Jena class-files compiled for Java 25.
 - **GraphDB** *(optional — only if you want a persistent triple store)*
 
 ```bash
@@ -236,12 +236,23 @@ python fig/generate_edge_latency.py
 # → fig/Figure_8_edge_latency.pdf
 ```
 
-**Feedback-cycle ablation.** Ablates the number of feedback cycles (0, 1, 3, 5) to quantify the contribution of Algorithm 2.
+**Feedback-cycle ablation (mechanism stress-test).** Tracks per-cycle weighted F1, false-positive rate, and correctness under a controlled 20\% false-positive injection regime. Characterises the loop's correction policy under a known FP load — *not* a measurement of held-out activity-recognition accuracy.
 
 ```bash
 PYTHONPATH=. python evaluation/run_feedback_cycle_ablation.py --config config/ns_full.yaml
 python fig/generate_feedback_cycle_ablation.py
 # → fig/Figure_6_feedback_cycle_ablation.pdf
+```
+
+**Held-out feedback-cycle evaluation (real-data).** Companion to the stress-test above. Runs the actual GRU/LSTM inference, builds the real RDF graph, calls the HermiT-driven feedback loop, and measures per-cycle weighted F1 against the dataset annotation columns. Excludes by construction any rule-vs-label circularity (metadata block in the JSON records `rule_label_disjoint=true`). Requires a JRE 11+ on PATH.
+
+```bash
+PYTHONPATH=. python evaluation/run_feedback_cycle_real.py \
+  --config config/ns_full.yaml \
+  --casas-model-dir outputs/neural_perception/<tag>/casas/activity \
+  --sphere-model-dir outputs/neural_perception/<tag>/sphere \
+  --max-cycles 5
+# → outputs/experiments/feedback_cycle_real/feedback_cycle_real_results.json
 ```
 
 **Confidence-threshold sensitivity.** Sweeps validation / anomaly / feedback thresholds to characterise operating-point trade-offs. Not added in the paper cause page number limit.
@@ -298,6 +309,10 @@ python fig/generate_threshold_sensitivity.py
 
 Rules are defined programmatically via `owlready2.Imp()` in [symbolic_reasoner.py](neurosymbolic_iot/reasoning_feedback/reasoning/symbolic_reasoner.py). A human-readable reference is provided in `ruleset.swrl`.
 
+**Disjointness of feedback rules and ground-truth labels.** Only rules 8–11 (Feedback Trigger) emit `FeedbackRequired` assertions consumed by the feedback loop. Rules 1–7 perform sensor grounding, validation, or anomaly detection and do not influence the F1 measurement. Ground-truth labels for evaluation come exclusively from the dataset annotation columns (CASAS `activity`, SPHERE activity/posture class). The set of rules participating in feedback is therefore disjoint from the artefacts defining the labels — the held-out F1 cannot be a self-consistency artefact at the rule level.
+
+**Reasoner backend.** The reasoning stage selects between HermiT (default, Java 11+) and Pellet (Java 25+, bundled with owlready2) via `reasoning.reasoner` in the config. Both reasoners run OWL-DL classification through owlready2's wrappers; direct execution of arbitrary SWRL rule bodies (variable chaining + `swrlb` data-property comparisons) requires invoking Pellet's `infer` CLI subcommand outside the binding and is treated as future work.
+
 ---
 
 ## Outputs
@@ -313,6 +328,7 @@ outputs/
   experiments/
     kg_scalability/kg_scalability_results.json
     cross_dataset_federation/cross_dataset_results.json
+    feedback_cycle_real/feedback_cycle_real_results.json
     edge_latency/edge_latency_results.json
     feedback_cycle_ablation/feedback_cycle_results.json
     threshold_sensitivity/threshold_sensitivity_results.json
