@@ -118,7 +118,10 @@ def run_inference(
         y_np = y.cpu().numpy()
 
         for i in range(len(preds)):
-            meta = window_metadata[global_idx] if window_metadata else {}
+            meta = dict(window_metadata[global_idx]) if window_metadata else {}
+            # Carry id2label so the KG builder can resolve the top-2
+            # prediction's class IRI (rule 10 in the executor).
+            meta.setdefault("id2label", id2label)
             records.append(
                 PredictionRecord(
                     sample_idx=global_idx,

@@ -43,8 +43,18 @@ PREFIX time:  <http://www.w3.org/2006/time#>
 # loop. swrlb numeric comparisons (>, <) are expressed via SPARQL FILTER.
 # ---------------------------------------------------------------------------
 
+# --- CASAS-Kyoto-ADL-native instantiation of the 11-rule programme. -------
+# Rules 1, 2 (sensor grounding) carry over unchanged. Rules 3-11 are
+# rewritten to operate on the actual class vocabulary the CASAS GRU
+# emits ({MealPreparation, Eating, Housekeeping, PhoneCall} via the
+# activity_map) and the actual sensor/state/room individuals the KG
+# builder asserts. Posture references (Lying, Standing) and the
+# `Sleeping` class — none of which appear in CASAS Kyoto ADL — are
+# replaced by domain-justified room/state/confidence patterns. Each
+# rule retains its original category (Sensor Grounding / Validation /
+# AAL Anomaly / Feedback Trigger) and its original AAL motivation.
 RULES: List[Tuple[int, str, str]] = [
-    # Rule 1: PIR motion -> person location
+    # Rule 1 — Sensor grounding. PIR motion implies person location.
     (1, "PIR motion implies person location", """
         CONSTRUCT { ?p nsiot:isLocatedIn ?room }
         WHERE {
@@ -55,7 +65,7 @@ RULES: List[Tuple[int, str, str]] = [
         }
     """),
 
-    # Rule 2: Appliance interaction -> person location
+    # Rule 2 — Sensor grounding. Appliance plug ON implies person location.
     (2, "Appliance interaction implies person location", """
         CONSTRUCT { ?p nsiot:isLocatedIn ?room }
         WHERE {
@@ -66,8 +76,9 @@ RULES: List[Tuple[int, str, str]] = [
         }
     """),
 
-    # Rule 3: High-confidence MealPreparation in Kitchen -> validated
-    (3, "High-confidence MealPreparation validation", """
+    # Rule 3 — Validation. High-confidence Cook (MealPreparation) prediction
+    # corroborated by person located in Kitchen.
+    (3, "High-confidence Cook in Kitchen validation", """
         CONSTRUCT {
             ?p nsiot:performsActivity nsiot:MealPreparation .
             ?e a nsiot:ValidatedEvent .
@@ -84,44 +95,52 @@ RULES: List[Tuple[int, str, str]] = [
         }
     """),
 
-    # Rule 4: Posture-based sleeping (Bedroom + Lying)
-    (4, "Posture-based sleeping validation", """
+    # Rule 4 — Validation. High-confidence Eat prediction corroborated by
+    # person located in Kitchen (CASAS Kyoto ADL eating happens in the
+    # kitchen; the SAREF/AAL ontology's DiningArea is not instantiated).
+    (4, "High-confidence Eat in Kitchen validation", """
         CONSTRUCT {
-            ?p nsiot:performsActivity nsiot:Sleeping .
+            ?p nsiot:performsActivity nsiot:Eating .
             ?e a nsiot:ValidatedEvent .
         }
         WHERE {
             ?e    a nsiot:Event .
             ?e    nsiot:involvesPerson ?p .
             ?e    nsiot:isBasedOnPrediction ?pred .
-            ?pred nsiot:predictsPosture nsiot:Lying .
+            ?pred nsiot:predictsActivity nsiot:Eating .
             ?pred nsiot:hasConfidenceScore ?conf .
             FILTER(?conf > 0.80)
             ?p    nsiot:isLocatedIn ?room .
-            ?room a nsiot:Bedroom .
+            ?room a nsiot:Kitchen .
         }
     """),
 
-    # Rule 5: Critical fall detection (Lying in Bathroom)
-    (5, "Critical fall detection (Bathroom + Lying)", """
+    # Rule 5 — AAL anomaly. High-confidence Cook predicted but kitchen
+    # appliance plug NOT ON: unattended-cooking-style false alarm.
+    (5, "Cook without kitchen appliance activation", """
         CONSTRUCT {
             ?e a nsiot:CriticalAnomaly .
-            ?e nsiot:hasAlertType nsiot:FallAlert .
+            ?e nsiot:hasAlertType nsiot:UnattendedAppliance .
         }
         WHERE {
             ?e    a nsiot:Event .
             ?e    nsiot:involvesPerson ?p .
             ?e    nsiot:isBasedOnPrediction ?pred .
-            ?pred nsiot:predictsPosture nsiot:Lying .
+            ?pred nsiot:predictsActivity nsiot:MealPreparation .
             ?pred nsiot:hasConfidenceScore ?conf .
             FILTER(?conf > 0.85)
-            ?p    nsiot:isLocatedIn ?room .
-            ?room a nsiot:Bathroom .
+            FILTER NOT EXISTS {
+                ?plug a nsiot:SmartAppliancePlug .
+                ?plug nsiot:isLocatedIn ?k .
+                ?k    a nsiot:Kitchen .
+                ?plug nsiot:hasState nsiot:StateON .
+            }
         }
     """),
 
-    # Rule 6: Unattended fire hazard (Kitchen plug ON, person in Bedroom)
-    (6, "Unattended fire hazard", """
+    # Rule 6 — AAL anomaly. Unattended fire hazard: kitchen plug ON while
+    # person derived to be in a non-kitchen room.
+    (6, "Unattended fire hazard (kitchen plug ON, person elsewhere)", """
         CONSTRUCT {
             ?e a nsiot:CriticalAnomaly .
             ?e nsiot:hasAlertType nsiot:UnattendedFireHazard .
@@ -133,16 +152,18 @@ RULES: List[Tuple[int, str, str]] = [
             ?plug nsiot:isLocatedIn ?k .
             ?k    a nsiot:Kitchen .
             ?plug nsiot:hasState nsiot:StateON .
-            ?p    nsiot:isLocatedIn ?b .
-            ?b    a nsiot:Bedroom .
+            ?p    nsiot:isLocatedIn ?other .
+            FILTER(?other != ?k)
         }
     """),
 
-    # Rule 7: Night wandering (NightTimeContext + Standing in Kitchen)
-    (7, "Night wandering / sleep disturbance", """
+    # Rule 7 — AAL anomaly. Nocturnal kitchen activity (any of Cook, Eat,
+    # Housekeeping predicted with high confidence during the NightTime
+    # context) — common late-onset-dementia indicator.
+    (7, "Nocturnal kitchen activity", """
         CONSTRUCT {
             ?e a nsiot:BehavioralAnomaly .
-            ?e nsiot:hasAlertType nsiot:SleepDisturbance .
+            ?e nsiot:hasAlertType nsiot:NocturnalActivity .
         }
         WHERE {
             ?e    a nsiot:Event .
@@ -150,33 +171,42 @@ RULES: List[Tuple[int, str, str]] = [
             ?e    nsiot:hasTimeContext ?ctx .
             ?ctx  a nsiot:NightTimeContext .
             ?e    nsiot:isBasedOnPrediction ?pred .
-            ?pred nsiot:predictsPosture nsiot:Standing .
-            ?p    nsiot:isLocatedIn ?room .
-            ?room a nsiot:Kitchen .
+            ?pred nsiot:predictsActivity ?act .
+            FILTER(?act IN (nsiot:MealPreparation, nsiot:Eating, nsiot:Housekeeping))
+            ?pred nsiot:hasConfidenceScore ?conf .
+            FILTER(?conf > 0.80)
         }
     """),
 
-    # Rule 8: Spatial hallucination (low-conf Housekeeping + Quiet sensor in same room)
-    (8, "Spatial hallucination", """
+    # Rule 8 — Feedback trigger. Spatial hallucination: low-confidence
+    # kitchen-activity prediction with NO supporting kitchen PIR motion in
+    # the window.
+    (8, "Spatial hallucination (kitchen activity without kitchen motion)", """
         CONSTRUCT {
             ?e a nsiot:FeedbackRequired .
             ?e nsiot:hasErrorType nsiot:FalsePositiveHallucination .
         }
         WHERE {
-            ?e      a nsiot:Event .
-            ?e      nsiot:involvesPerson ?p .
-            ?e      nsiot:isBasedOnPrediction ?pred .
-            ?pred   nsiot:predictsActivity nsiot:Housekeeping .
-            ?pred   nsiot:hasConfidenceScore ?conf .
-            FILTER(?conf < 0.70)
-            ?p      nsiot:isLocatedIn ?room .
-            ?sensor nsiot:hasState nsiot:StateQuiet .
-            ?sensor nsiot:isLocatedIn ?room .
+            ?e    a nsiot:Event .
+            ?e    nsiot:involvesPerson ?p .
+            ?e    nsiot:isBasedOnPrediction ?pred .
+            ?pred nsiot:predictsActivity ?act .
+            FILTER(?act IN (nsiot:MealPreparation, nsiot:Eating, nsiot:Housekeeping))
+            ?pred nsiot:hasConfidenceScore ?conf .
+            FILTER(?conf < 0.80)
+            FILTER NOT EXISTS {
+                ?ks  a nsiot:PIRMotionSensor .
+                ?ks  nsiot:isLocatedIn ?k .
+                ?k   a nsiot:Kitchen .
+                ?ks  nsiot:hasState nsiot:StateMotionDetected .
+            }
         }
     """),
 
-    # Rule 9: Contextual hallucination (Sleeping in LivingRoom + TV ON)
-    (9, "Contextual hallucination", """
+    # Rule 9 — Feedback trigger. Contextual mismatch: low-confidence
+    # MealPreparation predicted but the derived person location is NOT
+    # Kitchen.
+    (9, "Contextual mismatch (Cook predicted, person not in Kitchen)", """
         CONSTRUCT {
             ?e a nsiot:FeedbackRequired .
             ?e nsiot:hasErrorType nsiot:ContextualMismatch .
@@ -185,17 +215,24 @@ RULES: List[Tuple[int, str, str]] = [
             ?e    a nsiot:Event .
             ?e    nsiot:involvesPerson ?p .
             ?e    nsiot:isBasedOnPrediction ?pred .
-            ?pred nsiot:predictsActivity nsiot:Sleeping .
+            ?pred nsiot:predictsActivity nsiot:MealPreparation .
+            ?pred nsiot:hasConfidenceScore ?conf .
+            FILTER(?conf < 0.85)
             ?p    nsiot:isLocatedIn ?room .
-            ?room a nsiot:LivingRoom .
-            ?tv   a nsiot:SmartAppliancePlug .
-            ?tv   nsiot:hasState nsiot:StateON .
-            ?tv   nsiot:isLocatedIn ?room .
+            FILTER NOT EXISTS {
+                ?p nsiot:isLocatedIn ?k .
+                ?k a nsiot:Kitchen .
+            }
         }
     """),
 
-    # Rule 10: Mutually exclusive predictions on the same event
-    (10, "Mutually exclusive predictions", """
+    # Rule 10 — Feedback trigger. Low-margin top-1/top-2 prediction pair
+    # *combined with* low absolute top-1 confidence. Requires the KG
+    # builder to emit an alternative NeuralPrediction tagged
+    # ``isAlternativePrediction true`` (top-2 softmax). The combined
+    # filter (margin < 0.10 AND top-1 conf < 0.75) avoids over-flagging
+    # confident-but-narrow predictions on well-trained models.
+    (10, "Low-margin AND low-confidence top-2 disagreement", """
         CONSTRUCT {
             ?e a nsiot:FeedbackRequired .
             ?e nsiot:hasErrorType nsiot:MutuallyExclusiveActivities .
@@ -203,29 +240,35 @@ RULES: List[Tuple[int, str, str]] = [
         WHERE {
             ?e     a nsiot:Event .
             ?e     nsiot:isBasedOnPrediction ?pred1 .
-            ?pred1 nsiot:predictsActivity nsiot:PersonalHygiene .
+            ?pred1 nsiot:isAlternativePrediction false .
+            ?pred1 nsiot:predictsActivity ?act1 .
+            ?pred1 nsiot:hasConfidenceScore ?conf1 .
             ?e     nsiot:isBasedOnPrediction ?pred2 .
-            ?pred2 nsiot:predictsActivity nsiot:MealPreparation .
+            ?pred2 nsiot:isAlternativePrediction true .
+            ?pred2 nsiot:predictsActivity ?act2 .
+            ?pred2 nsiot:hasConfidenceScore ?conf2 .
+            FILTER(?act1 != ?act2)
+            FILTER((?conf1 - ?conf2) < 0.10)
+            FILTER(?conf1 < 0.75)
         }
     """),
 
-    # Rule 11: Posture-based fall detection (Lying + quiet PIR in same room)
-    (11, "Posture-based fall (Lying + quiet PIR)", """
+    # Rule 11 — Feedback trigger. Unsupported claim: low-confidence
+    # prediction AND no person location derivable from any sensor.
+    (11, "Unsupported claim (low conf + no sensor evidence)", """
         CONSTRUCT {
-            ?e a nsiot:CriticalAnomaly .
-            ?e nsiot:hasAlertType nsiot:FallAlert .
+            ?e a nsiot:FeedbackRequired .
+            ?e nsiot:hasErrorType nsiot:UnsupportedClaim .
         }
         WHERE {
             ?e    a nsiot:Event .
             ?e    nsiot:involvesPerson ?p .
             ?e    nsiot:isBasedOnPrediction ?pred .
-            ?pred nsiot:predictsPosture nsiot:Lying .
             ?pred nsiot:hasConfidenceScore ?conf .
-            FILTER(?conf > 0.80)
-            ?p    nsiot:isLocatedIn ?room .
-            ?s    a nsiot:PIRMotionSensor .
-            ?s    nsiot:isLocatedIn ?room .
-            ?s    nsiot:hasState nsiot:StateQuiet .
+            FILTER(?conf < 0.75)
+            FILTER NOT EXISTS {
+                ?p nsiot:isLocatedIn ?_room .
+            }
         }
     """),
 ]

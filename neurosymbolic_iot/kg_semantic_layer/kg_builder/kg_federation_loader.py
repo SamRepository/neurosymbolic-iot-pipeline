@@ -102,16 +102,18 @@ def _add_prediction_to_graph(
     pred_uri = NSIOT[f"pred_{idx}"]
     event_uri = NSIOT[f"event_{idx}"]
 
-    # --- NeuralPrediction individual ---
+    def _resolve_activity_iri(raw: str) -> URIRef:
+        onto_label = activity_map.get(raw, raw)
+        if isinstance(onto_label, str) and onto_label.startswith("nsiot:"):
+            return NSIOT[onto_label.split(":", 1)[1]]
+        return NSIOT[onto_label]
+
+    # --- Primary NeuralPrediction individual (top-1) ---
     g.add((pred_uri, RDF.type, NSIOT["NeuralPrediction"]))
+    g.add((pred_uri, NSIOT["isAlternativePrediction"], Literal(False, datatype=XSD.boolean)))
 
     raw_label = pred.get("predicted_label", "")
-    onto_activity = activity_map.get(raw_label, raw_label)
-    if onto_activity.startswith("nsiot:"):
-        activity_ref = NSIOT[onto_activity.split(":", 1)[1]]
-    else:
-        activity_ref = NSIOT[onto_activity]
-    g.add((pred_uri, NSIOT["predictsActivity"], activity_ref))
+    g.add((pred_uri, NSIOT["predictsActivity"], _resolve_activity_iri(raw_label)))
 
     confidence = pred.get("confidence", 0.0)
     g.add((pred_uri, NSIOT["hasConfidenceScore"], Literal(float(confidence), datatype=XSD.float)))
@@ -123,10 +125,37 @@ def _add_prediction_to_graph(
     if window_start:
         g.add((pred_uri, NSIOT["generatedAt"], Literal(window_start, datatype=XSD.dateTime)))
 
+    # --- Alternative (top-2) prediction so rule 10 (mutually-exclusive
+    # top-2 with low margin) is evaluable. ``probabilities`` is the full
+    # softmax over id2label; we recover the second-highest class. We need
+    # id2label in the same order — passed via the prediction dict under
+    # metadata.id2label when emitted by the inference path, with the raw
+    # ``probabilities`` field already populated.
+    probs = pred.get("probabilities") or []
+    id2label_meta = (pred.get("metadata", {}) or {}).get("id2label")
+    if probs and id2label_meta and len(probs) == len(id2label_meta):
+        top1 = max(range(len(probs)), key=lambda i: probs[i])
+        ranked = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)
+        for j in ranked:
+            if j != top1:
+                top2 = j
+                break
+        else:
+            top2 = top1
+        alt_uri = NSIOT[f"pred_{idx}_alt"]
+        g.add((alt_uri, RDF.type, NSIOT["NeuralPrediction"]))
+        g.add((alt_uri, NSIOT["isAlternativePrediction"], Literal(True, datatype=XSD.boolean)))
+        g.add((alt_uri, NSIOT["predictsActivity"],
+               _resolve_activity_iri(str(id2label_meta[top2]))))
+        g.add((alt_uri, NSIOT["hasConfidenceScore"],
+               Literal(float(probs[top2]), datatype=XSD.float)))
+
     # --- Event individual ---
     g.add((event_uri, RDF.type, NSIOT["Event"]))
     g.add((event_uri, NSIOT["involvesPerson"], person_ref))
     g.add((event_uri, NSIOT["isBasedOnPrediction"], pred_uri))
+    if probs and id2label_meta and len(probs) == len(id2label_meta):
+        g.add((event_uri, NSIOT["isBasedOnPrediction"], NSIOT[f"pred_{idx}_alt"]))
 
     # Temporal entity
     if window_start:

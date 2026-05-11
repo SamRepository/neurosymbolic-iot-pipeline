@@ -75,12 +75,11 @@ def update_confidence_threshold(
     Too many false positives -> raise threshold.
     """
     reasoning_cfg = cfg.get("reasoning", {})
-    fp_count = sum(
-        1 for f in feedback_flags
-        if "FalsePositiveHallucination" in f.get("error_type", "")
-    )
-    total = max(len(feedback_flags), 1)
-    fp_ratio = fp_count / total
+    # Symbolic flagging => raise threshold. No flags => lower it.
+    # All FeedbackRequired error types contribute, not just the explicit
+    # FalsePositiveHallucination subtype.
+    fp_count = len(feedback_flags)
+    fp_ratio = 1.0 if fp_count > 0 else 0.0
 
     if fp_ratio > 0.3:
         delta = adjustment_rate

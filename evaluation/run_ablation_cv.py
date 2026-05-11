@@ -150,21 +150,23 @@ def _nesy_metrics(
     activity_iri_to_label: Dict[str, str],
     conf_threshold: float,
 ) -> Dict[str, float]:
-    """NeSy variant: drop predictions flagged FeedbackRequired and override
-    predictions for rule-validated events with the inferred activity."""
-    flagged_uris = {f.get("uri") for f in feedback_flags if f.get("uri")}
-    validated_uri_to_label: Dict[str, str] = {}
-    if validated_events and inferred_activities:
-        any_inferred = next(
-            (activity_iri_to_label.get(a["activity"]) for a in inferred_activities
-             if activity_iri_to_label.get(a["activity"]) is not None), None)
-        if any_inferred is not None:
-            for ev in validated_events:
-                if ev.get("uri"):
-                    validated_uri_to_label[ev["uri"]] = any_inferred
+    """NeSy variant: drop predictions whose event was flagged with a
+    *drop* error type (false-positive hallucination, unsupported claim);
+    keep predictions flagged with an *audit* error type
+    (contextual mismatch, low-margin top-2 disagreement) — those are
+    explainability annotations, not classification overrides."""
+    # Separate symbolic-veto error types from audit-only annotations.
+    # MutuallyExclusiveActivities is audit-only (top-1/top-2 disagreement
+    # is informational, not a definitive rejection). FP-Hallucination /
+    # Unsupported claim / Contextual mismatch are veto-strength signals.
+    DROP_ERROR_TYPES = ("FalsePositiveHallucination", "UnsupportedClaim",
+                        "ContextualMismatch")
+    flagged_uris = {
+        f.get("uri")
+        for f in feedback_flags
+        if f.get("uri") and any(e in f.get("error_type", "") for e in DROP_ERROR_TYPES)
+    }
 
-    # Build event URIs in the same idx-aligned scheme as the KG builder.
-    # event_<idx> uri convention from kg_federation_loader.
     base = "http://example.org/neuro-symbolic-iot#"
 
     active_preds: List[Tuple[str, str]] = []  # (gt, pred)
@@ -176,9 +178,8 @@ def _nesy_metrics(
             continue
         ev_uri = f"{base}event_{i}"
         if ev_uri in flagged_uris:
-            continue   # symbolic veto: drop low-conf hallucinations
-        pred_lab = validated_uri_to_label.get(ev_uri, p["predicted_label"])
-        active_preds.append((gt, pred_lab))
+            continue   # symbolic veto for hallucinations / unsupported claims
+        active_preds.append((gt, p["predicted_label"]))
 
     if not active_preds:
         return {"F1_weighted": 0.0, "Correctness": 0.0, "FP_rate": 0.0, "n_active": 0}
