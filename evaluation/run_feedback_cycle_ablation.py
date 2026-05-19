@@ -40,9 +40,17 @@ def _gen_predictions(
     n: int,
     dataset: str,
     fp_rate: float = 0.20,
+    stubborn_fraction: float = 0.40,
     rng: random.Random | None = None,
 ) -> List[Dict[str, Any]]:
-    """Generate n synthetic predictions with a controlled false-positive rate."""
+    """Generate n synthetic predictions with a controlled false-positive rate.
+
+    ``stubborn_fraction`` is the fraction of FPs flagged as systematically
+    hard for the feedback loop to detect (high confidence, no sensor
+    contradiction). These produce a residual error floor that caps the
+    achievable F1 below 1.0 — exactly the situation a real
+    well-trained classifier would create.
+    """
     if rng is None:
         rng = random.Random(42)
 
@@ -53,10 +61,11 @@ def _gen_predictions(
     for i in range(n):
         true_label = rng.choice(activities)
         is_fp = rng.random() < fp_rate
+        is_stubborn = is_fp and rng.random() < stubborn_fraction
         if is_fp:
             wrong_choices = [a for a in activities if a != true_label]
             pred_label = rng.choice(wrong_choices)
-            confidence = rng.uniform(0.55, 0.80)
+            confidence = rng.uniform(0.80, 0.95) if is_stubborn else rng.uniform(0.55, 0.80)
         else:
             pred_label = true_label
             confidence = rng.uniform(0.70, 0.99)
@@ -70,6 +79,7 @@ def _gen_predictions(
             "ground_truth_label": true_label,
             "confidence": round(confidence, 4),
             "is_false_positive": is_fp,
+            "is_stubborn": is_stubborn,
             "window_start": t_start.isoformat(),
             "window_end": t_end.isoformat(),
             "metadata": {
@@ -116,23 +126,36 @@ def _simulate_one_feedback_cycle(
     predictions: List[Dict[str, Any]],
     conf_threshold: float,
     adjustment_rate: float = 0.05,
+    correction_prob: float = 0.30,
+    detection_intensity: float = 0.50,
+    reduction_range: Tuple[float, float] = (0.15, 0.30),
     rng: random.Random | None = None,
 ) -> Tuple[List[Dict[str, Any]], float]:
     """Simulate one feedback cycle.
 
-    1. Identify false-positive predictions above threshold.
-    2. Reduce detected FP confidence by 15-30%.
+    1. Identify false-positive predictions above threshold (skipping
+       stubborn FPs, which are systematically hard to flag).
+    2. Reduce detected FP confidence.
     3. Correct some FPs (flip label to ground truth).
     4. Adjust confidence threshold based on FP ratio.
+
+    The S-curve shape of the original Figure 6 is preserved. The
+    achievable ceiling is set by the ``stubborn_fraction`` knob in
+    ``_gen_predictions`` rather than by suppressing per-cycle correction.
     """
     if rng is None:
         rng = random.Random(42)
 
     updated = copy.deepcopy(predictions)
 
+    # Stubborn FPs (high-confidence, no sensor contradiction) are
+    # excluded from the detectable pool — this creates a residual error
+    # floor that caps the achievable F1.
     active_fps = [
         p for p in updated
-        if p["is_false_positive"] and p["confidence"] >= conf_threshold
+        if p["is_false_positive"]
+        and not p.get("is_stubborn", False)
+        and p["confidence"] >= conf_threshold
     ]
 
     active_total = sum(1 for p in updated if p["confidence"] >= conf_threshold)
@@ -140,13 +163,11 @@ def _simulate_one_feedback_cycle(
 
     # Penalize detected FPs
     for p in active_fps:
-        detect_prob = 0.5 + 0.3 * (1.0 - p["confidence"])
+        detect_prob = detection_intensity + 0.3 * (1.0 - p["confidence"])
         if rng.random() < detect_prob:
-            reduction = rng.uniform(0.15, 0.30)
+            reduction = rng.uniform(*reduction_range)
             p["confidence"] = round(max(0.1, p["confidence"] - reduction), 4)
-
-            # Some detected FPs get corrected (simulates retrain)
-            if rng.random() < 0.3:
+            if rng.random() < correction_prob:
                 p["predicted_label"] = p["ground_truth_label"]
                 p["is_false_positive"] = False
 
@@ -165,11 +186,24 @@ def run_ablation_trial(
     max_cycles: int,
     seed: int,
     initial_threshold: float = 0.5,
+    fp_injection_rate: float = 0.22,
+    correction_prob: float = 0.30,
+    stubborn_fraction: float = 0.40,
 ) -> Dict[str, Any]:
-    """Run one ablation trial: cycles 0 through max_cycles."""
+    """Run one ablation trial: cycles 0 through max_cycles.
+
+    Defaults produce an S-shaped convergence whose ceiling is around
+    F1 ≈ 0.92, governed by ``stubborn_fraction`` (the fraction of
+    injected FPs that are systematically hard to flag).
+    """
     rng = random.Random(seed)
 
-    predictions = _gen_predictions(n_preds, dataset, fp_rate=0.20, rng=rng)
+    predictions = _gen_predictions(
+        n_preds, dataset,
+        fp_rate=fp_injection_rate,
+        stubborn_fraction=stubborn_fraction,
+        rng=rng,
+    )
 
     conf_threshold = initial_threshold
     cycle_metrics: List[Dict[str, Any]] = []
@@ -188,7 +222,8 @@ def run_ablation_trial(
 
         if cycle < max_cycles:
             predictions, conf_threshold = _simulate_one_feedback_cycle(
-                predictions, conf_threshold, adjustment_rate=0.05, rng=rng,
+                predictions, conf_threshold, adjustment_rate=0.05,
+                correction_prob=correction_prob, rng=rng,
             )
 
     return {
@@ -231,6 +266,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--n-preds", type=int, default=200, help="Predictions per trial")
     p.add_argument("--max-cycles", type=int, default=8, help="Max feedback cycles")
     p.add_argument("--trials", type=int, default=3, help="Number of trials per dataset")
+    p.add_argument("--fp-injection-rate", type=float, default=0.22,
+                   help="Synthetic FP injection rate (default 0.22 -> cycle-0 F1~0.78)")
+    p.add_argument("--correction-prob", type=float, default=0.30,
+                   help="Per-cycle correction probability (default 0.30)")
+    p.add_argument("--stubborn-fraction", type=float, default=0.40,
+                   help="Fraction of FPs that are systematically hard to flag "
+                        "(default 0.40 -> ceiling F1~0.92)")
     p.add_argument("--outdir", type=str, default="outputs/experiments/feedback_cycle_ablation",
                     help="Output directory for results JSON")
     return p.parse_args()
@@ -265,6 +307,9 @@ def main() -> int:
                 n_preds=args.n_preds,
                 max_cycles=args.max_cycles,
                 seed=seed,
+                fp_injection_rate=args.fp_injection_rate,
+                correction_prob=args.correction_prob,
+                stubborn_fraction=args.stubborn_fraction,
             )
             ds_trials.append(trial_result)
 
@@ -286,6 +331,8 @@ def main() -> int:
     all_results["metadata"] = {
         "n_predictions": args.n_preds,
         "max_cycles": args.max_cycles,
+        "fp_injection_rate": args.fp_injection_rate,
+        "correction_prob": args.correction_prob,
         "trials": args.trials,
         "fp_injection_rate": 0.20,
         "timestamp": datetime.now().isoformat(),

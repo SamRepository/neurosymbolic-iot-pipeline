@@ -40,14 +40,45 @@ import copy
 import json
 import logging
 import math
+import os
+import random
 import time
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+# Set BEFORE importing torch — required for use_deterministic_algorithms(True)
+# on any CUBLAS / cuDNN code path. Harmless on CPU.
+os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+os.environ.setdefault("PYTHONHASHSEED", "42")
 
 import numpy as np
 import pandas as pd
 import torch
+
+# Pin all torch RNG sources to deterministic algorithms. Must run before
+# any tensor is allocated; CPU-only run so cuDNN flags are no-ops.
+torch.use_deterministic_algorithms(True, warn_only=True)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
+
+def _set_per_fold_seed(base_seed: int, fold_idx: int) -> int:
+    """Reset every relevant RNG to a deterministic, fold-specific value.
+
+    Without this, RNG state evolves through the script as preceding folds
+    consume random numbers (DataLoader shuffle, dropout, KG triple
+    iteration, rdflib SPARQL planner). The downstream effect is that
+    fold N's trained model depends on the wall-clock history of folds
+    0..N-1 — meaning re-runs are not byte-stable. Resetting here pins
+    each fold to a known starting state.
+    """
+    seed = int(base_seed) + 1000 * int(fold_idx)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    return seed
 from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedKFold
 from torch.utils.data import DataLoader
@@ -150,26 +181,50 @@ def _nesy_metrics(
     activity_iri_to_label: Dict[str, str],
     conf_threshold: float,
 ) -> Dict[str, float]:
-    """NeSy variant: drop predictions whose event was flagged with a
-    *drop* error type (false-positive hallucination, unsupported claim);
-    keep predictions flagged with an *audit* error type
-    (contextual mismatch, low-margin top-2 disagreement) — those are
-    explainability annotations, not classification overrides."""
-    # Separate symbolic-veto error types from audit-only annotations.
-    # MutuallyExclusiveActivities is audit-only (top-1/top-2 disagreement
-    # is informational, not a definitive rejection). FP-Hallucination /
-    # Unsupported claim / Contextual mismatch are veto-strength signals.
-    DROP_ERROR_TYPES = ("FalsePositiveHallucination", "UnsupportedClaim",
-                        "ContextualMismatch")
-    flagged_uris = {
+    """NeSy variant: when a rule flags a prediction as likely wrong, *override*
+    the top-1 label with the top-2 softmax candidate (the network's
+    next-best guess), rather than dropping it. This converts symbolic
+    flagging into a classification correction signal.
+
+    Error-type semantics:
+      * OVERRIDE_ERROR_TYPES — top-1 considered unreliable; replace with
+        top-2 (which the KG builder emits as the alternative
+        NeuralPrediction). Falls back to drop if top-2 unavailable.
+      * AUDIT_ERROR_TYPES — informational; keep top-1 unchanged.
+    """
+    # All four FeedbackRequired error types trigger top-2 override.
+    # MutuallyExclusiveActivities is included because the rule fires
+    # exactly when the network is uncertain between two near-equally
+    # probable classes — the canonical "swap top-1 for top-2" signal.
+    OVERRIDE_ERROR_TYPES = ("FalsePositiveHallucination", "UnsupportedClaim",
+                            "ContextualMismatch", "MutuallyExclusiveActivities")
+    override_uris = {
         f.get("uri")
         for f in feedback_flags
-        if f.get("uri") and any(e in f.get("error_type", "") for e in DROP_ERROR_TYPES)
+        if f.get("uri") and any(e in f.get("error_type", "") for e in OVERRIDE_ERROR_TYPES)
     }
 
     base = "http://example.org/neuro-symbolic-iot#"
 
+    def _top2_label(p: Dict[str, Any]) -> Optional[str]:
+        """Return the second-most-probable class label, or None if unavailable."""
+        probs = p.get("probabilities") or []
+        id2lab = (p.get("metadata") or {}).get("id2label")
+        if not probs or not id2lab or len(probs) != len(id2lab):
+            return None
+        order = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)
+        if len(order) < 2:
+            return None
+        top1_lab = id2lab[order[0]]
+        # Walk to the next-most-probable that differs from top-1.
+        for j in order[1:]:
+            if id2lab[j] != top1_lab:
+                return str(id2lab[j])
+        return None
+
     active_preds: List[Tuple[str, str]] = []  # (gt, pred)
+    n_overridden = 0
+    n_dropped = 0
     for i, p in enumerate(predictions):
         gt = p.get("ground_truth_label")
         if gt is None:
@@ -177,8 +232,14 @@ def _nesy_metrics(
         if float(p.get("confidence", 0.0)) < conf_threshold:
             continue
         ev_uri = f"{base}event_{i}"
-        if ev_uri in flagged_uris:
-            continue   # symbolic veto for hallucinations / unsupported claims
+        if ev_uri in override_uris:
+            top2 = _top2_label(p)
+            if top2 is not None:
+                active_preds.append((gt, top2))
+                n_overridden += 1
+                continue
+            n_dropped += 1
+            continue
         active_preds.append((gt, p["predicted_label"]))
 
     if not active_preds:
@@ -193,6 +254,8 @@ def _nesy_metrics(
         "Correctness": float(correctness),
         "FP_rate": float(1.0 - correctness),
         "n_active": len(active_preds),
+        "n_overridden": n_overridden,
+        "n_dropped_fallback": n_dropped,
     }
 
 
@@ -508,14 +571,20 @@ def run_ablation_cv(cfg: Dict[str, Any], k: int, epochs: int, seed: int,
     fold_records: List[Dict[str, Any]] = []
 
     for fold_idx, (train_idx, val_idx) in enumerate(skf.split(dfw, labels_arr)):
+        # Pin all RNG sources to a fold-specific seed BEFORE any model
+        # construction or training. This decouples fold N's training from
+        # the wall-clock history of folds 0..N-1 and makes the run
+        # byte-reproducible.
+        fold_seed = _set_per_fold_seed(seed, fold_idx)
         log.info("=" * 60)
-        log.info("Fold %d/%d (train=%d, val=%d)", fold_idx + 1, k, len(train_idx), len(val_idx))
+        log.info("Fold %d/%d (train=%d, val=%d, fold_seed=%d)",
+                 fold_idx + 1, k, len(train_idx), len(val_idx), fold_seed)
         t0 = time.time()
         per_cfg = _train_fold_and_evaluate(
             cfg=cfg, fold_idx=fold_idx,
             train_idx=train_idx, val_idx=val_idx,
             df_all=dfw, full_vocab=full_vocab, id2label=id2label,
-            epochs=epochs, seed=seed, out_dir=out_dir,
+            epochs=epochs, seed=fold_seed, out_dir=out_dir,
         )
         for cfg_name in CONFIG_NAMES:
             row = per_cfg.get(cfg_name, {})

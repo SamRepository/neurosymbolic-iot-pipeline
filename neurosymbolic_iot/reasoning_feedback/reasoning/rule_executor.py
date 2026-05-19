@@ -414,8 +414,12 @@ def run_python_reasoning(populated_kg_path: Path) -> ReasoningResult:
     )
 
     # Re-serialise so downstream steps (feedback loop's retract step) see
-    # the inferred triples.
-    g.serialize(destination=str(populated_kg_path), format="turtle")
+    # the inferred triples. Make the path absolute and ensure the parent
+    # directory exists — defensive against any relative-path or CWD shift
+    # between parse and serialize.
+    out_path = Path(populated_kg_path).resolve()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    g.serialize(destination=str(out_path), format="turtle")
 
     # Stash for callers that want the per-rule count
     result._rule_firings = fire_summary["rule_firings"]  # type: ignore[attr-defined]
