@@ -203,6 +203,9 @@ def _nesy_metrics(
         for f in feedback_flags
         if f.get("uri") and any(e in f.get("error_type", "") for e in OVERRIDE_ERROR_TYPES)
     }
+    # validated_uris reserved for future rule-augmented-active-set
+    # experiments. Currently the threshold gate is enforced uniformly.
+    validated_uris: set = set()
 
     base = "http://example.org/neuro-symbolic-iot#"
 
@@ -225,13 +228,18 @@ def _nesy_metrics(
     active_preds: List[Tuple[str, str]] = []  # (gt, pred)
     n_overridden = 0
     n_dropped = 0
+    n_rule_admitted = 0
     for i, p in enumerate(predictions):
         gt = p.get("ground_truth_label")
         if gt is None:
             continue
-        if float(p.get("confidence", 0.0)) < conf_threshold:
-            continue
         ev_uri = f"{base}event_{i}"
+        is_validated = ev_uri in validated_uris
+        # Rule-validated events bypass the neural-only confidence gate.
+        if not is_validated and float(p.get("confidence", 0.0)) < conf_threshold:
+            continue
+        if is_validated and float(p.get("confidence", 0.0)) < conf_threshold:
+            n_rule_admitted += 1
         if ev_uri in override_uris:
             top2 = _top2_label(p)
             if top2 is not None:
@@ -256,6 +264,7 @@ def _nesy_metrics(
         "n_active": len(active_preds),
         "n_overridden": n_overridden,
         "n_dropped_fallback": n_dropped,
+        "n_rule_admitted": n_rule_admitted,
     }
 
 

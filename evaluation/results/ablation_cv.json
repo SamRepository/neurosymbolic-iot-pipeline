@@ -96,7 +96,7 @@
   "fold_records": [
     {
       "fold": 0,
-      "wall_time_s": 607.56,
+      "wall_time_s": 28942.84,
       "AI-Only": {
         "F1_weighted": 0.9364495798319327,
         "Correctness": 0.9264705882352942,
@@ -115,7 +115,8 @@
         "FP_rate": 0.07352941176470584,
         "n_active": 68,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "NeSy-Full": {
         "F1_weighted": 0.9415484515484516,
@@ -123,7 +124,8 @@
         "FP_rate": 0.06153846153846154,
         "n_active": 65,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "_meta": {
         "n_predictions": 80,
@@ -147,7 +149,7 @@
     },
     {
       "fold": 1,
-      "wall_time_s": 675.91,
+      "wall_time_s": 611.86,
       "AI-Only": {
         "F1_weighted": 0.8310603915761047,
         "Correctness": 0.8356164383561644,
@@ -166,7 +168,8 @@
         "FP_rate": 0.1643835616438356,
         "n_active": 73,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "NeSy-Full": {
         "F1_weighted": 0.8376470588235294,
@@ -174,7 +177,8 @@
         "FP_rate": 0.15714285714285714,
         "n_active": 70,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "_meta": {
         "n_predictions": 80,
@@ -198,7 +202,7 @@
     },
     {
       "fold": 2,
-      "wall_time_s": 829.98,
+      "wall_time_s": 570.43,
       "AI-Only": {
         "F1_weighted": 0.9135668276972625,
         "Correctness": 0.9130434782608695,
@@ -217,7 +221,8 @@
         "FP_rate": 0.08695652173913049,
         "n_active": 69,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "NeSy-Full": {
         "F1_weighted": 0.9135668276972625,
@@ -225,7 +230,8 @@
         "FP_rate": 0.08695652173913049,
         "n_active": 69,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "_meta": {
         "n_predictions": 80,
@@ -249,7 +255,7 @@
     },
     {
       "fold": 3,
-      "wall_time_s": 619.31,
+      "wall_time_s": 693.28,
       "AI-Only": {
         "F1_weighted": 0.742549460398869,
         "Correctness": 0.7361111111111112,
@@ -268,7 +274,8 @@
         "FP_rate": 0.26388888888888884,
         "n_active": 72,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "NeSy-Full": {
         "F1_weighted": 0.7515563601041988,
@@ -276,7 +283,8 @@
         "FP_rate": 0.2535211267605634,
         "n_active": 71,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "_meta": {
         "n_predictions": 80,
@@ -300,7 +308,7 @@
     },
     {
       "fold": 4,
-      "wall_time_s": 513.28,
+      "wall_time_s": 557.0,
       "AI-Only": {
         "F1_weighted": 0.8176075533661741,
         "Correctness": 0.8266666666666667,
@@ -319,7 +327,8 @@
         "FP_rate": 0.17333333333333334,
         "n_active": 75,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "NeSy-Full": {
         "F1_weighted": 0.8015080314422419,
@@ -327,7 +336,8 @@
         "FP_rate": 0.1842105263157895,
         "n_active": 76,
         "n_overridden": 0,
-        "n_dropped_fallback": 0
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
       },
       "_meta": {
         "n_predictions": 80,

@@ -96,8 +96,7 @@ RULES: List[Tuple[int, str, str]] = [
     """),
 
     # Rule 4 — Validation. High-confidence Eat prediction corroborated by
-    # person located in Kitchen (CASAS Kyoto ADL eating happens in the
-    # kitchen; the SAREF/AAL ontology's DiningArea is not instantiated).
+    # person located in Kitchen.
     (4, "High-confidence Eat in Kitchen validation", """
         CONSTRUCT {
             ?p nsiot:performsActivity nsiot:Eating .
