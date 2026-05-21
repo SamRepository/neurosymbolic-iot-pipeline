@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from neurosymbolic_iot.data_processing.windowing import rolling_event_windows
 from neurosymbolic_iot.data_processing.casas_kyoto_adl_errors import load_kyoto_adl_errors_events
+from neurosymbolic_iot.data_processing.casas_aruba import load_aruba_events
 from neurosymbolic_iot.utils.timer import timed
 
 log = logging.getLogger(__name__)
@@ -109,6 +110,32 @@ def _parse_casas_text_like(path: Path) -> pd.DataFrame:
     return df
 
 
+def _ensure_datetime_ts(events: pd.DataFrame) -> pd.DataFrame:
+    """Coerce the ``timestamp`` column to tz-aware (UTC) ``datetime64``.
+
+    Downstream windowing in ``casas_sequence.build_casas_sequences``
+    constructs its window bounds from a tz-aware UTC column (via
+    ``_ensure_utc_tz``); pandas refuses to compare tz-aware with
+    tz-naive timestamps. Localising here keeps all comparisons valid.
+    """
+    if events.empty or "timestamp" not in events.columns:
+        return events
+    events = events.copy()
+    if not pd.api.types.is_datetime64_any_dtype(events["timestamp"]):
+        events["timestamp"] = pd.to_datetime(
+            events["timestamp"], errors="coerce", format="mixed"
+        )
+        events = events.dropna(subset=["timestamp"]).reset_index(drop=True)
+    # Localise/convert to UTC so comparisons against tz-aware window
+    # bounds (start_time / end_time) work without raising.
+    ts = events["timestamp"]
+    if getattr(ts.dt, "tz", None) is None:
+        events["timestamp"] = ts.dt.tz_localize("UTC")
+    else:
+        events["timestamp"] = ts.dt.tz_convert("UTC")
+    return events
+
+
 def load_casas_events(cfg: Dict) -> pd.DataFrame:
     ds = cfg["datasets"]["casas"]
     raw_dir = Path(ds["raw_dir"])
@@ -120,10 +147,22 @@ def load_casas_events(cfg: Dict) -> pd.DataFrame:
             raw_dir=raw_dir,
             file_globs=ds.get("file_globs", ["**/*.csv"]),
         )
-        # Ensure expected columns exist
         if "activity" not in events.columns:
             events["activity"] = None
-        return events
+        return _ensure_datetime_ts(events)
+
+    if casas_format == "aruba":
+        # CASAS Aruba single-resident OR Zenodo labeled bundle
+        # (82 homes across hh / ihs / mn / mv / mva / rw / tm series).
+        # https://zenodo.org/records/15708568 (labeled_data.zip)
+        events = load_aruba_events(
+            raw_dir=raw_dir,
+            file_globs=ds.get("file_globs"),
+            homes=ds.get("homes"),
+        )
+        if "activity" not in events.columns:
+            events["activity"] = None
+        return _ensure_datetime_ts(events)
 
     files = _find_files(raw_dir, ds.get("file_globs", ["**/*.csv", "**/*.txt", "**/*.log"]))
  
@@ -144,7 +183,7 @@ def load_casas_events(cfg: Dict) -> pd.DataFrame:
     events = events.dropna(subset=["timestamp", "sensor", "value"]).reset_index(drop=True)
     if "activity" not in events.columns:
         events["activity"] = None
-    return events
+    return _ensure_datetime_ts(events)
 
 
 def preprocess_casas(cfg: Dict) -> Dict[str, object]:
@@ -154,7 +193,7 @@ def preprocess_casas(cfg: Dict) -> Dict[str, object]:
 
     timings: Dict[str, float] = {}
     with timed("load", timings):
-        events = load_casas_events(cfg)
+        events = load_casas_events(cfg)  # timestamps already datetime64
 
     with timed("windowing", timings):
         X, Y = rolling_event_windows(

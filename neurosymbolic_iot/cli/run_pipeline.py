@@ -299,6 +299,16 @@ def _run_kg_stage(
 
     sensor_map = load_sensor_map(sensor_map_path)
 
+    # If running on the Aruba / Zenodo-labeled CASAS bundle, the
+    # ``casas_aruba`` sub-block (room-name sensors) must override the
+    # default ``casas`` (Kyoto M\d+/D\d+ patterns). The KG builder keys
+    # by ``dataset`` which stays "casas" for downstream dispatch, so
+    # we splice the variant block into the "casas" key here.
+    casas_format = str(cfg.get("datasets", {}).get("casas", {}).get("format", "")).lower()
+    if casas_format == "aruba" and "casas_aruba" in sensor_map:
+        sensor_map = dict(sensor_map)
+        sensor_map["casas"] = sensor_map["casas_aruba"]
+
     g = build_kg_from_predictions(
         predictions,
         sensor_map,

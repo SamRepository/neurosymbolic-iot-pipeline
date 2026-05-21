@@ -59,6 +59,71 @@
       "WashHands": "nsiot:PersonalHygiene"
     }
   },
+  "casas_aruba": {
+    "_format_note": "Zenodo 15708568 labeled bundle uses ROOM-LEVEL sensor names directly (Bathroom, Kitchen, ...). Classic Aruba M001/D002/T003 IDs are also supported via the M\\d+ / D\\d+ / T\\d+ patterns kept here for backwards compatibility with the original CASAS release.",
+    "sensor_type_patterns": {
+      "Bathroom|Bedroom|Kitchen|LivingRoom|DiningRoom|Office|Hallway": {
+        "rdf_type": "nsiot:PIRMotionSensor",
+        "state_map": {
+          "ON": "nsiot:StateMotionDetected",
+          "OFF": "nsiot:StateQuiet"
+        }
+      },
+      "OutsideDoor|FrontDoor|BackDoor|GarageDoor": {
+        "rdf_type": "nsiot:DoorContactSensor",
+        "state_map": {
+          "ON": "nsiot:StateOpen",
+          "OFF": "nsiot:StateClosed",
+          "OPEN": "nsiot:StateOpen",
+          "CLOSE": "nsiot:StateClosed"
+        }
+      },
+      "M0?\\d+": {
+        "rdf_type": "nsiot:PIRMotionSensor",
+        "state_map": {
+          "ON": "nsiot:StateMotionDetected",
+          "OFF": "nsiot:StateQuiet"
+        }
+      },
+      "D0?\\d+": {
+        "rdf_type": "nsiot:DoorContactSensor",
+        "state_map": {
+          "OPEN": "nsiot:StateOpen",
+          "CLOSE": "nsiot:StateClosed"
+        }
+      },
+      "T0?\\d+": {
+        "rdf_type": "nsiot:TemperatureSensor",
+        "state_map": {}
+      }
+    },
+    "room_assignments": {
+      "Bathroom": "nsiot:Bathroom",
+      "Bedroom": "nsiot:Bedroom",
+      "Kitchen": "nsiot:Kitchen",
+      "LivingRoom": "nsiot:LivingRoom",
+      "DiningRoom": "nsiot:Kitchen",
+      "Office": "nsiot:LivingRoom",
+      "Hallway": "nsiot:Hallway",
+      "OutsideDoor": "nsiot:Entrance",
+      "FrontDoor": "nsiot:Entrance",
+      "BackDoor": "nsiot:Entrance",
+      "GarageDoor": "nsiot:Entrance"
+    },
+    "activity_map": {
+      "MealPreparation": "nsiot:MealPreparation",
+      "Eating": "nsiot:Eating",
+      "PersonalHygiene": "nsiot:PersonalHygiene",
+      "Sleeping": "nsiot:Sleeping",
+      "Housekeeping": "nsiot:Housekeeping",
+      "Medication": "nsiot:Medication",
+      "Relax": "nsiot:Relax",
+      "PhoneCall": "nsiot:PhoneCall",
+      "Work": "nsiot:Work",
+      "EnterHome": "nsiot:EnterHome",
+      "LeaveHome": "nsiot:LeaveHome"
+    }
+  },
   "sphere": {
     "pir_columns": {
       "bath": {

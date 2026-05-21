@@ -1,0 +1,480 @@
+{
+  "per_fold": {
+    "AI-Only": {
+      "F1_weighted": [
+        0.8674043191176842,
+        0.7226194138154055,
+        0.8139981209086187,
+        0.9035756227804131,
+        0.8613924509164675
+      ],
+      "Correctness": [
+        0.8565573770491803,
+        0.7243589743589743,
+        0.8,
+        0.9028571428571428,
+        0.8465116279069768
+      ],
+      "FP_rate": [
+        0.14344262295081966,
+        0.27564102564102566,
+        0.19999999999999996,
+        0.0971428571428572,
+        0.15348837209302324
+      ]
+    },
+    "KG+Rules": {
+      "F1_weighted": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "Correctness": [
+        0.0,
+        0.0,
+        0.0,
+        null,
+        null
+      ],
+      "FP_rate": [
+        1.0,
+        1.0,
+        1.0,
+        null,
+        null
+      ]
+    },
+    "NeSy-NoFeedback": {
+      "F1_weighted": [
+        0.8674043191176842,
+        0.7226194138154055,
+        0.8139981209086187,
+        0.9035756227804131,
+        0.8613924509164675
+      ],
+      "Correctness": [
+        0.8565573770491803,
+        0.7243589743589743,
+        0.8,
+        0.9028571428571428,
+        0.8465116279069768
+      ],
+      "FP_rate": [
+        0.14344262295081966,
+        0.27564102564102566,
+        0.19999999999999996,
+        0.0971428571428572,
+        0.15348837209302324
+      ]
+    },
+    "NeSy-Full": {
+      "F1_weighted": [
+        0.8783478177095977,
+        0.7484054362485736,
+        0.8339599960494405,
+        0.9154108116775226,
+        0.8735045472368951
+      ],
+      "Correctness": [
+        0.8678414096916299,
+        0.7555555555555555,
+        0.8229166666666666,
+        0.9210526315789473,
+        0.864321608040201
+      ],
+      "FP_rate": [
+        0.13215859030837007,
+        0.24444444444444446,
+        0.17708333333333337,
+        0.07894736842105265,
+        0.13567839195979903
+      ]
+    }
+  },
+  "fold_records": [
+    {
+      "fold": 0,
+      "wall_time_s": 1908.58,
+      "AI-Only": {
+        "F1_weighted": 0.8674043191176842,
+        "Correctness": 0.8565573770491803,
+        "FP_rate": 0.14344262295081966,
+        "n_active": 244
+      },
+      "KG+Rules": {
+        "F1_weighted": null,
+        "Correctness": 0.0,
+        "FP_rate": 1.0,
+        "n_validated": 21
+      },
+      "NeSy-NoFeedback": {
+        "F1_weighted": 0.8674043191176842,
+        "Correctness": 0.8565573770491803,
+        "FP_rate": 0.14344262295081966,
+        "n_active": 244,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "NeSy-Full": {
+        "F1_weighted": 0.8783478177095977,
+        "Correctness": 0.8678414096916299,
+        "FP_rate": 0.13215859030837007,
+        "n_active": 227,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "_meta": {
+        "n_predictions": 359,
+        "n_feedback_flags": 33,
+        "n_validated": 21,
+        "n_critical": 12,
+        "rule_firings": {
+          "1": 4,
+          "2": 0,
+          "3": 13,
+          "4": 10,
+          "5": 24,
+          "6": 0,
+          "7": 8,
+          "8": 0,
+          "9": 0,
+          "10": 66,
+          "11": 0
+        }
+      }
+    },
+    {
+      "fold": 1,
+      "wall_time_s": 1910.74,
+      "AI-Only": {
+        "F1_weighted": 0.7226194138154055,
+        "Correctness": 0.7243589743589743,
+        "FP_rate": 0.27564102564102566,
+        "n_active": 156
+      },
+      "KG+Rules": {
+        "F1_weighted": null,
+        "Correctness": 0.0,
+        "FP_rate": 1.0,
+        "n_validated": 9
+      },
+      "NeSy-NoFeedback": {
+        "F1_weighted": 0.7226194138154055,
+        "Correctness": 0.7243589743589743,
+        "FP_rate": 0.27564102564102566,
+        "n_active": 156,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "NeSy-Full": {
+        "F1_weighted": 0.7484054362485736,
+        "Correctness": 0.7555555555555555,
+        "FP_rate": 0.24444444444444446,
+        "n_active": 135,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "_meta": {
+        "n_predictions": 359,
+        "n_feedback_flags": 32,
+        "n_validated": 9,
+        "n_critical": 8,
+        "rule_firings": {
+          "1": 4,
+          "2": 0,
+          "3": 9,
+          "4": 2,
+          "5": 16,
+          "6": 0,
+          "7": 4,
+          "8": 0,
+          "9": 0,
+          "10": 64,
+          "11": 0
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "wall_time_s": 1887.92,
+      "AI-Only": {
+        "F1_weighted": 0.8139981209086187,
+        "Correctness": 0.8,
+        "FP_rate": 0.19999999999999996,
+        "n_active": 215
+      },
+      "KG+Rules": {
+        "F1_weighted": null,
+        "Correctness": 0.0,
+        "FP_rate": 1.0,
+        "n_validated": 1
+      },
+      "NeSy-NoFeedback": {
+        "F1_weighted": 0.8139981209086187,
+        "Correctness": 0.8,
+        "FP_rate": 0.19999999999999996,
+        "n_active": 215,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "NeSy-Full": {
+        "F1_weighted": 0.8339599960494405,
+        "Correctness": 0.8229166666666666,
+        "FP_rate": 0.17708333333333337,
+        "n_active": 192,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "_meta": {
+        "n_predictions": 358,
+        "n_feedback_flags": 28,
+        "n_validated": 1,
+        "n_critical": 0,
+        "rule_firings": {
+          "1": 4,
+          "2": 0,
+          "3": 0,
+          "4": 2,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "10": 56,
+          "11": 0
+        }
+      }
+    },
+    {
+      "fold": 3,
+      "wall_time_s": 1883.97,
+      "AI-Only": {
+        "F1_weighted": 0.9035756227804131,
+        "Correctness": 0.9028571428571428,
+        "FP_rate": 0.0971428571428572,
+        "n_active": 175
+      },
+      "KG+Rules": {
+        "F1_weighted": null,
+        "Correctness": null,
+        "FP_rate": null,
+        "n_validated": 0
+      },
+      "NeSy-NoFeedback": {
+        "F1_weighted": 0.9035756227804131,
+        "Correctness": 0.9028571428571428,
+        "FP_rate": 0.0971428571428572,
+        "n_active": 175,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "NeSy-Full": {
+        "F1_weighted": 0.9154108116775226,
+        "Correctness": 0.9210526315789473,
+        "FP_rate": 0.07894736842105265,
+        "n_active": 152,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "_meta": {
+        "n_predictions": 358,
+        "n_feedback_flags": 45,
+        "n_validated": 0,
+        "n_critical": 0,
+        "rule_firings": {
+          "1": 4,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "10": 90,
+          "11": 0
+        }
+      }
+    },
+    {
+      "fold": 4,
+      "wall_time_s": 1893.64,
+      "AI-Only": {
+        "F1_weighted": 0.8613924509164675,
+        "Correctness": 0.8465116279069768,
+        "FP_rate": 0.15348837209302324,
+        "n_active": 215
+      },
+      "KG+Rules": {
+        "F1_weighted": null,
+        "Correctness": null,
+        "FP_rate": null,
+        "n_validated": 0
+      },
+      "NeSy-NoFeedback": {
+        "F1_weighted": 0.8613924509164675,
+        "Correctness": 0.8465116279069768,
+        "FP_rate": 0.15348837209302324,
+        "n_active": 215,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "NeSy-Full": {
+        "F1_weighted": 0.8735045472368951,
+        "Correctness": 0.864321608040201,
+        "FP_rate": 0.13567839195979903,
+        "n_active": 199,
+        "n_overridden": 0,
+        "n_dropped_fallback": 0,
+        "n_rule_admitted": 0
+      },
+      "_meta": {
+        "n_predictions": 358,
+        "n_feedback_flags": 28,
+        "n_validated": 0,
+        "n_critical": 0,
+        "rule_firings": {
+          "1": 4,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 2,
+          "8": 0,
+          "9": 0,
+          "10": 56,
+          "11": 0
+        }
+      }
+    }
+  ],
+  "summary": {
+    "AI-Only": {
+      "F1_weighted_mean": 0.8337979855077178,
+      "F1_weighted_sd": 0.06984351846260355,
+      "F1_weighted_ci95_half": 0.08670827953494345,
+      "Correctness_mean": 0.826057024434455,
+      "Correctness_sd": 0.06758029005211562,
+      "Correctness_ci95_half": 0.08389856080960337,
+      "FP_rate_mean": 0.17394297556554514,
+      "FP_rate_sd": 0.0675802900521156,
+      "FP_rate_ci95_half": 0.08389856080960335
+    },
+    "KG+Rules": {
+      "F1_weighted_mean": null,
+      "F1_weighted_sd": null,
+      "F1_weighted_ci95_half": null,
+      "Correctness_mean": 0.0,
+      "Correctness_sd": 0.0,
+      "Correctness_ci95_half": 0.0,
+      "FP_rate_mean": 1.0,
+      "FP_rate_sd": 0.0,
+      "FP_rate_ci95_half": 0.0
+    },
+    "NeSy-NoFeedback": {
+      "F1_weighted_mean": 0.8337979855077178,
+      "F1_weighted_sd": 0.06984351846260355,
+      "F1_weighted_ci95_half": 0.08670827953494345,
+      "Correctness_mean": 0.826057024434455,
+      "Correctness_sd": 0.06758029005211562,
+      "Correctness_ci95_half": 0.08389856080960337,
+      "FP_rate_mean": 0.17394297556554514,
+      "FP_rate_sd": 0.0675802900521156,
+      "FP_rate_ci95_half": 0.08389856080960335
+    },
+    "NeSy-Full": {
+      "F1_weighted_mean": 0.849925721784406,
+      "F1_weighted_sd": 0.0636658195547862,
+      "F1_weighted_ci95_half": 0.07903888292416776,
+      "Correctness_mean": 0.8463375743066001,
+      "Correctness_sd": 0.061559105808972704,
+      "Correctness_ci95_half": 0.07642347166779025,
+      "FP_rate_mean": 0.1536624256933999,
+      "FP_rate_sd": 0.0615591058089727,
+      "FP_rate_ci95_half": 0.07642347166779023
+    }
+  },
+  "paired_tests": {
+    "F1_weighted__AI-Only_vs_NeSy-Full": {
+      "W": 15.0,
+      "p_value": 0.03125,
+      "significant_alpha_0.05": true,
+      "cohens_d": 2.478180375536513,
+      "n_paired": 5,
+      "alternative": "greater"
+    },
+    "Correctness__AI-Only_vs_NeSy-Full": {
+      "W": 15.0,
+      "p_value": 0.03125,
+      "significant_alpha_0.05": true,
+      "cohens_d": 2.750316776763598,
+      "n_paired": 5,
+      "alternative": "greater"
+    },
+    "FP_rate__AI-Only_vs_NeSy-Full": {
+      "W": 15.0,
+      "p_value": 0.03125,
+      "significant_alpha_0.05": true,
+      "cohens_d": -2.750316776763598,
+      "n_paired": 5,
+      "alternative": "less"
+    },
+    "F1_weighted__NeSy-NoFeedback_vs_NeSy-Full": {
+      "W": 15.0,
+      "p_value": 0.03125,
+      "significant_alpha_0.05": true,
+      "cohens_d": 2.478180375536513,
+      "n_paired": 5,
+      "alternative": "greater"
+    },
+    "Correctness__NeSy-NoFeedback_vs_NeSy-Full": {
+      "W": 15.0,
+      "p_value": 0.03125,
+      "significant_alpha_0.05": true,
+      "cohens_d": 2.750316776763598,
+      "n_paired": 5,
+      "alternative": "greater"
+    },
+    "FP_rate__NeSy-NoFeedback_vs_NeSy-Full": {
+      "W": 15.0,
+      "p_value": 0.03125,
+      "significant_alpha_0.05": true,
+      "cohens_d": -2.750316776763598,
+      "n_paired": 5,
+      "alternative": "less"
+    }
+  },
+  "metadata": {
+    "k": 5,
+    "seed": 42,
+    "epochs": 30,
+    "n_windows": 1792,
+    "n_classes": 10,
+    "labels": [
+      "Eating",
+      "EnterHome",
+      "Housekeeping",
+      "LeaveHome",
+      "MealPreparation",
+      "Medication",
+      "PersonalHygiene",
+      "PhoneCall",
+      "Relax",
+      "Sleeping"
+    ],
+    "cep_latency_ms_point_estimate": 12.4,
+    "rule_executor": "python"
+  }
+}

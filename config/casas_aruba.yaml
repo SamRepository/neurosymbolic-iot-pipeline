@@ -1,0 +1,61 @@
+extends: ["base.yaml"]
+
+# CASAS labeled-dataset bundle from Zenodo (doi:10.5281/zenodo.15708568).
+# 82 home recordings across hh / ihs / mn / mv / mva / rw / tm series,
+# each annotated with free-living activities. The classic Aruba .data
+# format is also accepted by the loader (drop the file at the root of
+# raw_dir).
+#
+# Expected layout (after extracting labeled_data.zip):
+#   data/raw/casas_aruba/labeled/
+#       hh101.csv
+#       hh102.csv
+#       ...
+
+project:
+  seed: 42
+
+datasets:
+  casas:
+    raw_dir: data/raw/casas_aruba
+    format: aruba
+    file_globs:
+      - "labeled/*.csv"
+      - "*.csv"
+      - "data"
+      - "aruba.data"
+    # Whitelist a subset of homes for tractable runtime. Comment out to use
+    # all 82 homes. Single-home runs (e.g. just hh101) mirror the Kyoto CV
+    # methodology with 220K events instead of 11K.
+    homes:
+      - hh101
+
+    # Aruba/Zenodo bundle is multi-day continuous data. Non-overlapping
+    # 30-min windows (stride = window) is a standard Aruba benchmark and
+    # keeps the per-fold KG tractable for the rdflib SPARQL rule executor
+    # (~7K triples vs ~45K with stride=5).
+    window_minutes: 30
+    stride_minutes: 30
+    min_events_per_window: 5
+    label_mode: majority
+    feature_mode: event_counts
+
+neural_perception:
+  casas:
+    # Mirror the windowing parameters from datasets.casas so they reach the
+    # CV trainer (which prefers neural_perception.casas.* over
+    # datasets.casas.* when both are present).
+    window_minutes: 30
+    stride_minutes: 30
+    min_events: 5
+    max_seq_len: 256
+
+output:
+  casas_windows: data/processed/casas_aruba_windows.parquet
+  casas_meta: data/processed/casas_aruba_meta.json
+
+pipeline:
+  enable_neural: true
+  enable_kg: true
+  enable_symbolic: true
+  enable_feedback: true

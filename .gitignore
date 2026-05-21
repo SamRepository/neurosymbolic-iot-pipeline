@@ -34,3 +34,6 @@ docs/
 # the aggregated evaluation/results/ablation_cv.json itself IS tracked.
 evaluation/results/fold_*/
 evaluation/results/_smoke/
+evaluation/results_aruba/fold_*/
+evaluation/results_aruba_remote.json
+evaluation/results/ablation_cv copy.json
