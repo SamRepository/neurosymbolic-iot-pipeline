@@ -263,6 +263,21 @@ python fig/generate_threshold_sensitivity.py
 # → fig/Figure_9_threshold_sensitivity.pdf
 ```
 
+**Deterministic 5-fold ablation on CASAS Aruba (R2.1, Table 11).** Trains a fresh GRU per fold under per-fold seeding + `torch.use_deterministic_algorithms(True)`, evaluates the four ablation configurations on the held-out fold, runs paired Wilcoxon signed-rank tests + Cohen's d. Uses the Aruba subset of the Zenodo CASAS labeled release (doi:10.5281/zenodo.15708568) — `data/raw/casas_aruba/labeled/hh101.csv`. CPU-only takes ~8 h; ~25 min on a GPU.
+
+```bash
+# 1. Download labeled_data.zip from https://zenodo.org/records/15708568
+#    and extract so the file lives at data/raw/casas_aruba/labeled/hh101.csv
+# 2. Run the deterministic 5-fold ablation:
+PYTHONHASHSEED=42 PYTHONPATH=. python evaluation/run_ablation_cv.py \
+  --config config/casas_aruba.yaml --k 5 --epochs 30 \
+  --cep-latency 12.4 --outdir evaluation/results_aruba
+# → evaluation/results_aruba/ablation_cv.json
+# Result (Seed=42, n_windows=1792, 11 classes):
+#   AI-Only   F1-w 83.4 ± 7.0 %  | NeSy-Full  F1-w 85.0 ± 6.4 %
+#   Paired Wilcoxon (one-sided): W=15, p=0.0312, Cohen's d=+2.48 (large)
+```
+
 ### Figure-to-generator map
 
 | Figure   | Artefact                           | Generator                                                                     |
@@ -333,9 +348,16 @@ outputs/
     feedback_cycle_ablation/feedback_cycle_results.json
     threshold_sensitivity/threshold_sensitivity_results.json
     noise_robustness/noise_robustness_results.json
+
+evaluation/results_aruba/                    # R2.1 deterministic 5-fold CV result (Aruba)
+  ablation_cv.json                            # aggregated — TRACKED in git
+  fold_{0..4}/                                # per-fold artefacts — gitignored
+    metrics.json, confusion_{val,test}.csv,
+    kg/casas/populated_kg.ttl,
+    reasoning/casas/reasoning_result.json
 ```
 
-All paths are gitignored.
+All `outputs/` paths and `evaluation/results_aruba/fold_*/` are gitignored.
 
 ---
 
