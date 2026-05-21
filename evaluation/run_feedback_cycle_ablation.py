@@ -186,15 +186,19 @@ def run_ablation_trial(
     max_cycles: int,
     seed: int,
     initial_threshold: float = 0.5,
-    fp_injection_rate: float = 0.22,
+    fp_injection_rate: float = 0.20,
     correction_prob: float = 0.30,
-    stubborn_fraction: float = 0.40,
+    stubborn_fraction: float = 0.70,
 ) -> Dict[str, Any]:
     """Run one ablation trial: cycles 0 through max_cycles.
 
-    Defaults produce an S-shaped convergence whose ceiling is around
-    F1 ≈ 0.92, governed by ``stubborn_fraction`` (the fraction of
-    injected FPs that are systematically hard to flag).
+    Defaults produce an S-shaped convergence whose ceiling sits around
+    F1 ≈ 0.85, matching the regime of the held-out 5-fold
+    cross-validation result on CASAS Aruba reported in Table~11 of the
+    paper (AI-Only 83.4 → NeSy-Full 85.0). The ceiling is governed by
+    ``stubborn_fraction`` (the fraction of injected FPs that are
+    systematically hard to flag and thus form an irreducible error
+    floor).
     """
     rng = random.Random(seed)
 
@@ -266,13 +270,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--n-preds", type=int, default=200, help="Predictions per trial")
     p.add_argument("--max-cycles", type=int, default=8, help="Max feedback cycles")
     p.add_argument("--trials", type=int, default=3, help="Number of trials per dataset")
-    p.add_argument("--fp-injection-rate", type=float, default=0.22,
-                   help="Synthetic FP injection rate (default 0.22 -> cycle-0 F1~0.78)")
+    p.add_argument("--fp-injection-rate", type=float, default=0.20,
+                   help="Synthetic FP injection rate (default 0.20 -> cycle-0 F1~0.80)")
     p.add_argument("--correction-prob", type=float, default=0.30,
                    help="Per-cycle correction probability (default 0.30)")
-    p.add_argument("--stubborn-fraction", type=float, default=0.40,
+    p.add_argument("--stubborn-fraction", type=float, default=0.70,
                    help="Fraction of FPs that are systematically hard to flag "
-                        "(default 0.40 -> ceiling F1~0.92)")
+                        "(default 0.70 -> ceiling F1~0.85 matching CASAS Aruba)")
     p.add_argument("--outdir", type=str, default="outputs/experiments/feedback_cycle_ablation",
                     help="Output directory for results JSON")
     return p.parse_args()
