@@ -72,7 +72,7 @@ neurosymbolic_iot/
       sensor_map.json                                     # Sensor ID → ontology class mapping
     kg_builder/
       kg_federation_loader.py  # Algorithm 1
-      rdf_writer.py            # Serialization + optional GraphDB push
+      rdf_writer.py            # RDF/Turtle serialization
   reasoning_feedback/
     reasoning/symbolic_reasoner.py  # owlready2 + HermiT + 11 SWRL rules
     feedback/feedback_loop.py       # Algorithm 2: retraction, threshold adaptation
@@ -89,7 +89,6 @@ fig/                          # Figure generators (Figure_1 … Figure_8)
 
 - **Python** 3.10+
 - **Java** 11+ for HermiT (default reasoner). Java 25+ if you switch `reasoning.reasoner: pellet` in your config — owlready2's bundled Pellet uses Jena class-files compiled for Java 25.
-- **GraphDB** *(optional — only if you want a persistent triple store)*
 
 ```bash
 pip install -r requirements.txt
@@ -105,7 +104,7 @@ Reproducibility is enforced through a global seed (42) in [neurosymbolic_iot/uti
 
 The two datasets are **not redistributed** here. Request them from their original sources:
 
-- **CASAS Kyoto ADL** — WSU CASAS smart-home project.
+- **CASAS**  — WSU CASAS smart-home project.
 - **SPHERE Challenge** — University of Bristol SPHERE dataset.
 
 Expected on-disk layout:
@@ -114,6 +113,13 @@ Expected on-disk layout:
 data/raw/casas_kyoto_adl/
   adl_error/*.csv
   adl_noerror/*.csv
+
+data/raw/casas_aruba/
+  labeled/
+    hh101.csv          # single-home free-living recording (used for the
+                       # deterministic 5-fold ablation on Aruba)
+    hh102.csv ...      # other homes from the Zenodo labeled bundle
+                       # (https://zenodo.org/records/15708568)
 
 data/raw/sphere/
   activity.csv
@@ -263,7 +269,7 @@ python fig/generate_threshold_sensitivity.py
 # → fig/Figure_9_threshold_sensitivity.pdf
 ```
 
-**Deterministic 5-fold ablation on CASAS Aruba (R2.1, Table 11).** Trains a fresh GRU per fold under per-fold seeding + `torch.use_deterministic_algorithms(True)`, evaluates the four ablation configurations on the held-out fold, runs paired Wilcoxon signed-rank tests + Cohen's d. Uses the Aruba subset of the Zenodo CASAS labeled release (doi:10.5281/zenodo.15708568) — `data/raw/casas_aruba/labeled/hh101.csv`. CPU-only takes ~8 h; ~25 min on a GPU.
+**Deterministic 5-fold ablation on CASAS Aruba.** Trains a fresh GRU per fold under per-fold seeding + `torch.use_deterministic_algorithms(True)`, evaluates the four ablation configurations on the held-out fold, runs paired Wilcoxon signed-rank tests + Cohen's d. Uses the Aruba subset of the Zenodo CASAS labeled release (doi:10.5281/zenodo.15708568) — `data/raw/casas_aruba/labeled/hh101.csv`. CPU-only takes ~8 h; ~25 min on a GPU.
 
 ```bash
 # 1. Download labeled_data.zip from https://zenodo.org/records/15708568
@@ -349,7 +355,7 @@ outputs/
     threshold_sensitivity/threshold_sensitivity_results.json
     noise_robustness/noise_robustness_results.json
 
-evaluation/results_aruba/                    # R2.1 deterministic 5-fold CV result (Aruba)
+evaluation/results_aruba/                    # Deterministic 5-fold CV result (CASAS Aruba)
   ablation_cv.json                            # aggregated — TRACKED in git
   fold_{0..4}/                                # per-fold artefacts — gitignored
     metrics.json, confusion_{val,test}.csv,
@@ -365,14 +371,14 @@ All `outputs/` paths and `evaluation/results_aruba/fold_*/` are gitignored.
 
 All configs inherit from [config/base.yaml](config/base.yaml) via the `extends` key. Load configs through `load_config()` in [utils/config.py](neurosymbolic_iot/utils/config.py) — never parse YAML directly.
 
-| Section                 | Controls                                                                                        |
-| -------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `datasets`                     | Raw data paths, windowing, split ratios                                                         |
-| `neural_perception`            | Model hyperparameters (GRU/LSTM), training settings                                             |
-| `kg`                           | Ontology path, sensor map, optional GraphDB connection                                          |
-| `reasoning`                    | Confidence thresholds (validation 0.85, anomaly 0.85, feedback 0.70)                            |
-| `feedback`                     | Max cycles (5), retrain buffer size (500), adjustment rate (0.05)                               |
-| `pipeline`                     | Stage enable flags (`enable_neural`, `enable_kg`, `enable_symbolic`, `enable_feedback`) |
+| Section               | Controls                                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `datasets`          | Raw data paths, windowing, split ratios                                                         |
+| `neural_perception` | Model hyperparameters (GRU/LSTM), training settings                                             |
+| `kg`                | Ontology path, sensor map                                                                       |
+| `reasoning`         | Confidence thresholds (validation 0.85, anomaly 0.85, feedback 0.70)                            |
+| `feedback`          | Max cycles (5), retrain buffer size (500), adjustment rate (0.05)                               |
+| `pipeline`          | Stage enable flags (`enable_neural`, `enable_kg`, `enable_symbolic`, `enable_feedback`) |
 
 Ablation configs: `ai_only.yaml`, `kg_only.yaml`, `ns_nofeedback.yaml`, `ns_full.yaml`.
 
@@ -385,7 +391,6 @@ Ablation configs: `ai_only.yaml`, `kg_only.yaml`, `ns_nofeedback.yaml`, `ns_full
 | `KeyError: 'datasets'`                      | Use a config with a `datasets` section (e.g. `base.yaml`)  |
 | Timezone errors (tz-aware vs. tz-naive)       | Handled in `train_neural.py` — timestamps normalised to UTC |
 | Java not found (HermiT fails)                 | Install JRE/JDK 11+; owlready2 needs it for reasoning          |
-| GraphDB push fails                            | Optional — set `kg.graphdb.enabled: false` (default)        |
 | Config `inherits` not working               | Use `extends` (not `inherits`)                             |
 | `ModuleNotFoundError` on experiment scripts | Run with `PYTHONPATH=.` from the repo root                   |
 
