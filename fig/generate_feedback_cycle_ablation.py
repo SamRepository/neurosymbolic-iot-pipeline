@@ -157,7 +157,7 @@ def main() -> int:
     _axhref(ax, ARUBA_AI_COR, c_ai,
             f"Aruba AI-Only (held-out): {ARUBA_AI_COR:.3f}", side="right", pad=0.003)
     _axhref(ax, ARUBA_NESY_COR, c_full,
-            f"Aruba NeSy-Full (held-out): {ARUBA_NESY_COR:.3f}", side="right", pad=0.003)
+            f"Aruba NeSy-Full (held-out): {ARUBA_NESY_COR:.3f}", side="right", pad=0.007)
     ax.set_xlabel("Feedback Cycle", fontsize=10, fontweight="bold")
     ax.set_ylabel("Prediction Correctness", fontsize=10, fontweight="bold")
     ax.set_title("(c) Prediction Correctness vs. Feedback Cycle",
