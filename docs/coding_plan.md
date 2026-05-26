@@ -344,19 +344,3 @@ Follow best practices for academic reproducibility.
 ```
 
 ---
-
-**Next best step (no skipping):**
-
-➡️ I design:
-
-* `config/*.yaml`
-* `run_experiments.py` skeleton
-* metric aggregation schema
-
-Then we implement  **Phase 1 → Phase 6 sequentially** .
-
-If you want, say:
-
-> “Start with Phase 0 + Phase 1 code skeleton”
-
-and I will generate  **production-ready Python files** , not pseudo-code.
