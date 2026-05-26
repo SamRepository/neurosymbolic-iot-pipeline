@@ -71,7 +71,7 @@ def main() -> int:
     ax.set_title("(a) Anomaly Detection: Single-Source vs. Federated", fontsize=11, fontweight="bold", pad=8)
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=7.5)
-    ax.legend(fontsize=8, loc="upper left")
+    ax.legend(fontsize=8, loc="upper left", bbox_to_anchor=(0.0, 0.88), framealpha=0.95)
     ax.grid(axis="y", alpha=0.25, linewidth=0.4)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -111,8 +111,8 @@ def main() -> int:
         pct = (fed_total - union_total) / union_total * 100
         ax2.annotate(
             f"+{pct:.0f}%",
-            xy=(3.2, fed_total),
-            xytext=(3.4, fed_total * 0.7),
+            xy=(3.15, fed_total),
+            xytext=(2.6, fed_total * 0.75),
             fontsize=11, fontweight="bold", color="#2E7D32",
             arrowprops=dict(arrowstyle="->", color="#2E7D32", lw=1.5),
         )

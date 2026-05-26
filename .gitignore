@@ -30,6 +30,9 @@ Thumbs.db
 README_old*.md
 docs/
 
+# Local coding notes (not for publication)
+coding/
+
 # Ablation CV per-fold artefacts (models, populated KGs, intermediate JSON);
 # the aggregated evaluation/results/ablation_cv.json itself IS tracked.
 evaluation/results/fold_*/
