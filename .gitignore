@@ -35,7 +35,8 @@ Thumbs.db
 
 # Old README backups
 README_old*.md
-docs/
+docs/*
+!docs/coding_plan.md
 
 # Local coding notes (not for publication)
 coding/
