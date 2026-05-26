@@ -15,6 +15,13 @@ data/processed/
 outputs/
 logs/
 
+# Raw datasets are not redistributed; only the single Aruba home used
+# by the deterministic 5-fold ablation is tracked.
+data/raw/casas_aruba/*
+!data/raw/casas_aruba/labeled/
+data/raw/casas_aruba/labeled/*
+!data/raw/casas_aruba/labeled/hh101.csv
+
 # Claude
 .claude/
 CLAUDE.md
