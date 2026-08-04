@@ -1,0 +1,412 @@
+{
+  "_meta": {
+    "script": "evaluation/run_reproducibility_dumps.py",
+    "commit": "6025e12",
+    "generated": "2026-08-04T18:23:37",
+    "note": "Machine-generated from the code and stored artifacts so the appendix cannot drift from what runs."
+  },
+  "executed_rules": [
+    {
+      "rule_id": 1,
+      "label": "PIR motion implies person location",
+      "category": "sensor grounding",
+      "precondition": "?p a nsiot:Person . ?s a nsiot:PIRMotionSensor . ?s nsiot:isLocatedIn ?room . ?s nsiot:hasState nsiot:StateMotionDetected .",
+      "consequent": "?p nsiot:isLocatedIn ?room",
+      "participates_in_feedback": false,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 2,
+      "label": "Appliance interaction implies person location",
+      "category": "sensor grounding",
+      "precondition": "?p a nsiot:Person . ?plug a nsiot:SmartAppliancePlug . ?plug nsiot:isLocatedIn ?room . ?plug nsiot:hasState nsiot:StateON .",
+      "consequent": "?p nsiot:isLocatedIn ?room",
+      "participates_in_feedback": false,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 3,
+      "label": "High-confidence Cook in Kitchen validation",
+      "category": "validation",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?e nsiot:isBasedOnPrediction ?pred . ?pred nsiot:predictsActivity nsiot:MealPreparation . ?pred nsiot:hasConfidenceScore ?conf . FILTER(?conf  0.85) ?p nsiot:isLocatedIn ?room . ?room a nsiot:Kitchen .",
+      "consequent": "?p nsiot:performsActivity nsiot:MealPreparation . ?e a nsiot:ValidatedEvent .",
+      "participates_in_feedback": false,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 4,
+      "label": "High-confidence Eat in Kitchen validation",
+      "category": "validation",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?e nsiot:isBasedOnPrediction ?pred . ?pred nsiot:predictsActivity nsiot:Eating . ?pred nsiot:hasConfidenceScore ?conf . FILTER(?conf  0.80) ?p nsiot:isLocatedIn ?room . ?room a nsiot:Kitchen .",
+      "consequent": "?p nsiot:performsActivity nsiot:Eating . ?e a nsiot:ValidatedEvent .",
+      "participates_in_feedback": false,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 5,
+      "label": "Cook without kitchen appliance activation",
+      "category": "AAL anomaly",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?e nsiot:isBasedOnPrediction ?pred . ?pred nsiot:predictsActivity nsiot:MealPreparation . ?pred nsiot:hasConfidenceScore ?conf . FILTER(?conf  0.85) FILTER NOT EXISTS { ?plug a nsiot:SmartAppliancePlug . ?plug nsiot:isLocatedIn ?k . ?k a nsiot:Kitchen . ?plug nsiot:hasState nsiot:StateON .",
+      "consequent": "?e a nsiot:CriticalAnomaly . ?e nsiot:hasAlertType nsiot:UnattendedAppliance .",
+      "participates_in_feedback": false,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 6,
+      "label": "Unattended fire hazard (kitchen plug ON, person elsewhere)",
+      "category": "AAL anomaly",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?plug a nsiot:SmartAppliancePlug . ?plug nsiot:isLocatedIn ?k . ?k a nsiot:Kitchen . ?plug nsiot:hasState nsiot:StateON . ?p nsiot:isLocatedIn ?other . FILTER(?other != ?k)",
+      "consequent": "?e a nsiot:CriticalAnomaly . ?e nsiot:hasAlertType nsiot:UnattendedFireHazard .",
+      "participates_in_feedback": false,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 7,
+      "label": "Nocturnal kitchen activity",
+      "category": "AAL anomaly",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?e nsiot:hasTimeContext ?ctx . ?ctx a nsiot:NightTimeContext . ?e nsiot:isBasedOnPrediction ?pred . ?pred nsiot:predictsActivity ?act . FILTER(?act IN (nsiot:MealPreparation, nsiot:Eating, nsiot:Housekeeping)) ?pred nsiot:hasConfidenceScore ?conf . FILTER(?conf  0.80)",
+      "consequent": "?e a nsiot:BehavioralAnomaly . ?e nsiot:hasAlertType nsiot:NocturnalActivity .",
+      "participates_in_feedback": false,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 8,
+      "label": "Spatial hallucination (kitchen activity without kitchen motion)",
+      "category": "feedback trigger",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?e nsiot:isBasedOnPrediction ?pred . ?pred nsiot:predictsActivity ?act . FILTER(?act IN (nsiot:MealPreparation, nsiot:Eating, nsiot:Housekeeping)) ?pred nsiot:hasConfidenceScore ?conf . FILTER(?conf < 0.80) FILTER NOT EXISTS { ?ks a nsiot:PIRMotionSensor . ?ks nsiot:isLocatedIn ?k . ?k a nsiot:Kitchen . ?ks nsiot:hasState nsiot:StateMotionDetected .",
+      "consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:FalsePositiveHallucination .",
+      "participates_in_feedback": true,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 9,
+      "label": "Contextual mismatch (Cook predicted, person not in Kitchen)",
+      "category": "feedback trigger",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?e nsiot:isBasedOnPrediction ?pred . ?pred nsiot:predictsActivity nsiot:MealPreparation . ?pred nsiot:hasConfidenceScore ?conf . FILTER(?conf < 0.85) ?p nsiot:isLocatedIn ?room . FILTER NOT EXISTS { ?p nsiot:isLocatedIn ?k . ?k a nsiot:Kitchen .",
+      "consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:ContextualMismatch .",
+      "participates_in_feedback": true,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 10,
+      "label": "Low-margin AND low-confidence top-2 disagreement",
+      "category": "feedback trigger",
+      "precondition": "?e a nsiot:Event . ?e nsiot:isBasedOnPrediction ?pred1 . ?pred1 nsiot:isAlternativePrediction false . ?pred1 nsiot:predictsActivity ?act1 . ?pred1 nsiot:hasConfidenceScore ?conf1 . ?e nsiot:isBasedOnPrediction ?pred2 . ?pred2 nsiot:isAlternativePrediction true . ?pred2 nsiot:predictsActivity ?act2 . ?pred2 nsiot:hasConfidenceScore ?conf2 . FILTER(?act1 != ?act2) FILTER((?conf1 - ?conf2) < 0.10) FILTER(?conf1 < 0.75)",
+      "consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:MutuallyExclusiveActivities .",
+      "participates_in_feedback": true,
+      "asserts_ground_truth_label": false
+    },
+    {
+      "rule_id": 11,
+      "label": "Unsupported claim (low conf + no sensor evidence)",
+      "category": "feedback trigger",
+      "precondition": "?e a nsiot:Event . ?e nsiot:involvesPerson ?p . ?e nsiot:isBasedOnPrediction ?pred . ?pred nsiot:hasConfidenceScore ?conf . FILTER(?conf < 0.75) FILTER NOT EXISTS { ?p nsiot:isLocatedIn ?_room .",
+      "consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:UnsupportedClaim .",
+      "participates_in_feedback": true,
+      "asserts_ground_truth_label": false
+    }
+  ],
+  "swrl_rules": [
+    {
+      "precondition": "nsiot:Person(?p), nsiot:PIRMotionSensor(?s), nsiot:isLocatedIn(?s, ?room), nsiot:hasState(?s, nsiot:StateMotionDetected)",
+      "consequent": "nsiot:isLocatedIn(?p, ?room)",
+      "rule_id": 1,
+      "category": "sensor grounding",
+      "participates_in_feedback": false
+    },
+    {
+      "precondition": "nsiot:Person(?p), nsiot:SmartAppliancePlug(?plug), nsiot:isLocatedIn(?plug, ?room), nsiot:hasState(?plug, nsiot:StateON)",
+      "consequent": "nsiot:isLocatedIn(?p, ?room)",
+      "rule_id": 2,
+      "category": "sensor grounding",
+      "participates_in_feedback": false
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:isBasedOnPrediction(?e, ?pred), nsiot:predictsActivity(?pred, nsiot:MealPreparation), nsiot:hasConfidenceScore(?pred, ?conf), swrlb:greaterThan(?conf, 0.85), nsiot:isLocatedIn(?p, ?room), nsiot:Kitchen(?room)",
+      "consequent": "nsiot:performsActivity(?p, nsiot:MealPreparation), nsiot:ValidatedEvent(?e)",
+      "rule_id": 3,
+      "category": "validation",
+      "participates_in_feedback": false
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:isBasedOnPrediction(?e, ?pred), nsiot:predictsPosture(?pred, nsiot:Lying), nsiot:hasConfidenceScore(?pred, ?conf), swrlb:greaterThan(?conf, 0.80), nsiot:isLocatedIn(?p, ?room), nsiot:Bedroom(?room)",
+      "consequent": "nsiot:performsActivity(?p, nsiot:Sleeping), nsiot:ValidatedEvent(?e)",
+      "rule_id": 4,
+      "category": "validation",
+      "participates_in_feedback": false
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:isBasedOnPrediction(?e, ?pred), nsiot:predictsPosture(?pred, nsiot:Lying), nsiot:hasConfidenceScore(?pred, ?conf), swrlb:greaterThan(?conf, 0.85), nsiot:isLocatedIn(?p, ?room), nsiot:Bathroom(?room)",
+      "consequent": "nsiot:CriticalAnomaly(?e), nsiot:hasAlertType(?e, nsiot:FallAlert)",
+      "rule_id": 5,
+      "category": "AAL anomaly",
+      "participates_in_feedback": false
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:SmartAppliancePlug(?plug), nsiot:isLocatedIn(?plug, ?k), nsiot:Kitchen(?k), nsiot:hasState(?plug, nsiot:StateON), nsiot:isLocatedIn(?p, ?b), nsiot:Bedroom(?b)",
+      "consequent": "nsiot:CriticalAnomaly(?e), nsiot:hasAlertType(?e, nsiot:UnattendedFireHazard)",
+      "rule_id": 6,
+      "category": "AAL anomaly",
+      "participates_in_feedback": false
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:NightTimeContext(?time), nsiot:isBasedOnPrediction(?e, ?pred), nsiot:predictsPosture(?pred, nsiot:Standing), nsiot:isLocatedIn(?p, ?room), nsiot:Kitchen(?room)",
+      "consequent": "nsiot:BehavioralAnomaly(?e), nsiot:hasAlertType(?e, nsiot:SleepDisturbance)",
+      "rule_id": 7,
+      "category": "AAL anomaly",
+      "participates_in_feedback": false
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:isBasedOnPrediction(?e, ?pred), nsiot:predictsActivity(?pred, nsiot:Housekeeping), nsiot:hasConfidenceScore(?pred, ?conf), swrlb:lessThan(?conf, 0.70), nsiot:isLocatedIn(?p, ?room), nsiot:hasState(?sensor, nsiot:StateQuiet), nsiot:isLocatedIn(?sensor, ?room)",
+      "consequent": "nsiot:FeedbackRequired(?e), nsiot:hasErrorType(?e, nsiot:FalsePositiveHallucination)",
+      "rule_id": 8,
+      "category": "feedback trigger",
+      "participates_in_feedback": true
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:isBasedOnPrediction(?e, ?pred), nsiot:predictsActivity(?pred, nsiot:Sleeping), nsiot:isLocatedIn(?p, ?room), nsiot:LivingRoom(?room), nsiot:SmartAppliancePlug(?tv), nsiot:hasState(?tv, nsiot:StateON), nsiot:isLocatedIn(?tv, ?room)",
+      "consequent": "nsiot:FeedbackRequired(?e), nsiot:hasErrorType(?e, nsiot:ContextualMismatch)",
+      "rule_id": 9,
+      "category": "feedback trigger",
+      "participates_in_feedback": true
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:isBasedOnPrediction(?e, ?pred1), nsiot:predictsActivity(?pred1, nsiot:PersonalHygiene), nsiot:isBasedOnPrediction(?e, ?pred2), nsiot:predictsActivity(?pred2, nsiot:MealPreparation)",
+      "consequent": "nsiot:FeedbackRequired(?e), nsiot:hasErrorType(?e, nsiot:MutuallyExclusiveActivities)",
+      "rule_id": 10,
+      "category": "feedback trigger",
+      "participates_in_feedback": true
+    },
+    {
+      "precondition": "nsiot:Event(?e), nsiot:involvesPerson(?e, ?p), nsiot:isBasedOnPrediction(?e, ?pred), nsiot:predictsPosture(?pred, nsiot:Lying), nsiot:hasConfidenceScore(?pred, ?conf), swrlb:greaterThan(?conf, 0.80), nsiot:isLocatedIn(?p, ?room), nsiot:PIRMotionSensor(?s), nsiot:isLocatedIn(?s, ?room), nsiot:hasState(?s, nsiot:StateQuiet)",
+      "consequent": "nsiot:CriticalAnomaly(?e), nsiot:hasAlertType(?e, nsiot:FallAlert)",
+      "rule_id": 11,
+      "category": "feedback trigger",
+      "participates_in_feedback": false
+    }
+  ],
+  "comparison": {
+    "n_rules_executed": 11,
+    "n_rules_swrl": 11,
+    "n_divergent_consequents": 4,
+    "n_divergent_preconditions": 8,
+    "n_fully_equivalent": 3,
+    "comparison_method": "Consequents are compared by the ontology classes they assert. Preconditions are written in different languages (SWRL atoms vs SPARQL triple patterns) and cannot be diffed syntactically, so they are compared by the set of nsiot: terms each body references \u2014 enough to establish whether two rules fire on the same evidence.",
+    "rules_with_conflicting_feedback_role": [
+      11
+    ],
+    "disjointness_holds_for_executed_set": true,
+    "disjointness_holds_for_swrl_set": false,
+    "per_rule": [
+      {
+        "rule_id": 1,
+        "executed_label": "PIR motion implies person location",
+        "executed_consequent": "?p nsiot:isLocatedIn ?room",
+        "swrl_consequent": "nsiot:isLocatedIn(?p, ?room)",
+        "consequents_match": true,
+        "preconditions_match": true,
+        "executed_only_terms": [],
+        "swrl_only_terms": [],
+        "feedback_role_matches": true,
+        "status": "equivalent"
+      },
+      {
+        "rule_id": 2,
+        "executed_label": "Appliance interaction implies person location",
+        "executed_consequent": "?p nsiot:isLocatedIn ?room",
+        "swrl_consequent": "nsiot:isLocatedIn(?p, ?room)",
+        "consequents_match": true,
+        "preconditions_match": true,
+        "executed_only_terms": [],
+        "swrl_only_terms": [],
+        "feedback_role_matches": true,
+        "status": "equivalent"
+      },
+      {
+        "rule_id": 3,
+        "executed_label": "High-confidence Cook in Kitchen validation",
+        "executed_consequent": "?p nsiot:performsActivity nsiot:MealPreparation . ?e a nsiot:ValidatedEvent .",
+        "swrl_consequent": "nsiot:performsActivity(?p, nsiot:MealPreparation), nsiot:ValidatedEvent(?e)",
+        "consequents_match": true,
+        "preconditions_match": true,
+        "executed_only_terms": [],
+        "swrl_only_terms": [],
+        "feedback_role_matches": true,
+        "status": "equivalent"
+      },
+      {
+        "rule_id": 4,
+        "executed_label": "High-confidence Eat in Kitchen validation",
+        "executed_consequent": "?p nsiot:performsActivity nsiot:Eating . ?e a nsiot:ValidatedEvent .",
+        "swrl_consequent": "nsiot:performsActivity(?p, nsiot:Sleeping), nsiot:ValidatedEvent(?e)",
+        "consequents_match": false,
+        "preconditions_match": false,
+        "executed_only_terms": [
+          "Eating",
+          "Kitchen",
+          "predictsActivity"
+        ],
+        "swrl_only_terms": [
+          "Bedroom",
+          "Lying",
+          "predictsPosture"
+        ],
+        "feedback_role_matches": true,
+        "status": "DIVERGENT (trigger and consequent)"
+      },
+      {
+        "rule_id": 5,
+        "executed_label": "Cook without kitchen appliance activation",
+        "executed_consequent": "?e a nsiot:CriticalAnomaly . ?e nsiot:hasAlertType nsiot:UnattendedAppliance .",
+        "swrl_consequent": "nsiot:CriticalAnomaly(?e), nsiot:hasAlertType(?e, nsiot:FallAlert)",
+        "consequents_match": false,
+        "preconditions_match": false,
+        "executed_only_terms": [
+          "Kitchen",
+          "MealPreparation",
+          "SmartAppliancePlug",
+          "StateON",
+          "hasState",
+          "predictsActivity"
+        ],
+        "swrl_only_terms": [
+          "Bathroom",
+          "Lying",
+          "predictsPosture"
+        ],
+        "feedback_role_matches": true,
+        "status": "DIVERGENT (trigger and consequent)"
+      },
+      {
+        "rule_id": 6,
+        "executed_label": "Unattended fire hazard (kitchen plug ON, person elsewhere)",
+        "executed_consequent": "?e a nsiot:CriticalAnomaly . ?e nsiot:hasAlertType nsiot:UnattendedFireHazard .",
+        "swrl_consequent": "nsiot:CriticalAnomaly(?e), nsiot:hasAlertType(?e, nsiot:UnattendedFireHazard)",
+        "consequents_match": true,
+        "preconditions_match": false,
+        "executed_only_terms": [],
+        "swrl_only_terms": [
+          "Bedroom"
+        ],
+        "feedback_role_matches": true,
+        "status": "DIVERGENT (trigger only \u2014 same consequent, different evidence)"
+      },
+      {
+        "rule_id": 7,
+        "executed_label": "Nocturnal kitchen activity",
+        "executed_consequent": "?e a nsiot:BehavioralAnomaly . ?e nsiot:hasAlertType nsiot:NocturnalActivity .",
+        "swrl_consequent": "nsiot:BehavioralAnomaly(?e), nsiot:hasAlertType(?e, nsiot:SleepDisturbance)",
+        "consequents_match": false,
+        "preconditions_match": false,
+        "executed_only_terms": [
+          "Eating",
+          "Housekeeping",
+          "MealPreparation",
+          "hasConfidenceScore",
+          "hasTimeContext",
+          "predictsActivity"
+        ],
+        "swrl_only_terms": [
+          "Kitchen",
+          "Standing",
+          "isLocatedIn",
+          "predictsPosture"
+        ],
+        "feedback_role_matches": true,
+        "status": "DIVERGENT (trigger and consequent)"
+      },
+      {
+        "rule_id": 8,
+        "executed_label": "Spatial hallucination (kitchen activity without kitchen motion)",
+        "executed_consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:FalsePositiveHallucination .",
+        "swrl_consequent": "nsiot:FeedbackRequired(?e), nsiot:hasErrorType(?e, nsiot:FalsePositiveHallucination)",
+        "consequents_match": true,
+        "preconditions_match": false,
+        "executed_only_terms": [
+          "Eating",
+          "Kitchen",
+          "MealPreparation",
+          "PIRMotionSensor",
+          "StateMotionDetected"
+        ],
+        "swrl_only_terms": [
+          "StateQuiet"
+        ],
+        "feedback_role_matches": true,
+        "status": "DIVERGENT (trigger only \u2014 same consequent, different evidence)"
+      },
+      {
+        "rule_id": 9,
+        "executed_label": "Contextual mismatch (Cook predicted, person not in Kitchen)",
+        "executed_consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:ContextualMismatch .",
+        "swrl_consequent": "nsiot:FeedbackRequired(?e), nsiot:hasErrorType(?e, nsiot:ContextualMismatch)",
+        "consequents_match": true,
+        "preconditions_match": false,
+        "executed_only_terms": [
+          "Kitchen",
+          "MealPreparation",
+          "hasConfidenceScore"
+        ],
+        "swrl_only_terms": [
+          "LivingRoom",
+          "Sleeping",
+          "SmartAppliancePlug",
+          "StateON",
+          "hasState"
+        ],
+        "feedback_role_matches": true,
+        "status": "DIVERGENT (trigger only \u2014 same consequent, different evidence)"
+      },
+      {
+        "rule_id": 10,
+        "executed_label": "Low-margin AND low-confidence top-2 disagreement",
+        "executed_consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:MutuallyExclusiveActivities .",
+        "swrl_consequent": "nsiot:FeedbackRequired(?e), nsiot:hasErrorType(?e, nsiot:MutuallyExclusiveActivities)",
+        "consequents_match": true,
+        "preconditions_match": false,
+        "executed_only_terms": [
+          "hasConfidenceScore",
+          "isAlternativePrediction"
+        ],
+        "swrl_only_terms": [
+          "MealPreparation",
+          "PersonalHygiene"
+        ],
+        "feedback_role_matches": true,
+        "status": "DIVERGENT (trigger only \u2014 same consequent, different evidence)"
+      },
+      {
+        "rule_id": 11,
+        "executed_label": "Unsupported claim (low conf + no sensor evidence)",
+        "executed_consequent": "?e a nsiot:FeedbackRequired . ?e nsiot:hasErrorType nsiot:UnsupportedClaim .",
+        "swrl_consequent": "nsiot:CriticalAnomaly(?e), nsiot:hasAlertType(?e, nsiot:FallAlert)",
+        "consequents_match": false,
+        "preconditions_match": false,
+        "executed_only_terms": [],
+        "swrl_only_terms": [
+          "Lying",
+          "PIRMotionSensor",
+          "StateQuiet",
+          "hasState",
+          "predictsPosture"
+        ],
+        "feedback_role_matches": false,
+        "status": "DIVERGENT (trigger and consequent)"
+      }
+    ]
+  },
+  "anomaly_categories": {
+    "aal_alert_types": {
+      "UnattendedAppliance": 5,
+      "UnattendedFireHazard": 6,
+      "NocturnalActivity": 7
+    },
+    "feedback_error_types": {
+      "FalsePositiveHallucination": 8,
+      "ContextualMismatch": 9,
+      "MutuallyExclusiveActivities": 10,
+      "UnsupportedClaim": 11
+    }
+  },
+  "same_rule_set_across_datasets": "ONE rule set, hard-coded, instantiated for CASAS Kyoto ADL vocabulary; it is applied unchanged to every dataset. rule_executor.RULES is a single module-level list and rule_executor.fire_rules takes no dataset argument and performs no dataset branching - the same eleven SPARQL CONSTRUCT queries run against whatever graph is passed. There are no per-dataset rule variants anywhere in the codebase.\n\nThe consequence must be stated plainly, because 'one rule set for all datasets' sounds like a generality claim and here it is closer to the opposite. The rule bodies are written against CASAS Kyoto ADL's class vocabulary (MealPreparation, Eating, Housekeeping, Kitchen, SmartAppliancePlug), as the module's own comment records. On any dataset whose vocabulary differs, rules referencing absent classes are structurally incapable of firing rather than being merely inapplicable to the data. This is measurable: on CASAS Aruba, five of the eleven rules (2, 6, 8, 9, 11) never fired across all five folds, and rule 10 alone accounted for roughly three quarters of all firings (see ablation_diagnostics.json). SPHERE, whose vocabulary is postures and PIR rooms rather than kitchen appliances, would exercise even fewer.\n\nThe defensible statement for the manuscript is therefore: a single fixed rule base is shared across datasets, authored against the CASAS Kyoto ADL vocabulary, with per-dataset coverage varying widely and reported per dataset - not that the rule base generalises across the benchmarks."
+}

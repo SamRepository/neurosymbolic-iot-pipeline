@@ -1,0 +1,261 @@
+{
+  "_meta": {
+    "script": "evaluation/run_reproducibility_dumps.py",
+    "commit": "6025e12",
+    "generated": "2026-08-04T18:23:37",
+    "note": "Machine-generated from the code and stored artifacts so the appendix cannot drift from what runs."
+  },
+  "datasets": {
+    "casas_kyoto": {
+      "sensor_map_key": "casas",
+      "processed_metadata": {
+        "dataset": "CASAS",
+        "n_events": 5126,
+        "n_windows": 176,
+        "window_minutes": 30,
+        "stride_minutes": 5,
+        "feature_mode": "event_counts",
+        "label_mode": "majority",
+        "timings_sec": {
+          "load": 0.09875570004805923,
+          "windowing": 15.553243800066411
+        }
+      },
+      "cv_protocol": {
+        "k_folds": 5,
+        "seed": 42,
+        "epochs": 30,
+        "total_windows": 400,
+        "activity_classes": 5,
+        "class_labels": [
+          "Clean",
+          "Cook",
+          "Eat",
+          "PhoneCall",
+          "WashHands"
+        ],
+        "train_windows_per_fold": 320,
+        "test_windows_per_fold": 80
+      },
+      "knowledge_graph": {
+        "source": "C:/Users/DELL/Desktop/Neuro-SymolicAI_IoT Paper/neurosymbolic-iot-pipeline/evaluation/results/fold_0/kg/casas/populated_kg.ttl",
+        "triples": 1666,
+        "distinct_subjects": 404,
+        "distinct_predicates": 26,
+        "distinct_objects": 540,
+        "nsiot_entities": 401
+      },
+      "processed_windows": 176,
+      "processed_events": 5126,
+      "window_count_discrepancy": {
+        "processed_parquet": 176,
+        "cv_run": 400,
+        "note": "Different windowing settings: the CV scripts rebuild windows from raw via build_casas_windows_from_raw using the experiment config, rather than reading data/processed. Not an error, but the paper must not mix the two figures."
+      },
+      "sensor_types": [
+        "nsiot:DoorContactSensor",
+        "nsiot:PIRMotionSensor",
+        "nsiot:SmartAppliancePlug",
+        "nsiot:TemperatureSensor",
+        "nsiot:WaterFlowSensor"
+      ],
+      "n_sensor_type_patterns": 5,
+      "n_mapped_rooms": 4,
+      "n_activity_map_entries": 5,
+      "activity_map": {
+        "Cook": "nsiot:MealPreparation",
+        "Eat": "nsiot:Eating",
+        "Clean": "nsiot:Housekeeping",
+        "PhoneCall": "nsiot:PhoneCall",
+        "WashHands": "nsiot:PersonalHygiene"
+      }
+    },
+    "casas_aruba": {
+      "sensor_map_key": "casas",
+      "processed_metadata": {
+        "dataset": "CASAS",
+        "n_events": 222858,
+        "n_windows": 10771,
+        "window_minutes": 30,
+        "stride_minutes": 5,
+        "feature_mode": "event_counts",
+        "label_mode": "majority",
+        "timings_sec": {
+          "load": 1.1945896999968681,
+          "windowing": 51.757560099998955
+        }
+      },
+      "cv_protocol": {
+        "k_folds": 5,
+        "seed": 42,
+        "epochs": 30,
+        "total_windows": 1792,
+        "activity_classes": 10,
+        "class_labels": [
+          "Eating",
+          "EnterHome",
+          "Housekeeping",
+          "LeaveHome",
+          "MealPreparation",
+          "Medication",
+          "PersonalHygiene",
+          "PhoneCall",
+          "Relax",
+          "Sleeping"
+        ],
+        "train_windows_per_fold": 1434,
+        "test_windows_per_fold": 358
+      },
+      "knowledge_graph": {
+        "source": "C:/Users/DELL/Desktop/Neuro-SymolicAI_IoT Paper/neurosymbolic-iot-pipeline/evaluation/results_aruba/fold_0/kg/casas/populated_kg.ttl",
+        "triples": 6568,
+        "distinct_subjects": 1594,
+        "distinct_predicates": 27,
+        "distinct_objects": 2307,
+        "nsiot_entities": 1591
+      },
+      "processed_windows": 10771,
+      "processed_events": 222858,
+      "window_count_discrepancy": {
+        "processed_parquet": 10771,
+        "cv_run": 1792,
+        "note": "Different windowing settings: the CV scripts rebuild windows from raw via build_casas_windows_from_raw using the experiment config, rather than reading data/processed. Not an error, but the paper must not mix the two figures."
+      },
+      "sensor_types": [
+        "nsiot:DoorContactSensor",
+        "nsiot:PIRMotionSensor",
+        "nsiot:SmartAppliancePlug",
+        "nsiot:TemperatureSensor",
+        "nsiot:WaterFlowSensor"
+      ],
+      "n_sensor_type_patterns": 5,
+      "n_mapped_rooms": 4,
+      "n_activity_map_entries": 5,
+      "activity_map": {
+        "Cook": "nsiot:MealPreparation",
+        "Eat": "nsiot:Eating",
+        "Clean": "nsiot:Housekeeping",
+        "PhoneCall": "nsiot:PhoneCall",
+        "WashHands": "nsiot:PersonalHygiene"
+      }
+    },
+    "sphere": {
+      "sensor_map_key": "sphere",
+      "processed_metadata": {
+        "dataset": "SPHERE",
+        "window_seconds": 30,
+        "stride_seconds": 15,
+        "min_rows_per_window": 5,
+        "label_join_tolerance_seconds": 10.0,
+        "n_labeled_rows": 41594,
+        "n_windows": 139,
+        "splits": {
+          "train": 97,
+          "val": 21,
+          "test": 21
+        },
+        "labels_meta": {
+          "label_file": "activity.csv",
+          "time_col": "t",
+          "label_cols_count": 20,
+          "label_cols_sample": [
+            "a_ascend",
+            "a_descend",
+            "a_jump",
+            "a_loadwalk",
+            "a_walk",
+            "p_bent",
+            "p_kneel",
+            "p_lie",
+            "p_sit",
+            "p_squat",
+            "p_stand",
+            "t_bend",
+            "t_kneel_stand",
+            "t_lie_sit",
+            "t_sit_lie"
+          ],
+          "n_rows": 20940,
+          "n_labels": 20,
+          "min_time": "1970-01-01 00:01:06+00:00",
+          "max_time": "1970-01-01 00:35:59.900000+00:00"
+        },
+        "stream_meta": {
+          "stream_file": "acceleration_corrected.csv",
+          "time_col": "t",
+          "n_rows_stream": 43423,
+          "n_features": 3,
+          "feature_cols_sample": [
+            "x",
+            "y",
+            "z"
+          ],
+          "min_time": "1970-01-01 00:00:00.010856+00:00",
+          "max_time": "1970-01-01 00:36:45.877000+00:00"
+        },
+        "timings_sec": {
+          "load_labels": 0.12912010005675256,
+          "load_stream": 0.06425069994293153,
+          "label_join": 0.019653999945148826,
+          "windowing": 0.26102069998160005,
+          "splitting": 0.007039899937808514
+        }
+      },
+      "processed_windows": 139,
+      "processed_events": 41594,
+      "processed_splits": {
+        "train": 97,
+        "val": 21,
+        "test": 21
+      },
+      "sensor_types": [
+        "nsiot:PIRMotionSensor"
+      ],
+      "n_pir_columns": 9,
+      "n_mapped_rooms": 5,
+      "n_activity_map_entries": 20,
+      "activity_map": {
+        "a_ascend": "nsiot:Activity",
+        "a_descend": "nsiot:Activity",
+        "a_jump": "nsiot:Activity",
+        "a_loadwalk": "nsiot:Activity",
+        "a_walk": "nsiot:Activity",
+        "p_bent": "nsiot:Standing",
+        "p_kneel": "nsiot:Standing",
+        "p_lie": "nsiot:Lying",
+        "p_sit": "nsiot:Sitting",
+        "p_squat": "nsiot:Standing",
+        "p_stand": "nsiot:Standing",
+        "t_bend": "nsiot:Standing",
+        "t_kneel_stand": "nsiot:Standing",
+        "t_lie_sit": "nsiot:Sitting",
+        "t_sit_lie": "nsiot:Lying",
+        "t_sit_stand": "nsiot:Standing",
+        "t_stand_kneel": "nsiot:Standing",
+        "t_stand_sit": "nsiot:Sitting",
+        "t_straighten": "nsiot:Standing",
+        "t_turn": "nsiot:Standing"
+      }
+    }
+  },
+  "ontology": {
+    "Neuro-Symbolic IoT Smart Home Ontology.ttl": {
+      "parsed": true,
+      "triples": 142,
+      "owl_classes": 33,
+      "object_properties": 12,
+      "datatype_properties": 4
+    },
+    "NeuroSymbolic_IoT_SmartHome_Ontology_SWRL_Rules.ttl": {
+      "parsed": false,
+      "error": "'NoneType' object has no attribute 'newUniversal'"
+    },
+    "NeuroSymbolicOntology_basic.ttl": {
+      "parsed": true,
+      "triples": 29,
+      "owl_classes": 10,
+      "object_properties": 3,
+      "datatype_properties": 1
+    }
+  }
+}
