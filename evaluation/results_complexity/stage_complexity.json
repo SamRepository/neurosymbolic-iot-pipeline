@@ -1,0 +1,609 @@
+{
+  "_meta": {
+    "script": "evaluation/run_stage_complexity.py",
+    "commit": "2e90d3a",
+    "generated": "2026-08-04T19:31:24",
+    "config": "config/base.yaml",
+    "seed": 42,
+    "note": "Window and triple dimensions reuse the stored E5/E7 measurements; the rule fixed point and the rule-count dimension are measured here because neither prior experiment exercises rule evaluation.",
+    "representativeness_caveat": "Synthetic graphs exercise a different rule mix from the real Aruba run (here rule 6 fires heavily and rules 5/10 rarely; on Aruba the reverse). The scaling exponent is the transferable result, and it is validated against the real run's observed reasoning time - absolute seconds are not directly comparable."
+  },
+  "dimension_windows": {
+    "available": true,
+    "source": "outputs/experiments/edge_latency/edge_latency_results.json",
+    "datasets": {
+      "casas": {
+        "neural_inference": {
+          "measured_ms_by_batch": {
+            "1": 48.34,
+            "5": 37.76,
+            "10": 46.18,
+            "20": 60.35,
+            "50": 93.17
+          },
+          "fit_vs_windows": {
+            "fitted": true,
+            "model": "value = a * triples^b",
+            "exponent_b": 0.167,
+            "coefficient_a": 37.86378337,
+            "r_squared": 0.5147,
+            "n_points": 5,
+            "interpretation": "b = 0.17: sub-linear scaling."
+          }
+        },
+        "kg_population": {
+          "measured_ms_by_batch": {
+            "1": 2.82,
+            "5": 6.61,
+            "10": 11.77,
+            "20": 19.22,
+            "50": 46.57
+          },
+          "fit_vs_windows": {
+            "fitted": true,
+            "model": "value = a * triples^b",
+            "exponent_b": 0.7107,
+            "coefficient_a": 2.45843872,
+            "r_squared": 0.9825,
+            "n_points": 5,
+            "interpretation": "b = 0.71: sub-linear scaling."
+          }
+        },
+        "symbolic_reasoning": {
+          "measured_ms_by_batch": {
+            "1": 147.49,
+            "5": 69.32,
+            "10": 54.59,
+            "20": 56.32,
+            "50": 61.57
+          },
+          "fit_vs_windows": {
+            "fitted": true,
+            "model": "value = a * triples^b",
+            "exponent_b": -0.2338,
+            "coefficient_a": 119.40726167,
+            "r_squared": 0.7066,
+            "n_points": 5,
+            "interpretation": "b = -0.23: sub-linear scaling."
+          }
+        },
+        "feedback": {
+          "measured_ms_by_batch": {
+            "1": 0.01,
+            "5": 0.01,
+            "10": 0.01,
+            "20": 0.02,
+            "50": 0.03
+          },
+          "fit_vs_windows": {
+            "fitted": true,
+            "model": "value = a * triples^b",
+            "exponent_b": 0.2851,
+            "coefficient_a": 0.00772067,
+            "r_squared": 0.6811,
+            "n_points": 5,
+            "interpretation": "b = 0.29: sub-linear scaling."
+          }
+        }
+      },
+      "sphere": {
+        "neural_inference": {
+          "measured_ms_by_batch": {
+            "1": 11.67,
+            "5": 7.29,
+            "10": 9.81,
+            "20": 9.98,
+            "50": 17.99
+          },
+          "fit_vs_windows": {
+            "fitted": true,
+            "model": "value = a * triples^b",
+            "exponent_b": 0.0986,
+            "coefficient_a": 8.75951365,
+            "r_squared": 0.1951,
+            "n_points": 5,
+            "interpretation": "b = 0.10: sub-linear scaling."
+          }
+        },
+        "kg_population": {
+          "measured_ms_by_batch": {
+            "1": 1.74,
+            "5": 4.6,
+            "10": 8.71,
+            "20": 13.2,
+            "50": 31.64
+          },
+          "fit_vs_windows": {
+            "fitted": true,
+            "model": "value = a * triples^b",
+            "exponent_b": 0.7354,
+            "coefficient_a": 1.59108847,
+            "r_squared": 0.9909,
+            "n_points": 5,
+            "interpretation": "b = 0.74: sub-linear scaling."
+          }
+        },
+        "symbolic_reasoning": {
+          "measured_ms_by_batch": {
+            "1": 42.78,
+            "5": 44.87,
+            "10": 48.86,
+            "20": 68.6,
+            "50": 51.79
+          },
+          "fit_vs_windows": {
+            "fitted": true,
+            "model": "value = a * triples^b",
+            "exponent_b": 0.0821,
+            "coefficient_a": 42.40303381,
+            "r_squared": 0.4307,
+            "n_points": 5,
+            "interpretation": "b = 0.08: sub-linear scaling."
+          }
+        },
+        "feedback": {
+          "measured_ms_by_batch": {
+            "1": 0.0,
+            "5": 0.01,
+            "10": 0.01,
+            "20": 0.02,
+            "50": 0.02
+          },
+          "fit_vs_windows": {
+            "fitted": false,
+            "reason": "non-positive values (stage cost below timer resolution)"
+          }
+        }
+      }
+    }
+  },
+  "dimension_triples": {
+    "from_e7": {
+      "available": true,
+      "source": "evaluation/results_scalability/kg_scalability_extended.json",
+      "datasets": {
+        "casas": {
+          "kg_population": {
+            "fit_vs_triples": {
+              "fitted": true,
+              "model": "value = a * triples^b",
+              "exponent_b": 0.9205,
+              "coefficient_a": 8.896e-05,
+              "r_squared": 0.9955,
+              "n_points": 13,
+              "interpretation": "b = 0.92: sub-linear scaling."
+            },
+            "note": "KG build time; the sweep's own build stage."
+          },
+          "simple_sparql_retrieval": {
+            "fit_vs_triples": {
+              "fitted": true,
+              "model": "value = a * triples^b",
+              "exponent_b": 0.7279,
+              "coefficient_a": 0.06248542,
+              "r_squared": 0.9842,
+              "n_points": 13,
+              "interpretation": "b = 0.73: sub-linear scaling."
+            },
+            "note": "Five single/double-pattern SELECT queries. This is retrieval, not rule evaluation - see rule_fixed_point below for the reasoning stage proper."
+          }
+        },
+        "sphere": {
+          "kg_population": {
+            "fit_vs_triples": {
+              "fitted": true,
+              "model": "value = a * triples^b",
+              "exponent_b": 0.9305,
+              "coefficient_a": 7.458e-05,
+              "r_squared": 0.9721,
+              "n_points": 13,
+              "interpretation": "b = 0.93: sub-linear scaling."
+            },
+            "note": "KG build time; the sweep's own build stage."
+          },
+          "simple_sparql_retrieval": {
+            "fit_vs_triples": {
+              "fitted": true,
+              "model": "value = a * triples^b",
+              "exponent_b": 0.7399,
+              "coefficient_a": 0.06573821,
+              "r_squared": 0.9618,
+              "n_points": 13,
+              "interpretation": "b = 0.74: sub-linear scaling."
+            },
+            "note": "Five single/double-pattern SELECT queries. This is retrieval, not rule evaluation - see rule_fixed_point below for the reasoning stage proper."
+          }
+        }
+      }
+    },
+    "rule_fixed_point_measured": [
+      {
+        "n_predictions": 25,
+        "triples_before_mean": 504.0,
+        "triples_after_mean": 570.0,
+        "seconds_mean": 1.0708,
+        "seconds_std": 0.1846,
+        "trials": 2,
+        "raw": [
+          {
+            "trial": 0,
+            "n_predictions": 25,
+            "triples_before": 504,
+            "triples_after": 570,
+            "seconds": 1.2013,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 3,
+              "4": 3,
+              "6": 50,
+              "7": 6
+            }
+          },
+          {
+            "trial": 1,
+            "n_predictions": 25,
+            "triples_before": 504,
+            "triples_after": 570,
+            "seconds": 0.9403,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 3,
+              "4": 5,
+              "6": 50,
+              "7": 4
+            }
+          }
+        ]
+      },
+      {
+        "n_predictions": 50,
+        "triples_before_mean": 945.0,
+        "triples_after_mean": 1066.5,
+        "seconds_mean": 5.1974,
+        "seconds_std": 0.0804,
+        "trials": 2,
+        "raw": [
+          {
+            "trial": 0,
+            "n_predictions": 50,
+            "triples_before": 949,
+            "triples_after": 1072,
+            "seconds": 5.1406,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 6,
+              "4": 3,
+              "6": 100,
+              "7": 10
+            }
+          },
+          {
+            "trial": 1,
+            "n_predictions": 50,
+            "triples_before": 941,
+            "triples_after": 1061,
+            "seconds": 5.2543,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 6,
+              "4": 2,
+              "6": 100,
+              "7": 8
+            }
+          }
+        ]
+      },
+      {
+        "n_predictions": 100,
+        "triples_before_mean": 1827.0,
+        "triples_after_mean": 2056.0,
+        "seconds_mean": 28.9739,
+        "seconds_std": 1.3202,
+        "trials": 2,
+        "raw": [
+          {
+            "trial": 0,
+            "n_predictions": 100,
+            "triples_before": 1825,
+            "triples_after": 2054,
+            "seconds": 29.9074,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 4,
+              "4": 5,
+              "6": 200,
+              "7": 16
+            }
+          },
+          {
+            "trial": 1,
+            "n_predictions": 100,
+            "triples_before": 1829,
+            "triples_after": 2058,
+            "seconds": 28.0404,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 5,
+              "4": 6,
+              "6": 200,
+              "7": 14
+            }
+          }
+        ]
+      },
+      {
+        "n_predictions": 150,
+        "triples_before_mean": 2711.0,
+        "triples_after_mean": 3055.0,
+        "seconds_mean": 86.6079,
+        "seconds_std": 0.5263,
+        "trials": 2,
+        "raw": [
+          {
+            "trial": 0,
+            "n_predictions": 150,
+            "triples_before": 2719,
+            "triples_after": 3068,
+            "seconds": 86.9801,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 7,
+              "4": 16,
+              "6": 300,
+              "7": 22
+            }
+          },
+          {
+            "trial": 1,
+            "n_predictions": 150,
+            "triples_before": 2703,
+            "triples_after": 3042,
+            "seconds": 86.2358,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 6,
+              "4": 13,
+              "6": 300,
+              "7": 16
+            }
+          }
+        ]
+      },
+      {
+        "n_predictions": 200,
+        "triples_before_mean": 3584.0,
+        "triples_after_mean": 4044.5,
+        "seconds_mean": 202.8718,
+        "seconds_std": 2.3082,
+        "trials": 2,
+        "raw": [
+          {
+            "trial": 0,
+            "n_predictions": 200,
+            "triples_before": 3581,
+            "triples_after": 4041,
+            "seconds": 204.504,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 14,
+              "4": 16,
+              "6": 400,
+              "7": 26
+            }
+          },
+          {
+            "trial": 1,
+            "n_predictions": 200,
+            "triples_before": 3587,
+            "triples_after": 4048,
+            "seconds": 201.2397,
+            "iterations": 2,
+            "firings": {
+              "1": 4,
+              "3": 13,
+              "4": 18,
+              "6": 400,
+              "7": 26
+            }
+          }
+        ]
+      }
+    ],
+    "rule_fixed_point_fit": {
+      "fitted": true,
+      "model": "value = a * triples^b",
+      "exponent_b": 2.659,
+      "coefficient_a": 7e-08,
+      "r_squared": 0.9991,
+      "n_points": 5,
+      "interpretation": "b = 2.66: super-linear scaling."
+    },
+    "validation_against_real_run": {
+      "validated": true,
+      "anchor_source": "evaluation/results_aruba/fold_0/reasoning/casas/reasoning_result.json",
+      "anchor_triples": 6568,
+      "anchor_observed_seconds": 937.46,
+      "law_predicts_seconds": 990.0,
+      "ratio_predicted_over_observed": 1.06,
+      "extrapolation_factor_beyond_measured": 1.83,
+      "interpretation": "The fitted law was derived from synthetic graphs up to 3584 triples and never saw the anchor. Extrapolated 1.8x beyond its largest measured point it predicts 990 s against 937 s actually observed on the real Aruba graph (ratio 1.06). Agreement to this degree, across different data and a different rule-firing mix, is what licenses quoting the exponent as the reasoning stage's empirical complexity."
+    }
+  },
+  "dimension_rules": {
+    "per_rule_single_pass": [
+      {
+        "rule_id": 1,
+        "label": "PIR motion implies person location",
+        "ms_mean": 5.358,
+        "ms_std": 0.042,
+        "matches_single_pass": 4,
+        "share_of_single_pass_pct": 0.0
+      },
+      {
+        "rule_id": 2,
+        "label": "Appliance interaction implies person location",
+        "ms_mean": 5.078,
+        "ms_std": 0.163,
+        "matches_single_pass": 2,
+        "share_of_single_pass_pct": 0.0
+      },
+      {
+        "rule_id": 3,
+        "label": "High-confidence Cook in Kitchen validation",
+        "ms_mean": 99.373,
+        "ms_std": 1.577,
+        "matches_single_pass": 0,
+        "share_of_single_pass_pct": 0.8
+      },
+      {
+        "rule_id": 4,
+        "label": "High-confidence Eat in Kitchen validation",
+        "ms_mean": 118.069,
+        "ms_std": 18.427,
+        "matches_single_pass": 0,
+        "share_of_single_pass_pct": 0.9
+      },
+      {
+        "rule_id": 5,
+        "label": "Cook without kitchen appliance activation",
+        "ms_mean": 70.794,
+        "ms_std": 0.368,
+        "matches_single_pass": 0,
+        "share_of_single_pass_pct": 0.5
+      },
+      {
+        "rule_id": 6,
+        "label": "Unattended fire hazard (kitchen plug ON, person elsewhere)",
+        "ms_mean": 21.765,
+        "ms_std": 0.674,
+        "matches_single_pass": 0,
+        "share_of_single_pass_pct": 0.2
+      },
+      {
+        "rule_id": 7,
+        "label": "Nocturnal kitchen activity",
+        "ms_mean": 69.66,
+        "ms_std": 0.62,
+        "matches_single_pass": 26,
+        "share_of_single_pass_pct": 0.5
+      },
+      {
+        "rule_id": 8,
+        "label": "Spatial hallucination (kitchen activity without kitchen motion)",
+        "ms_mean": 144.531,
+        "ms_std": 6.767,
+        "matches_single_pass": 0,
+        "share_of_single_pass_pct": 1.1
+      },
+      {
+        "rule_id": 9,
+        "label": "Contextual mismatch (Cook predicted, person not in Kitchen)",
+        "ms_mean": 57.599,
+        "ms_std": 1.382,
+        "matches_single_pass": 0,
+        "share_of_single_pass_pct": 0.4
+      },
+      {
+        "rule_id": 10,
+        "label": "Low-margin AND low-confidence top-2 disagreement",
+        "ms_mean": 12449.106,
+        "ms_std": 204.088,
+        "matches_single_pass": 0,
+        "share_of_single_pass_pct": 95.1
+      },
+      {
+        "rule_id": 11,
+        "label": "Unsupported claim (low conf + no sensor evidence)",
+        "ms_mean": 52.067,
+        "ms_std": 0.686,
+        "matches_single_pass": 200,
+        "share_of_single_pass_pct": 0.4
+      }
+    ],
+    "cumulative_rule_count": [
+      {
+        "n_rules": 1,
+        "seconds": 0.0106,
+        "iterations": 2,
+        "triples_added": 4
+      },
+      {
+        "n_rules": 2,
+        "seconds": 0.0197,
+        "iterations": 2,
+        "triples_added": 4
+      },
+      {
+        "n_rules": 3,
+        "seconds": 0.228,
+        "iterations": 2,
+        "triples_added": 16
+      },
+      {
+        "n_rules": 4,
+        "seconds": 0.4485,
+        "iterations": 2,
+        "triples_added": 21
+      },
+      {
+        "n_rules": 5,
+        "seconds": 0.6027,
+        "iterations": 2,
+        "triples_added": 21
+      },
+      {
+        "n_rules": 6,
+        "seconds": 0.7802,
+        "iterations": 2,
+        "triples_added": 221
+      },
+      {
+        "n_rules": 7,
+        "seconds": 0.9105,
+        "iterations": 2,
+        "triples_added": 247
+      },
+      {
+        "n_rules": 8,
+        "seconds": 1.2012,
+        "iterations": 2,
+        "triples_added": 247
+      },
+      {
+        "n_rules": 9,
+        "seconds": 1.3866,
+        "iterations": 2,
+        "triples_added": 247
+      },
+      {
+        "n_rules": 10,
+        "seconds": 26.33,
+        "iterations": 2,
+        "triples_added": 247
+      },
+      {
+        "n_rules": 11,
+        "seconds": 26.2858,
+        "iterations": 2,
+        "triples_added": 247
+      }
+    ],
+    "graph_size_predictions": 100
+  },
+  "findings": {
+    "headline": "Only one stage is super-linear. KG population scales as b = 0.9205 (sub-linear) and simple SPARQL retrieval is linear in the deployment regime (E7: b = 1.00 above 40k triples; the full-range b = 0.7279 is an artefact of fixed per-query overhead at small sizes). The 11-rule fixed point scales as b = 2.659 - between quadratic and cubic. The reasoning stage, not the network and not KG construction, governs how the pipeline scales.",
+    "one_rule_dominates": "The reasoning cost is not spread across the rule base - it is one rule. R10 (Low-margin AND low-confidence top-2 disagreement) takes 12449 ms of a single pass, 95.1 % of the total, and enabling it multiplies the fixed-point cost by 19.0x (rules 1..9 cost 1.39 s; rules 1..10 cost 26.33 s). R10 is also the only rule producing feedback flags on Aruba (E2/E4), so the pipeline's entire feedback signal and the overwhelming majority of its reasoning cost come from the same single rule body. That is where any optimisation must go, and it is a concrete, actionable statement the complexity section can make.",
+    "why_reasoning_is_worse": "Two effects compound. Individual rule bodies contain joins whose cost grows with the graph, and the fixed-point loop re-fires every rule after each round of newly asserted triples, so the graph the later passes run against is itself larger. Retrieval benchmarks miss this entirely, which is why a scalability result built only on SELECT queries understates the cost of the deployed pipeline.",
+    "dominant_rules": "Single-pass cost is concentrated: rules [10, 8, 4] account for 97 % of one pass. Optimisation effort should target those bodies rather than the rule base as a whole.",
+    "cost_vs_rule_count": "Cost does not grow with rule count in any smooth way: rules 1..9 together cost 1.39 s, and the full base costs 26.29 s. Nearly all of the difference is one rule. A complexity model linear in |R| would therefore mispredict badly - what matters is which bodies are in the base, not how many."
+  }
+}
