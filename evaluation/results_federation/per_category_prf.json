@@ -1,0 +1,1217 @@
+{
+  "_meta": {
+    "script": "evaluation/run_federation_rigor.py",
+    "commit": "48b3051",
+    "generated": "2026-08-04T15:21:59",
+    "config": "config/base.yaml",
+    "n_casas": 100,
+    "n_sphere": 100,
+    "trials_per_arm": 20,
+    "anomaly_arms": [
+      5,
+      10,
+      20,
+      40
+    ],
+    "headline_arm": 10,
+    "seed": 42,
+    "definitions": {
+      "as_published": "Legacy metric path, byte-identical query semantics to evaluation/run_cross_dataset_federation.py. Known artefacts preserved for reconciliation: (1) 'multi_room_motion' and 'cross_source_location_conflict' are graph-static sensor-pair counts, not event detections; (2) in the federated graph the cross-source sensor pairs are counted under BOTH categories (double count); (3) single-source categories are definitional pattern matches on the synthetic background, not independently validated anomalies.",
+      "corrected_rows": "Event-scoped, de-duplicated detections. 'multi_room_events' counts events whose motion-active sensors span >=2 rooms (via nsiot:involvesMotionInRoom provenance triples added by this script); 'location_event_pairs' counts CASAS/SPHERE event pairs with equal timestamps and disjoint motion-room sets. No detection is counted in more than one category slot of the total.",
+      "corrected_distinct": "Distinct anomalies: number of ground-truth registry entries detected by at least one cross-source query, plus distinct unmatched (false-positive) event pairs. This is the strictest honest count of NEW anomalies federation contributes.",
+      "ground_truth": "The experiment is fully synthetic, so ground truth is programmatic: injected anomalies carry ids/timestamps/indices in a registry (matched to detections by URI pair); background labels (confidence < 0.60, night-time 22:00-06:00, motion spanning >=2 rooms) are derived from the generator output itself. Single-source categories are therefore rule-definitional: precision 1.0 by construction, and they characterise the synthetic stream, not detector skill.",
+      "truth_per_category": {
+        "cross_source_temporal_overlap": "all injected pairs (each shares an exact timestamp)",
+        "cross_source_activity_posture_conflict": "injected pairs with both confidences > 0.80 and (activity, posture) in {(MealPreparation, Lying), (PersonalHygiene, Lying), (Housekeeping, Lying)}",
+        "cross_source_location_conflict_event_scoped": "injected pairs whose CASAS and SPHERE motion-room sets are non-empty and disjoint",
+        "low_confidence": "predictions whose stored binary-float confidence is below the decimal threshold 0.60 \u2014 this includes values rounded to exactly 0.6, whose float representation (0.59999999999999997...) the SPARQL engine correctly ranks below the decimal literal 0.60",
+        "night_time_events": "events generated with timestamp in 22:00-06:00",
+        "multi_room_motion_event_scoped": "events whose motion-active sensors span >= 2 rooms"
+      },
+      "single_source_recall_on_cross_source_categories": "0.0 by construction: cross-source anomaly pairs span two graphs that a single-source deployment never joins, so no single-source query can detect them.",
+      "seed_scheme": "trial seed = seed + 1000 * trial (same scheme as the CV folds)",
+      "triple_count_note": "Federated KG is now ~3110 triples at trial 0 vs 2890 in the stored legacy run: +1 triple/prediction from the isAlternativePrediction flag later added to kg_federation_loader.py, plus this script's involvesMotionInRoom provenance triples on its own graphs. Detection counts are unaffected."
+    },
+    "n_anomalies": 10
+  },
+  "categories": {
+    "cross_source_temporal_overlap": {
+      "tp": {
+        "mean": 10.0,
+        "std": 0.0,
+        "ci95": [
+          10.0,
+          10.0
+        ],
+        "n": 20,
+        "per_trial": [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      },
+      "fp": {
+        "mean": 0.15,
+        "std": 0.49,
+        "ci95": [
+          -0.08,
+          0.38
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "fn": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "precision": {
+        "mean": 0.9871,
+        "std": 0.0415,
+        "ci95": [
+          0.9677,
+          1.0065
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          0.8333,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          0.9091,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "recall": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "f1": {
+        "mean": 0.9931,
+        "std": 0.0224,
+        "ci95": [
+          0.9826,
+          1.0036
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          0.9091,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          0.9524,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "pooled": {
+        "tp": 200,
+        "fp": 3,
+        "fn": 0,
+        "precision": 0.9852,
+        "recall": 1.0,
+        "f1": 0.9926
+      }
+    },
+    "cross_source_activity_posture_conflict": {
+      "tp": {
+        "mean": 7.0,
+        "std": 0.0,
+        "ci95": [
+          7.0,
+          7.0
+        ],
+        "n": 20,
+        "per_trial": [
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0,
+          7.0
+        ]
+      },
+      "fp": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "fn": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "precision": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "recall": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "f1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "pooled": {
+        "tp": 140,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "cross_source_location_conflict_event_scoped": {
+      "tp": {
+        "mean": 10.0,
+        "std": 0.0,
+        "ci95": [
+          10.0,
+          10.0
+        ],
+        "n": 20,
+        "per_trial": [
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ]
+      },
+      "fp": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "fn": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "precision": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "recall": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "f1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "pooled": {
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "low_confidence": {
+      "tp": {
+        "mean": 39.95,
+        "std": 5.93,
+        "ci95": [
+          37.17,
+          42.73
+        ],
+        "n": 20,
+        "per_trial": [
+          34.0,
+          42.0,
+          33.0,
+          38.0,
+          48.0,
+          30.0,
+          42.0,
+          46.0,
+          42.0,
+          38.0,
+          40.0,
+          43.0,
+          48.0,
+          33.0,
+          45.0,
+          36.0,
+          48.0,
+          44.0,
+          40.0,
+          29.0
+        ]
+      },
+      "fp": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "fn": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "precision": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "recall": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "f1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "pooled": {
+        "tp": 799,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "night_time_events": {
+      "tp": {
+        "mean": 74.55,
+        "std": 6.66,
+        "ci95": [
+          71.43,
+          77.67
+        ],
+        "n": 20,
+        "per_trial": [
+          89.0,
+          61.0,
+          76.0,
+          75.0,
+          67.0,
+          71.0,
+          79.0,
+          70.0,
+          85.0,
+          81.0,
+          79.0,
+          79.0,
+          74.0,
+          69.0,
+          80.0,
+          75.0,
+          72.0,
+          72.0,
+          68.0,
+          69.0
+        ]
+      },
+      "fp": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "fn": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "precision": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "recall": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "f1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "pooled": {
+        "tp": 1491,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "multi_room_motion_event_scoped": {
+      "tp": {
+        "mean": 132.7,
+        "std": 5.0,
+        "ci95": [
+          130.36,
+          135.04
+        ],
+        "n": 20,
+        "per_trial": [
+          127.0,
+          138.0,
+          141.0,
+          132.0,
+          130.0,
+          131.0,
+          139.0,
+          131.0,
+          132.0,
+          131.0,
+          128.0,
+          133.0,
+          133.0,
+          131.0,
+          135.0,
+          144.0,
+          124.0,
+          129.0,
+          137.0,
+          128.0
+        ]
+      },
+      "fp": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "fn": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 20,
+        "per_trial": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "precision": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "recall": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "f1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "n": 20,
+        "per_trial": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "pooled": {
+        "tp": 2654,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    }
+  },
+  "single_source_recall_on_cross_source_categories": 0.0,
+  "note": "0.0 by construction: cross-source anomaly pairs span two graphs that a single-source deployment never joins, so no single-source query can detect them."
+}

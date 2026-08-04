@@ -1,0 +1,2996 @@
+{
+  "_meta": {
+    "script": "evaluation/run_federation_rigor.py",
+    "commit": "48b3051",
+    "generated": "2026-08-04T15:21:59",
+    "config": "config/base.yaml",
+    "n_casas": 100,
+    "n_sphere": 100,
+    "trials_per_arm": 20,
+    "anomaly_arms": [
+      5,
+      10,
+      20,
+      40
+    ],
+    "headline_arm": 10,
+    "seed": 42,
+    "definitions": {
+      "as_published": "Legacy metric path, byte-identical query semantics to evaluation/run_cross_dataset_federation.py. Known artefacts preserved for reconciliation: (1) 'multi_room_motion' and 'cross_source_location_conflict' are graph-static sensor-pair counts, not event detections; (2) in the federated graph the cross-source sensor pairs are counted under BOTH categories (double count); (3) single-source categories are definitional pattern matches on the synthetic background, not independently validated anomalies.",
+      "corrected_rows": "Event-scoped, de-duplicated detections. 'multi_room_events' counts events whose motion-active sensors span >=2 rooms (via nsiot:involvesMotionInRoom provenance triples added by this script); 'location_event_pairs' counts CASAS/SPHERE event pairs with equal timestamps and disjoint motion-room sets. No detection is counted in more than one category slot of the total.",
+      "corrected_distinct": "Distinct anomalies: number of ground-truth registry entries detected by at least one cross-source query, plus distinct unmatched (false-positive) event pairs. This is the strictest honest count of NEW anomalies federation contributes.",
+      "ground_truth": "The experiment is fully synthetic, so ground truth is programmatic: injected anomalies carry ids/timestamps/indices in a registry (matched to detections by URI pair); background labels (confidence < 0.60, night-time 22:00-06:00, motion spanning >=2 rooms) are derived from the generator output itself. Single-source categories are therefore rule-definitional: precision 1.0 by construction, and they characterise the synthetic stream, not detector skill.",
+      "truth_per_category": {
+        "cross_source_temporal_overlap": "all injected pairs (each shares an exact timestamp)",
+        "cross_source_activity_posture_conflict": "injected pairs with both confidences > 0.80 and (activity, posture) in {(MealPreparation, Lying), (PersonalHygiene, Lying), (Housekeeping, Lying)}",
+        "cross_source_location_conflict_event_scoped": "injected pairs whose CASAS and SPHERE motion-room sets are non-empty and disjoint",
+        "low_confidence": "predictions whose stored binary-float confidence is below the decimal threshold 0.60 \u2014 this includes values rounded to exactly 0.6, whose float representation (0.59999999999999997...) the SPARQL engine correctly ranks below the decimal literal 0.60",
+        "night_time_events": "events generated with timestamp in 22:00-06:00",
+        "multi_room_motion_event_scoped": "events whose motion-active sensors span >= 2 rooms"
+      },
+      "single_source_recall_on_cross_source_categories": "0.0 by construction: cross-source anomaly pairs span two graphs that a single-source deployment never joins, so no single-source query can detect them.",
+      "seed_scheme": "trial seed = seed + 1000 * trial (same scheme as the CV folds)",
+      "triple_count_note": "Federated KG is now ~3110 triples at trial 0 vs 2890 in the stored legacy run: +1 triple/prediction from the isAlternativePrediction flag later added to kg_federation_loader.py, plus this script's involvesMotionInRoom provenance triples on its own graphs. Detection counts are unaffected."
+    },
+    "n_anomalies": 10
+  },
+  "as_published": {
+    "casas_total": {
+      "mean": 79.3,
+      "std": 6.76,
+      "ci95": [
+        76.14,
+        82.46
+      ],
+      "n": 20,
+      "per_trial": [
+        78.0,
+        79.0,
+        79.0,
+        78.0,
+        75.0,
+        72.0,
+        82.0,
+        87.0,
+        94.0,
+        82.0,
+        83.0,
+        84.0,
+        85.0,
+        70.0,
+        86.0,
+        71.0,
+        79.0,
+        84.0,
+        69.0,
+        69.0
+      ]
+    },
+    "sphere_total": {
+      "mean": 89.2,
+      "std": 5.27,
+      "ci95": [
+        86.73,
+        91.67
+      ],
+      "n": 20,
+      "per_trial": [
+        99.0,
+        78.0,
+        84.0,
+        89.0,
+        94.0,
+        83.0,
+        93.0,
+        83.0,
+        87.0,
+        91.0,
+        90.0,
+        92.0,
+        91.0,
+        86.0,
+        93.0,
+        94.0,
+        95.0,
+        86.0,
+        93.0,
+        83.0
+      ]
+    },
+    "union_total": {
+      "mean": 168.5,
+      "std": 8.58,
+      "ci95": [
+        164.48,
+        172.52
+      ],
+      "n": 20,
+      "per_trial": [
+        177.0,
+        157.0,
+        163.0,
+        167.0,
+        169.0,
+        155.0,
+        175.0,
+        170.0,
+        181.0,
+        173.0,
+        173.0,
+        176.0,
+        176.0,
+        156.0,
+        179.0,
+        165.0,
+        174.0,
+        170.0,
+        162.0,
+        152.0
+      ]
+    },
+    "federated_total": {
+      "mean": 307.65,
+      "std": 8.53,
+      "ci95": [
+        303.66,
+        311.64
+      ],
+      "n": 20,
+      "per_trial": [
+        316.0,
+        298.0,
+        302.0,
+        306.0,
+        308.0,
+        294.0,
+        314.0,
+        309.0,
+        321.0,
+        312.0,
+        312.0,
+        315.0,
+        315.0,
+        295.0,
+        318.0,
+        304.0,
+        313.0,
+        309.0,
+        301.0,
+        291.0
+      ]
+    },
+    "cross_source_total": {
+      "mean": 78.15,
+      "std": 0.49,
+      "ci95": [
+        77.92,
+        78.38
+      ],
+      "n": 20,
+      "per_trial": [
+        78.0,
+        80.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        79.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0,
+        78.0
+      ]
+    },
+    "overall_lift_pct": {
+      "mean": 82.79,
+      "std": 4.39,
+      "ci95": [
+        80.74,
+        84.85
+      ],
+      "n": 20,
+      "per_trial": [
+        78.53,
+        89.81,
+        85.28,
+        83.23,
+        82.25,
+        89.68,
+        79.43,
+        81.76,
+        77.35,
+        80.35,
+        80.35,
+        78.98,
+        78.98,
+        89.1,
+        77.65,
+        84.24,
+        79.89,
+        81.76,
+        85.8,
+        91.45
+      ]
+    },
+    "shared_category_lift_pct": {
+      "mean": 36.29,
+      "std": 1.9,
+      "ci95": [
+        35.4,
+        37.18
+      ],
+      "n": 20,
+      "per_trial": [
+        34.46,
+        38.85,
+        37.42,
+        36.53,
+        36.09,
+        39.35,
+        34.86,
+        35.88,
+        33.7,
+        35.26,
+        35.26,
+        34.66,
+        34.66,
+        39.1,
+        34.08,
+        36.97,
+        35.06,
+        35.88,
+        37.65,
+        40.13
+      ]
+    }
+  },
+  "corrected": {
+    "casas_total": {
+      "mean": 90.45,
+      "std": 7.98,
+      "ci95": [
+        86.71,
+        94.19
+      ],
+      "n": 20,
+      "per_trial": [
+        85.0,
+        95.0,
+        100.0,
+        89.0,
+        89.0,
+        80.0,
+        100.0,
+        98.0,
+        103.0,
+        92.0,
+        90.0,
+        95.0,
+        98.0,
+        79.0,
+        97.0,
+        91.0,
+        78.0,
+        89.0,
+        85.0,
+        76.0
+      ]
+    },
+    "sphere_total": {
+      "mean": 156.75,
+      "std": 5.51,
+      "ci95": [
+        154.17,
+        159.33
+      ],
+      "n": 20,
+      "per_trial": [
+        165.0,
+        146.0,
+        150.0,
+        156.0,
+        156.0,
+        152.0,
+        160.0,
+        149.0,
+        156.0,
+        158.0,
+        157.0,
+        160.0,
+        157.0,
+        154.0,
+        163.0,
+        164.0,
+        166.0,
+        156.0,
+        160.0,
+        150.0
+      ]
+    },
+    "union_total": {
+      "mean": 247.2,
+      "std": 9.24,
+      "ci95": [
+        242.87,
+        251.53
+      ],
+      "n": 20,
+      "per_trial": [
+        250.0,
+        241.0,
+        250.0,
+        245.0,
+        245.0,
+        232.0,
+        260.0,
+        247.0,
+        259.0,
+        250.0,
+        247.0,
+        255.0,
+        255.0,
+        233.0,
+        260.0,
+        255.0,
+        244.0,
+        245.0,
+        245.0,
+        226.0
+      ]
+    },
+    "federated_total": {
+      "mean": 274.35,
+      "std": 9.25,
+      "ci95": [
+        270.02,
+        278.68
+      ],
+      "n": 20,
+      "per_trial": [
+        277.0,
+        270.0,
+        277.0,
+        272.0,
+        272.0,
+        259.0,
+        287.0,
+        274.0,
+        287.0,
+        277.0,
+        274.0,
+        282.0,
+        282.0,
+        260.0,
+        287.0,
+        282.0,
+        271.0,
+        272.0,
+        272.0,
+        253.0
+      ]
+    },
+    "federated_cross_rows": {
+      "mean": 27.15,
+      "std": 0.49,
+      "ci95": [
+        26.92,
+        27.38
+      ],
+      "n": 20,
+      "per_trial": [
+        27.0,
+        29.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        28.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0
+      ]
+    },
+    "overall_lift_rows_pct": {
+      "mean": 11.0,
+      "std": 0.47,
+      "ci95": [
+        10.78,
+        11.22
+      ],
+      "n": 20,
+      "per_trial": [
+        10.8,
+        12.03,
+        10.8,
+        11.02,
+        11.02,
+        11.64,
+        10.38,
+        10.93,
+        10.81,
+        10.8,
+        10.93,
+        10.59,
+        10.59,
+        11.59,
+        10.38,
+        10.59,
+        11.07,
+        11.02,
+        11.02,
+        11.95
+      ]
+    },
+    "shared_category_lift_pct": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "n": 20,
+      "per_trial": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "distinct_new_anomalies": {
+      "mean": 10.15,
+      "std": 0.49,
+      "ci95": [
+        9.92,
+        10.38
+      ],
+      "n": 20,
+      "per_trial": [
+        10.0,
+        12.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        11.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    },
+    "distinct_lift_pct": {
+      "mean": 4.11,
+      "std": 0.26,
+      "ci95": [
+        3.99,
+        4.23
+      ],
+      "n": 20,
+      "per_trial": [
+        4.0,
+        4.98,
+        4.0,
+        4.08,
+        4.08,
+        4.31,
+        3.85,
+        4.05,
+        4.25,
+        4.0,
+        4.05,
+        3.92,
+        3.92,
+        4.29,
+        3.85,
+        3.92,
+        4.1,
+        4.08,
+        4.08,
+        4.42
+      ]
+    },
+    "registry_detected": {
+      "mean": 10.0,
+      "std": 0.0,
+      "ci95": [
+        10.0,
+        10.0
+      ],
+      "n": 20,
+      "per_trial": [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    }
+  },
+  "reconciliation": {
+    "n_injected": 10,
+    "as_published_trial0": {
+      "federated_total": 308,
+      "union_of_single_source": 169,
+      "casas_total": 74,
+      "sphere_total": 95
+    },
+    "decomposition_of_federated_total": {
+      "single_source_definitional_matches": {
+        "low_confidence": 34,
+        "night_time_events": 81,
+        "multi_room_motion_sensor_pairs": 115
+      },
+      "multi_room_motion_breakdown": {
+        "same_source_sensor_pairs": 54,
+        "cross_source_sensor_pairs_also_counted_as_location_conflict": 61
+      },
+      "cross_source_rows": {
+        "temporal_overlap_pairs": 10,
+        "activity_posture_conflicts": 7,
+        "location_conflict_static_sensor_pairs": 61
+      }
+    },
+    "explanation": "The N injected anomalies are prediction PAIRS sharing an exact timestamp; each surfaces as one temporal-overlap row, and subsets additionally satisfy the activity-posture and location-conflict patterns. The remaining detections are definitional pattern matches on the randomly generated background stream (confidence < 0.60, night-time timestamps, multi-room motion) plus graph-static sensor-pair counts. The as-published federated total also counts the cross-source location-conflict sensor pairs twice (once under multi-room motion, once under location conflict), which inflates the headline lift."
+  },
+  "raw_trials": [
+    {
+      "trial": 0,
+      "trial_seed": 42,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 13,
+          "night_time_events": 42,
+          "multi_room_motion": 23,
+          "total": 78
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 47,
+          "multi_room_motion": 31,
+          "total": 99
+        },
+        "federated": {
+          "low_confidence": 34,
+          "night_time_events": 89,
+          "multi_room_motion": 115,
+          "total": 316,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 177,
+        "overall_lift_pct": 78.53107344632768,
+        "shared_category_lift_pct": 34.463276836158194
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 13,
+          "night_time_events": 42,
+          "multi_room_events": 30,
+          "total": 85
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 47,
+          "multi_room_events": 97,
+          "total": 165
+        },
+        "union_total": 250,
+        "federated_shared": {
+          "low_confidence": 34,
+          "night_time_events": 89,
+          "multi_room_events": 127
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 277,
+        "overall_lift_rows_pct": 10.8,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.0,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 34,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 89,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 127,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1584,
+        "sphere": 1708,
+        "federated": 3515
+      }
+    },
+    {
+      "trial": 1,
+      "trial_seed": 1042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 22,
+          "night_time_events": 34,
+          "multi_room_motion": 23,
+          "total": 79
+        },
+        "sphere": {
+          "low_confidence": 20,
+          "night_time_events": 27,
+          "multi_room_motion": 31,
+          "total": 78
+        },
+        "federated": {
+          "low_confidence": 42,
+          "night_time_events": 61,
+          "multi_room_motion": 115,
+          "total": 298,
+          "cross_source_temporal_overlap": 12,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 80
+        },
+        "union_total": 157,
+        "overall_lift_pct": 89.80891719745223,
+        "shared_category_lift_pct": 38.853503184713375
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 22,
+          "night_time_events": 34,
+          "multi_room_events": 39,
+          "total": 95
+        },
+        "sphere": {
+          "low_confidence": 20,
+          "night_time_events": 27,
+          "multi_room_events": 99,
+          "total": 146
+        },
+        "union_total": 241,
+        "federated_shared": {
+          "low_confidence": 42,
+          "night_time_events": 61,
+          "multi_room_events": 138
+        },
+        "federated_cross": {
+          "temporal_overlap": 12,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 29,
+        "federated_total": 270,
+        "overall_lift_rows_pct": 12.033195020746888,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 12,
+        "distinct_lift_pct": 4.979253112033195,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 2,
+          "fn": 0,
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 42,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 61,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 138,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1582,
+        "sphere": 1674,
+        "federated": 3479
+      }
+    },
+    {
+      "trial": 2,
+      "trial_seed": 2042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 15,
+          "night_time_events": 41,
+          "multi_room_motion": 23,
+          "total": 79
+        },
+        "sphere": {
+          "low_confidence": 18,
+          "night_time_events": 35,
+          "multi_room_motion": 31,
+          "total": 84
+        },
+        "federated": {
+          "low_confidence": 33,
+          "night_time_events": 76,
+          "multi_room_motion": 115,
+          "total": 302,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 163,
+        "overall_lift_pct": 85.2760736196319,
+        "shared_category_lift_pct": 37.423312883435585
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 15,
+          "night_time_events": 41,
+          "multi_room_events": 44,
+          "total": 100
+        },
+        "sphere": {
+          "low_confidence": 18,
+          "night_time_events": 35,
+          "multi_room_events": 97,
+          "total": 150
+        },
+        "union_total": 250,
+        "federated_shared": {
+          "low_confidence": 33,
+          "night_time_events": 76,
+          "multi_room_events": 141
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 277,
+        "overall_lift_rows_pct": 10.8,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.0,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 33,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 76,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 141,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1602,
+        "sphere": 1676,
+        "federated": 3501
+      }
+    },
+    {
+      "trial": 3,
+      "trial_seed": 3042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 17,
+          "night_time_events": 38,
+          "multi_room_motion": 23,
+          "total": 78
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 37,
+          "multi_room_motion": 31,
+          "total": 89
+        },
+        "federated": {
+          "low_confidence": 38,
+          "night_time_events": 75,
+          "multi_room_motion": 115,
+          "total": 306,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 167,
+        "overall_lift_pct": 83.23353293413173,
+        "shared_category_lift_pct": 36.52694610778443
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 17,
+          "night_time_events": 38,
+          "multi_room_events": 34,
+          "total": 89
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 37,
+          "multi_room_events": 98,
+          "total": 156
+        },
+        "union_total": 245,
+        "federated_shared": {
+          "low_confidence": 38,
+          "night_time_events": 75,
+          "multi_room_events": 132
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 272,
+        "overall_lift_rows_pct": 11.020408163265307,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.081632653061225,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 38,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 75,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 132,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1586,
+        "sphere": 1683,
+        "federated": 3492
+      }
+    },
+    {
+      "trial": 4,
+      "trial_seed": 4042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 20,
+          "night_time_events": 32,
+          "multi_room_motion": 23,
+          "total": 75
+        },
+        "sphere": {
+          "low_confidence": 28,
+          "night_time_events": 35,
+          "multi_room_motion": 31,
+          "total": 94
+        },
+        "federated": {
+          "low_confidence": 48,
+          "night_time_events": 67,
+          "multi_room_motion": 115,
+          "total": 308,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 169,
+        "overall_lift_pct": 82.24852071005917,
+        "shared_category_lift_pct": 36.094674556213015
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 20,
+          "night_time_events": 32,
+          "multi_room_events": 37,
+          "total": 89
+        },
+        "sphere": {
+          "low_confidence": 28,
+          "night_time_events": 35,
+          "multi_room_events": 93,
+          "total": 156
+        },
+        "union_total": 245,
+        "federated_shared": {
+          "low_confidence": 48,
+          "night_time_events": 67,
+          "multi_room_events": 130
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 272,
+        "overall_lift_rows_pct": 11.020408163265307,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.081632653061225,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 67,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 130,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1565,
+        "sphere": 1681,
+        "federated": 3469
+      }
+    },
+    {
+      "trial": 5,
+      "trial_seed": 5042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 12,
+          "night_time_events": 37,
+          "multi_room_motion": 23,
+          "total": 72
+        },
+        "sphere": {
+          "low_confidence": 18,
+          "night_time_events": 34,
+          "multi_room_motion": 31,
+          "total": 83
+        },
+        "federated": {
+          "low_confidence": 30,
+          "night_time_events": 71,
+          "multi_room_motion": 115,
+          "total": 294,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 155,
+        "overall_lift_pct": 89.6774193548387,
+        "shared_category_lift_pct": 39.354838709677416
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 12,
+          "night_time_events": 37,
+          "multi_room_events": 31,
+          "total": 80
+        },
+        "sphere": {
+          "low_confidence": 18,
+          "night_time_events": 34,
+          "multi_room_events": 100,
+          "total": 152
+        },
+        "union_total": 232,
+        "federated_shared": {
+          "low_confidence": 30,
+          "night_time_events": 71,
+          "multi_room_events": 131
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 259,
+        "overall_lift_rows_pct": 11.637931034482758,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.310344827586207,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 30,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 71,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 131,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1570,
+        "sphere": 1685,
+        "federated": 3478
+      }
+    },
+    {
+      "trial": 6,
+      "trial_seed": 6042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 21,
+          "night_time_events": 38,
+          "multi_room_motion": 23,
+          "total": 82
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 41,
+          "multi_room_motion": 31,
+          "total": 93
+        },
+        "federated": {
+          "low_confidence": 42,
+          "night_time_events": 79,
+          "multi_room_motion": 115,
+          "total": 314,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 175,
+        "overall_lift_pct": 79.42857142857143,
+        "shared_category_lift_pct": 34.857142857142854
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 21,
+          "night_time_events": 38,
+          "multi_room_events": 41,
+          "total": 100
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 41,
+          "multi_room_events": 98,
+          "total": 160
+        },
+        "union_total": 260,
+        "federated_shared": {
+          "low_confidence": 42,
+          "night_time_events": 79,
+          "multi_room_events": 139
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 287,
+        "overall_lift_rows_pct": 10.384615384615385,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 3.8461538461538463,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 42,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 79,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 139,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1593,
+        "sphere": 1680,
+        "federated": 3496
+      }
+    },
+    {
+      "trial": 7,
+      "trial_seed": 7042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 25,
+          "night_time_events": 39,
+          "multi_room_motion": 23,
+          "total": 87
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 31,
+          "multi_room_motion": 31,
+          "total": 83
+        },
+        "federated": {
+          "low_confidence": 46,
+          "night_time_events": 70,
+          "multi_room_motion": 115,
+          "total": 309,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 170,
+        "overall_lift_pct": 81.76470588235294,
+        "shared_category_lift_pct": 35.88235294117647
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 25,
+          "night_time_events": 39,
+          "multi_room_events": 34,
+          "total": 98
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 31,
+          "multi_room_events": 97,
+          "total": 149
+        },
+        "union_total": 247,
+        "federated_shared": {
+          "low_confidence": 46,
+          "night_time_events": 70,
+          "multi_room_events": 131
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 274,
+        "overall_lift_rows_pct": 10.931174089068826,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.048582995951417,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 70,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 131,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1580,
+        "sphere": 1670,
+        "federated": 3473
+      }
+    },
+    {
+      "trial": 8,
+      "trial_seed": 8042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 25,
+          "night_time_events": 46,
+          "multi_room_motion": 23,
+          "total": 94
+        },
+        "sphere": {
+          "low_confidence": 17,
+          "night_time_events": 39,
+          "multi_room_motion": 31,
+          "total": 87
+        },
+        "federated": {
+          "low_confidence": 42,
+          "night_time_events": 85,
+          "multi_room_motion": 115,
+          "total": 321,
+          "cross_source_temporal_overlap": 11,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 79
+        },
+        "union_total": 181,
+        "overall_lift_pct": 77.34806629834254,
+        "shared_category_lift_pct": 33.70165745856354
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 25,
+          "night_time_events": 46,
+          "multi_room_events": 32,
+          "total": 103
+        },
+        "sphere": {
+          "low_confidence": 17,
+          "night_time_events": 39,
+          "multi_room_events": 100,
+          "total": 156
+        },
+        "union_total": 259,
+        "federated_shared": {
+          "low_confidence": 42,
+          "night_time_events": 85,
+          "multi_room_events": 132
+        },
+        "federated_cross": {
+          "temporal_overlap": 11,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 28,
+        "federated_total": 287,
+        "overall_lift_rows_pct": 10.81081081081081,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 11,
+        "distinct_lift_pct": 4.2471042471042475,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.9090909090909091,
+          "recall": 1.0,
+          "f1": 0.9523809523809523
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 42,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 85,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 132,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1591,
+        "sphere": 1701,
+        "federated": 3515
+      }
+    },
+    {
+      "trial": 9,
+      "trial_seed": 9042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 19,
+          "night_time_events": 40,
+          "multi_room_motion": 23,
+          "total": 82
+        },
+        "sphere": {
+          "low_confidence": 19,
+          "night_time_events": 41,
+          "multi_room_motion": 31,
+          "total": 91
+        },
+        "federated": {
+          "low_confidence": 38,
+          "night_time_events": 81,
+          "multi_room_motion": 115,
+          "total": 312,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 173,
+        "overall_lift_pct": 80.34682080924856,
+        "shared_category_lift_pct": 35.26011560693642
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 19,
+          "night_time_events": 40,
+          "multi_room_events": 33,
+          "total": 92
+        },
+        "sphere": {
+          "low_confidence": 19,
+          "night_time_events": 41,
+          "multi_room_events": 98,
+          "total": 158
+        },
+        "union_total": 250,
+        "federated_shared": {
+          "low_confidence": 38,
+          "night_time_events": 81,
+          "multi_room_events": 131
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 277,
+        "overall_lift_rows_pct": 10.8,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.0,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 38,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 81,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 131,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1575,
+        "sphere": 1695,
+        "federated": 3493
+      }
+    },
+    {
+      "trial": 10,
+      "trial_seed": 10042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 21,
+          "night_time_events": 39,
+          "multi_room_motion": 23,
+          "total": 83
+        },
+        "sphere": {
+          "low_confidence": 19,
+          "night_time_events": 40,
+          "multi_room_motion": 31,
+          "total": 90
+        },
+        "federated": {
+          "low_confidence": 40,
+          "night_time_events": 79,
+          "multi_room_motion": 115,
+          "total": 312,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 173,
+        "overall_lift_pct": 80.34682080924856,
+        "shared_category_lift_pct": 35.26011560693642
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 21,
+          "night_time_events": 39,
+          "multi_room_events": 30,
+          "total": 90
+        },
+        "sphere": {
+          "low_confidence": 19,
+          "night_time_events": 40,
+          "multi_room_events": 98,
+          "total": 157
+        },
+        "union_total": 247,
+        "federated_shared": {
+          "low_confidence": 40,
+          "night_time_events": 79,
+          "multi_room_events": 128
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 274,
+        "overall_lift_rows_pct": 10.931174089068826,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.048582995951417,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 40,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 79,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 128,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1567,
+        "sphere": 1690,
+        "federated": 3480
+      }
+    },
+    {
+      "trial": 11,
+      "trial_seed": 11042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 22,
+          "night_time_events": 39,
+          "multi_room_motion": 23,
+          "total": 84
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 40,
+          "multi_room_motion": 31,
+          "total": 92
+        },
+        "federated": {
+          "low_confidence": 43,
+          "night_time_events": 79,
+          "multi_room_motion": 115,
+          "total": 315,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 176,
+        "overall_lift_pct": 78.97727272727273,
+        "shared_category_lift_pct": 34.65909090909091
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 22,
+          "night_time_events": 39,
+          "multi_room_events": 34,
+          "total": 95
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 40,
+          "multi_room_events": 99,
+          "total": 160
+        },
+        "union_total": 255,
+        "federated_shared": {
+          "low_confidence": 43,
+          "night_time_events": 79,
+          "multi_room_events": 133
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 282,
+        "overall_lift_rows_pct": 10.588235294117647,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 3.9215686274509802,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 43,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 79,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 133,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1590,
+        "sphere": 1703,
+        "federated": 3516
+      }
+    },
+    {
+      "trial": 12,
+      "trial_seed": 12042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 24,
+          "night_time_events": 38,
+          "multi_room_motion": 23,
+          "total": 85
+        },
+        "sphere": {
+          "low_confidence": 24,
+          "night_time_events": 36,
+          "multi_room_motion": 31,
+          "total": 91
+        },
+        "federated": {
+          "low_confidence": 48,
+          "night_time_events": 74,
+          "multi_room_motion": 115,
+          "total": 315,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 176,
+        "overall_lift_pct": 78.97727272727273,
+        "shared_category_lift_pct": 34.65909090909091
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 24,
+          "night_time_events": 38,
+          "multi_room_events": 36,
+          "total": 98
+        },
+        "sphere": {
+          "low_confidence": 24,
+          "night_time_events": 36,
+          "multi_room_events": 97,
+          "total": 157
+        },
+        "union_total": 255,
+        "federated_shared": {
+          "low_confidence": 48,
+          "night_time_events": 74,
+          "multi_room_events": 133
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 282,
+        "overall_lift_rows_pct": 10.588235294117647,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 3.9215686274509802,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 74,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 133,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1591,
+        "sphere": 1682,
+        "federated": 3496
+      }
+    },
+    {
+      "trial": 13,
+      "trial_seed": 13042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 17,
+          "night_time_events": 30,
+          "multi_room_motion": 23,
+          "total": 70
+        },
+        "sphere": {
+          "low_confidence": 16,
+          "night_time_events": 39,
+          "multi_room_motion": 31,
+          "total": 86
+        },
+        "federated": {
+          "low_confidence": 33,
+          "night_time_events": 69,
+          "multi_room_motion": 115,
+          "total": 295,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 156,
+        "overall_lift_pct": 89.1025641025641,
+        "shared_category_lift_pct": 39.1025641025641
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 17,
+          "night_time_events": 30,
+          "multi_room_events": 32,
+          "total": 79
+        },
+        "sphere": {
+          "low_confidence": 16,
+          "night_time_events": 39,
+          "multi_room_events": 99,
+          "total": 154
+        },
+        "union_total": 233,
+        "federated_shared": {
+          "low_confidence": 33,
+          "night_time_events": 69,
+          "multi_room_events": 131
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 260,
+        "overall_lift_rows_pct": 11.587982832618026,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.291845493562231,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 33,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 69,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 131,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1557,
+        "sphere": 1696,
+        "federated": 3476
+      }
+    },
+    {
+      "trial": 14,
+      "trial_seed": 14042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 23,
+          "night_time_events": 40,
+          "multi_room_motion": 23,
+          "total": 86
+        },
+        "sphere": {
+          "low_confidence": 22,
+          "night_time_events": 40,
+          "multi_room_motion": 31,
+          "total": 93
+        },
+        "federated": {
+          "low_confidence": 45,
+          "night_time_events": 80,
+          "multi_room_motion": 115,
+          "total": 318,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 179,
+        "overall_lift_pct": 77.6536312849162,
+        "shared_category_lift_pct": 34.07821229050279
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 23,
+          "night_time_events": 40,
+          "multi_room_events": 34,
+          "total": 97
+        },
+        "sphere": {
+          "low_confidence": 22,
+          "night_time_events": 40,
+          "multi_room_events": 101,
+          "total": 163
+        },
+        "union_total": 260,
+        "federated_shared": {
+          "low_confidence": 45,
+          "night_time_events": 80,
+          "multi_room_events": 135
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 287,
+        "overall_lift_rows_pct": 10.384615384615385,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 3.8461538461538463,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 45,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 80,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 135,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1599,
+        "sphere": 1701,
+        "federated": 3523
+      }
+    },
+    {
+      "trial": 15,
+      "trial_seed": 15042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 15,
+          "night_time_events": 33,
+          "multi_room_motion": 23,
+          "total": 71
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 42,
+          "multi_room_motion": 31,
+          "total": 94
+        },
+        "federated": {
+          "low_confidence": 36,
+          "night_time_events": 75,
+          "multi_room_motion": 115,
+          "total": 304,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 165,
+        "overall_lift_pct": 84.24242424242425,
+        "shared_category_lift_pct": 36.96969696969697
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 15,
+          "night_time_events": 33,
+          "multi_room_events": 43,
+          "total": 91
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 42,
+          "multi_room_events": 101,
+          "total": 164
+        },
+        "union_total": 255,
+        "federated_shared": {
+          "low_confidence": 36,
+          "night_time_events": 75,
+          "multi_room_events": 144
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 282,
+        "overall_lift_rows_pct": 10.588235294117647,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 3.9215686274509802,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 36,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 75,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 144,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1586,
+        "sphere": 1691,
+        "federated": 3500
+      }
+    },
+    {
+      "trial": 16,
+      "trial_seed": 16042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 24,
+          "night_time_events": 32,
+          "multi_room_motion": 23,
+          "total": 79
+        },
+        "sphere": {
+          "low_confidence": 24,
+          "night_time_events": 40,
+          "multi_room_motion": 31,
+          "total": 95
+        },
+        "federated": {
+          "low_confidence": 48,
+          "night_time_events": 72,
+          "multi_room_motion": 115,
+          "total": 313,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 174,
+        "overall_lift_pct": 79.88505747126437,
+        "shared_category_lift_pct": 35.05747126436781
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 24,
+          "night_time_events": 32,
+          "multi_room_events": 22,
+          "total": 78
+        },
+        "sphere": {
+          "low_confidence": 24,
+          "night_time_events": 40,
+          "multi_room_events": 102,
+          "total": 166
+        },
+        "union_total": 244,
+        "federated_shared": {
+          "low_confidence": 48,
+          "night_time_events": 72,
+          "multi_room_events": 124
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 271,
+        "overall_lift_rows_pct": 11.065573770491802,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.098360655737705,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 72,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 124,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1557,
+        "sphere": 1699,
+        "federated": 3479
+      }
+    },
+    {
+      "trial": 17,
+      "trial_seed": 17042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 23,
+          "night_time_events": 38,
+          "multi_room_motion": 23,
+          "total": 84
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 34,
+          "multi_room_motion": 31,
+          "total": 86
+        },
+        "federated": {
+          "low_confidence": 44,
+          "night_time_events": 72,
+          "multi_room_motion": 115,
+          "total": 309,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 170,
+        "overall_lift_pct": 81.76470588235294,
+        "shared_category_lift_pct": 35.88235294117647
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 23,
+          "night_time_events": 38,
+          "multi_room_events": 28,
+          "total": 89
+        },
+        "sphere": {
+          "low_confidence": 21,
+          "night_time_events": 34,
+          "multi_room_events": 101,
+          "total": 156
+        },
+        "union_total": 245,
+        "federated_shared": {
+          "low_confidence": 44,
+          "night_time_events": 72,
+          "multi_room_events": 129
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 272,
+        "overall_lift_rows_pct": 11.020408163265307,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.081632653061225,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 44,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 72,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 129,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1571,
+        "sphere": 1684,
+        "federated": 3478
+      }
+    },
+    {
+      "trial": 18,
+      "trial_seed": 18042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 16,
+          "night_time_events": 30,
+          "multi_room_motion": 23,
+          "total": 69
+        },
+        "sphere": {
+          "low_confidence": 24,
+          "night_time_events": 38,
+          "multi_room_motion": 31,
+          "total": 93
+        },
+        "federated": {
+          "low_confidence": 40,
+          "night_time_events": 68,
+          "multi_room_motion": 115,
+          "total": 301,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 162,
+        "overall_lift_pct": 85.80246913580247,
+        "shared_category_lift_pct": 37.65432098765432
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 16,
+          "night_time_events": 30,
+          "multi_room_events": 39,
+          "total": 85
+        },
+        "sphere": {
+          "low_confidence": 24,
+          "night_time_events": 38,
+          "multi_room_events": 98,
+          "total": 160
+        },
+        "union_total": 245,
+        "federated_shared": {
+          "low_confidence": 40,
+          "night_time_events": 68,
+          "multi_room_events": 137
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 272,
+        "overall_lift_rows_pct": 11.020408163265307,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.081632653061225,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 40,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 68,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 137,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1573,
+        "sphere": 1690,
+        "federated": 3486
+      }
+    },
+    {
+      "trial": 19,
+      "trial_seed": 19042,
+      "n_injected": 10,
+      "as_published": {
+        "casas": {
+          "low_confidence": 16,
+          "night_time_events": 30,
+          "multi_room_motion": 23,
+          "total": 69
+        },
+        "sphere": {
+          "low_confidence": 13,
+          "night_time_events": 39,
+          "multi_room_motion": 31,
+          "total": 83
+        },
+        "federated": {
+          "low_confidence": 29,
+          "night_time_events": 69,
+          "multi_room_motion": 115,
+          "total": 291,
+          "cross_source_temporal_overlap": 10,
+          "cross_source_activity_posture_conflict": 7,
+          "cross_source_location_conflict": 61,
+          "cross_source_total": 78
+        },
+        "union_total": 152,
+        "overall_lift_pct": 91.44736842105263,
+        "shared_category_lift_pct": 40.13157894736842
+      },
+      "corrected": {
+        "casas": {
+          "low_confidence": 16,
+          "night_time_events": 30,
+          "multi_room_events": 30,
+          "total": 76
+        },
+        "sphere": {
+          "low_confidence": 13,
+          "night_time_events": 39,
+          "multi_room_events": 98,
+          "total": 150
+        },
+        "union_total": 226,
+        "federated_shared": {
+          "low_confidence": 29,
+          "night_time_events": 69,
+          "multi_room_events": 128
+        },
+        "federated_cross": {
+          "temporal_overlap": 10,
+          "activity_posture": 7,
+          "location_event_pairs": 10
+        },
+        "federated_cross_rows": 27,
+        "federated_total": 253,
+        "overall_lift_rows_pct": 11.946902654867257,
+        "shared_category_lift_pct": 0.0,
+        "distinct_new_anomalies": 10,
+        "distinct_lift_pct": 4.424778761061947,
+        "registry_detected": 10,
+        "registry_size": 10
+      },
+      "prf": {
+        "cross_source_temporal_overlap": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_activity_posture_conflict": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "cross_source_location_conflict_event_scoped": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "low_confidence": {
+          "tp": 29,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "night_time_events": {
+          "tp": 69,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "multi_room_motion_event_scoped": {
+          "tp": 128,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "triples": {
+        "casas": 1555,
+        "sphere": 1699,
+        "federated": 3477
+      }
+    }
+  ]
+}
