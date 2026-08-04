@@ -1,0 +1,252 @@
+{
+  "_meta": {
+    "script": "evaluation/run_latency_tiers.py",
+    "commit": "6025e12",
+    "generated": "2026-08-04T18:18:31",
+    "source": "outputs/experiments/edge_latency/edge_latency_results.json",
+    "method": "Re-presents the stored measurements by deployment tier. No benchmark was re-run; re-running on different hardware would silently replace the published numbers.",
+    "definitions": {
+      "time_to_decision_ms": "total end-to-end latency of one inference call (all four pipeline stages). Binds strict edge real-time operation.",
+      "amortised_per_window_ms": "time_to_decision divided by batch size. A throughput measure; does not describe how quickly an individual window is answered.",
+      "edge_realtime_budget_ms": 100.0
+    }
+  },
+  "tiers": {
+    "casas": [
+      {
+        "batch_size": 1,
+        "tier": "edge (single-window, strict real-time)",
+        "time_to_decision_ms": 198.66,
+        "time_to_decision_ms_std": 227.57,
+        "amortised_per_window_ms": 198.66,
+        "throughput_windows_per_sec": 10.05,
+        "meets_sub_5ms_amortised": false,
+        "meets_edge_realtime_budget": false,
+        "stage_breakdown_ms": {
+          "neural_inference": 48.34,
+          "kg_population": 2.82,
+          "symbolic_reasoning": 147.49,
+          "feedback": 0.01
+        },
+        "peak_memory_mb": 209.6
+      },
+      {
+        "batch_size": 5,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 113.71,
+        "time_to_decision_ms_std": 39.12,
+        "amortised_per_window_ms": 22.74,
+        "throughput_windows_per_sec": 48.16,
+        "meets_sub_5ms_amortised": false,
+        "meets_edge_realtime_budget": false,
+        "stage_breakdown_ms": {
+          "neural_inference": 37.76,
+          "kg_population": 6.61,
+          "symbolic_reasoning": 69.32,
+          "feedback": 0.01
+        },
+        "peak_memory_mb": 212.8
+      },
+      {
+        "batch_size": 10,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 112.55,
+        "time_to_decision_ms_std": 7.71,
+        "amortised_per_window_ms": 11.26,
+        "throughput_windows_per_sec": 89.31,
+        "meets_sub_5ms_amortised": false,
+        "meets_edge_realtime_budget": false,
+        "stage_breakdown_ms": {
+          "neural_inference": 46.18,
+          "kg_population": 11.77,
+          "symbolic_reasoning": 54.59,
+          "feedback": 0.01
+        },
+        "peak_memory_mb": 217.5
+      },
+      {
+        "batch_size": 20,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 135.92,
+        "time_to_decision_ms_std": 9.08,
+        "amortised_per_window_ms": 6.8,
+        "throughput_windows_per_sec": 147.79,
+        "meets_sub_5ms_amortised": false,
+        "meets_edge_realtime_budget": false,
+        "stage_breakdown_ms": {
+          "neural_inference": 60.35,
+          "kg_population": 19.22,
+          "symbolic_reasoning": 56.32,
+          "feedback": 0.02
+        },
+        "peak_memory_mb": 226.1
+      },
+      {
+        "batch_size": 50,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 201.33,
+        "time_to_decision_ms_std": 15.34,
+        "amortised_per_window_ms": 4.03,
+        "throughput_windows_per_sec": 249.84,
+        "meets_sub_5ms_amortised": true,
+        "meets_edge_realtime_budget": false,
+        "stage_breakdown_ms": {
+          "neural_inference": 93.17,
+          "kg_population": 46.57,
+          "symbolic_reasoning": 61.57,
+          "feedback": 0.03
+        },
+        "peak_memory_mb": 246.0
+      }
+    ],
+    "sphere": [
+      {
+        "batch_size": 1,
+        "tier": "edge (single-window, strict real-time)",
+        "time_to_decision_ms": 56.2,
+        "time_to_decision_ms_std": 10.48,
+        "amortised_per_window_ms": 56.2,
+        "throughput_windows_per_sec": 18.29,
+        "meets_sub_5ms_amortised": false,
+        "meets_edge_realtime_budget": true,
+        "stage_breakdown_ms": {
+          "neural_inference": 11.67,
+          "kg_population": 1.74,
+          "symbolic_reasoning": 42.78,
+          "feedback": 0.0
+        },
+        "peak_memory_mb": 236.0
+      },
+      {
+        "batch_size": 5,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 56.77,
+        "time_to_decision_ms_std": 1.86,
+        "amortised_per_window_ms": 11.35,
+        "throughput_windows_per_sec": 88.18,
+        "meets_sub_5ms_amortised": false,
+        "meets_edge_realtime_budget": true,
+        "stage_breakdown_ms": {
+          "neural_inference": 7.29,
+          "kg_population": 4.6,
+          "symbolic_reasoning": 44.87,
+          "feedback": 0.01
+        },
+        "peak_memory_mb": 237.4
+      },
+      {
+        "batch_size": 10,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 67.39,
+        "time_to_decision_ms_std": 14.86,
+        "amortised_per_window_ms": 6.74,
+        "throughput_windows_per_sec": 155.57,
+        "meets_sub_5ms_amortised": false,
+        "meets_edge_realtime_budget": true,
+        "stage_breakdown_ms": {
+          "neural_inference": 9.81,
+          "kg_population": 8.71,
+          "symbolic_reasoning": 48.86,
+          "feedback": 0.01
+        },
+        "peak_memory_mb": 238.7
+      },
+      {
+        "batch_size": 20,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 91.79,
+        "time_to_decision_ms_std": 37.61,
+        "amortised_per_window_ms": 4.59,
+        "throughput_windows_per_sec": 245.02,
+        "meets_sub_5ms_amortised": true,
+        "meets_edge_realtime_budget": true,
+        "stage_breakdown_ms": {
+          "neural_inference": 9.98,
+          "kg_population": 13.2,
+          "symbolic_reasoning": 68.6,
+          "feedback": 0.02
+        },
+        "peak_memory_mb": 238.1
+      },
+      {
+        "batch_size": 50,
+        "tier": "fog (batched)",
+        "time_to_decision_ms": 101.44,
+        "time_to_decision_ms_std": 10.17,
+        "amortised_per_window_ms": 2.03,
+        "throughput_windows_per_sec": 497.27,
+        "meets_sub_5ms_amortised": true,
+        "meets_edge_realtime_budget": false,
+        "stage_breakdown_ms": {
+          "neural_inference": 17.99,
+          "kg_population": 31.64,
+          "symbolic_reasoning": 51.79,
+          "feedback": 0.02
+        },
+        "peak_memory_mb": 243.5
+      }
+    ]
+  },
+  "findings": {
+    "where_sub_5ms_actually_holds": {
+      "statement": "Sub-5 ms is an amortised per-window figure, and on CASAS it is reached at exactly one operating point: batch 50 (4.03 ms at batch 50). On SPHERE it is reached at batch 20 and above. At batch 1 the amortised and true latencies coincide and are 198.66 ms (CASAS) and 56.20 ms (SPHERE).",
+      "casas_batch_sizes_meeting_sub_5ms": [
+        50
+      ],
+      "sphere_batch_sizes_meeting_sub_5ms": [
+        20,
+        50
+      ]
+    },
+    "batching_does_not_reduce_time_to_decision": {
+      "statement": "Batching buys throughput, not responsiveness. For CASAS the end-to-end latency of a batch-50 call is 201.33 ms, marginally *higher* than the 198.66 ms single-window call, because the amortised figure divides a larger total across more windows. No window in a batch can be acted on before the whole batch completes, so the sub-5 ms figure never describes how quickly an individual event is answered.",
+      "casas_e2e_batch_1_ms": 198.66,
+      "casas_e2e_batch_50_ms": 201.33,
+      "delta_ms": 2.67
+    },
+    "throughput_figure_provenance": {
+      "statement": "The headline throughput figure of ~497 windows/s is SPHERE at batch 50 (497.27/s). The corresponding CASAS figure is 249.84/s - roughly half. If the manuscript quotes 497 windows/s it must name SPHERE, or a reader will attribute it to the CASAS pipeline the ablation is built on.",
+      "sphere_batch50_throughput": 497.27,
+      "casas_batch50_throughput": 249.84
+    },
+    "edge_realtime_feasibility": {
+      "statement": "Against a 100 ms interactive budget, CASAS meets the bound at batch sizes none and SPHERE at [1, 5, 10, 20]. Single-window CASAS (198.66 ms) does not, so strict edge real-time operation is not demonstrated for the CASAS pipeline on this hardware at any batch size; what is demonstrated is fog-tier batched feasibility.",
+      "budget_ms": 100.0,
+      "casas_batch_sizes_within_budget": [],
+      "sphere_batch_sizes_within_budget": [
+        1,
+        5,
+        10,
+        20
+      ]
+    },
+    "dominant_stage": {
+      "statement": "At batch 1 the cost is dominated by symbolic reasoning, not by the network: 147.49 ms of 198.66 ms (74 %), against 48.34 ms of neural inference. Any latency optimisation should target the rdflib SPARQL path first."
+    },
+    "arm_class_hardware": "No ARM-class board (Raspberry Pi 4 / Jetson) was available for this revision, so no ARM measurement is reported. The manuscript should keep this as an explicit limitation and future-work item rather than extrapolating desktop CPU timings to edge hardware: the pipeline is dominated by an in-memory SPARQL engine whose performance on ARM is not predictable from these numbers."
+  },
+  "hardware_provenance": {
+    "statement": "The stored benchmark records device='cpu' and torch='2.9.1+cpu' but **does not record the CPU model**. The manuscript attributes these timings to an i7-12700K; that attribution rests on the authors' record, not on the artifact, and cannot be verified from it. The machine running this analysis is a Intel64 Family 6 Model 142 Stepping 10, GenuineIntel, i.e. not the machine that produced the measurements \u2014 so the numbers were deliberately not regenerated here. Recommend adding CPU model capture to the benchmark's metadata so future runs are self-describing.",
+    "stored_metadata": {
+      "batch_sizes": [
+        1,
+        5,
+        10,
+        20,
+        50
+      ],
+      "trials_per_batch": 5,
+      "seed": 42,
+      "device": "cpu",
+      "torch_version": "2.9.1+cpu",
+      "timestamp": "2026-04-17T09:33:23.655655",
+      "casas_model_params": 88325,
+      "sphere_model_params": 69386
+    },
+    "analysis_machine": {
+      "processor": "Intel64 Family 6 Model 142 Stepping 10, GenuineIntel",
+      "machine": "AMD64",
+      "note": "analysis host only \u2014 did not produce the measurements"
+    }
+  }
+}
