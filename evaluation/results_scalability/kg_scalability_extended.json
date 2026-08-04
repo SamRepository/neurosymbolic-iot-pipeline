@@ -1,0 +1,1629 @@
+{
+  "_meta": {
+    "script": "evaluation/run_kg_scalability_extended.py",
+    "commit": "6292bb5",
+    "generated": "2026-08-04T18:58:28",
+    "config": "config/base.yaml",
+    "seed": 42,
+    "published_sweep_source": "outputs/experiments/kg_scalability/kg_scalability_results.json",
+    "extended_sizes": [
+      50000,
+      100000,
+      200000,
+      500000
+    ],
+    "query_suite": [
+      "Q1_count_predictions",
+      "Q2_events_with_person",
+      "Q3_high_confidence",
+      "Q4_sensor_locations",
+      "Q5_temporal_join"
+    ],
+    "protocol_note": "Query repetitions are tapered with graph size (10 at <=50K, 5 at <=200K, 3 above) and trials reduced above 100K, because per-query cost grows with the graph. Each point records the repetitions and trials actually used.",
+    "measured_vs_extrapolated": "Every value in 'curves' is measured. Values under 'projections' beyond max_measured_triples are labelled EXTRAPOLATED and come from a power law fitted to the measured points only; they are model output, not observations."
+  },
+  "curves": {
+    "casas": [
+      {
+        "target_triples": 500,
+        "actual_triples_mean": 463.0,
+        "build_time_mean": 0.022,
+        "build_time_std": 0.0018,
+        "throughput_mean": 21202.4,
+        "throughput_std": 1878.9,
+        "avg_query_latency_mean": 8.478,
+        "avg_query_latency_std": 1.736,
+        "p95_query_latency_mean": 10.936,
+        "peak_memory_mean": 50.4,
+        "peak_memory_std": 4.8
+      },
+      {
+        "target_triples": 1000,
+        "actual_triples_mean": 868.0,
+        "build_time_mean": 0.0413,
+        "build_time_std": 0.0052,
+        "throughput_mean": 21335.9,
+        "throughput_std": 2562.8,
+        "avg_query_latency_mean": 9.089,
+        "avg_query_latency_std": 0.898,
+        "p95_query_latency_mean": 10.824,
+        "peak_memory_mean": 54.1,
+        "peak_memory_std": 0.1
+      },
+      {
+        "target_triples": 1500,
+        "actual_triples_mean": 1277.0,
+        "build_time_mean": 0.0602,
+        "build_time_std": 0.0072,
+        "throughput_mean": 21503.0,
+        "throughput_std": 2438.3,
+        "avg_query_latency_mean": 10.301,
+        "avg_query_latency_std": 0.43,
+        "p95_query_latency_mean": 13.263,
+        "peak_memory_mean": 54.6,
+        "peak_memory_std": 0.3
+      },
+      {
+        "target_triples": 2000,
+        "actual_triples_mean": 1686.0,
+        "build_time_mean": 0.0883,
+        "build_time_std": 0.0235,
+        "throughput_mean": 20282.9,
+        "throughput_std": 4469.2,
+        "avg_query_latency_mean": 13.331,
+        "avg_query_latency_std": 0.588,
+        "p95_query_latency_mean": 17.708,
+        "peak_memory_mean": 55.0,
+        "peak_memory_std": 0.1
+      },
+      {
+        "target_triples": 2500,
+        "actual_triples_mean": 2095.0,
+        "build_time_mean": 0.0984,
+        "build_time_std": 0.0113,
+        "throughput_mean": 21567.2,
+        "throughput_std": 2404.5,
+        "avg_query_latency_mean": 15.323,
+        "avg_query_latency_std": 2.259,
+        "p95_query_latency_mean": 21.247,
+        "peak_memory_mean": 55.5,
+        "peak_memory_std": 0.3
+      },
+      {
+        "target_triples": 3000,
+        "actual_triples_mean": 2499.0,
+        "build_time_mean": 0.1423,
+        "build_time_std": 0.0303,
+        "throughput_mean": 18407.9,
+        "throughput_std": 3995.2,
+        "avg_query_latency_mean": 16.185,
+        "avg_query_latency_std": 1.84,
+        "p95_query_latency_mean": 22.021,
+        "peak_memory_mean": 56.1,
+        "peak_memory_std": 0.2
+      },
+      {
+        "target_triples": 5000,
+        "actual_triples_mean": 4133.0,
+        "build_time_mean": 0.207,
+        "build_time_std": 0.0177,
+        "throughput_mean": 20116.2,
+        "throughput_std": 1798.1,
+        "avg_query_latency_mean": 23.349,
+        "avg_query_latency_std": 1.369,
+        "p95_query_latency_mean": 29.649,
+        "peak_memory_mean": 58.0,
+        "peak_memory_std": 0.6
+      },
+      {
+        "target_triples": 10000,
+        "actual_triples_mean": 8209.0,
+        "build_time_mean": 0.3977,
+        "build_time_std": 0.031,
+        "throughput_mean": 20766.4,
+        "throughput_std": 1604.1,
+        "avg_query_latency_mean": 41.577,
+        "avg_query_latency_std": 1.586,
+        "p95_query_latency_mean": 58.143,
+        "peak_memory_mean": 63.6,
+        "peak_memory_std": 0.5
+      },
+      {
+        "target_triples": 20000,
+        "actual_triples_mean": 16371.0,
+        "build_time_mean": 0.8489,
+        "build_time_std": 0.0124,
+        "throughput_mean": 19288.7,
+        "throughput_std": 285.9,
+        "avg_query_latency_mean": 77.775,
+        "avg_query_latency_std": 0.894,
+        "p95_query_latency_mean": 110.405,
+        "peak_memory_mean": 72.7,
+        "peak_memory_std": 0.0
+      },
+      {
+        "target_triples": 50000,
+        "actual_triples_mean": 41482.0,
+        "build_time_mean": 1.2606,
+        "build_time_std": 0.0484,
+        "throughput_mean": 32939.6,
+        "avg_query_latency_mean": 107.051,
+        "avg_query_latency_std": 2.771,
+        "p95_query_latency_mean": 135.798,
+        "peak_memory_mean": 101.8,
+        "trials": 3,
+        "queries_per_run": 10,
+        "raw_trials": [
+          {
+            "target_triples": 50000,
+            "actual_triples": 41505,
+            "n_predictions": 3268,
+            "build_time_s": 1.2323,
+            "throughput_triples_per_sec": 33680.6,
+            "avg_query_latency_ms": 109.84,
+            "p95_query_latency_ms": 139.296,
+            "peak_memory_mb": 95.3,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 75.83,
+                "p95_ms": 130.39,
+                "min_ms": 52.57,
+                "max_ms": 252.34
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 132.3,
+                "p95_ms": 172.5,
+                "min_ms": 115.09,
+                "max_ms": 172.69
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 182.16,
+                "p95_ms": 188.16,
+                "min_ms": 175.78,
+                "max_ms": 193.35
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.93,
+                "p95_ms": 3.58,
+                "min_ms": 2.74,
+                "max_ms": 3.59
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 155.98,
+                "p95_ms": 201.85,
+                "min_ms": 132.82,
+                "max_ms": 226.38
+              }
+            },
+            "trial": 0,
+            "dataset": "casas",
+            "queries_per_run": 10,
+            "wall_time_s": 12.29
+          },
+          {
+            "target_triples": 50000,
+            "actual_triples": 41461,
+            "n_predictions": 3268,
+            "build_time_s": 1.3164,
+            "throughput_triples_per_sec": 31494.9,
+            "avg_query_latency_ms": 107.014,
+            "p95_query_latency_ms": 138.16,
+            "peak_memory_mb": 104.6,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 66.86,
+                "p95_ms": 111.65,
+                "min_ms": 50.63,
+                "max_ms": 112.02
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 132.44,
+                "p95_ms": 177.38,
+                "min_ms": 114.25,
+                "max_ms": 179.37
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 181.58,
+                "p95_ms": 191.95,
+                "min_ms": 175.94,
+                "max_ms": 208.52
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.98,
+                "p95_ms": 3.29,
+                "min_ms": 2.76,
+                "max_ms": 3.33
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 151.21,
+                "p95_ms": 206.53,
+                "min_ms": 132.71,
+                "max_ms": 208.82
+              }
+            },
+            "trial": 1,
+            "dataset": "casas",
+            "queries_per_run": 10,
+            "wall_time_s": 12.08
+          },
+          {
+            "target_triples": 50000,
+            "actual_triples": 41481,
+            "n_predictions": 3268,
+            "build_time_s": 1.233,
+            "throughput_triples_per_sec": 33643.2,
+            "avg_query_latency_ms": 104.298,
+            "p95_query_latency_ms": 129.938,
+            "peak_memory_mb": 105.5,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 65.26,
+                "p95_ms": 107.33,
+                "min_ms": 50.95,
+                "max_ms": 107.64
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 127.8,
+                "p95_ms": 171.17,
+                "min_ms": 112.37,
+                "max_ms": 176.52
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 178.56,
+                "p95_ms": 180.7,
+                "min_ms": 174.68,
+                "max_ms": 189.63
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.83,
+                "p95_ms": 2.99,
+                "min_ms": 2.73,
+                "max_ms": 3.35
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 147.04,
+                "p95_ms": 187.5,
+                "min_ms": 130.42,
+                "max_ms": 190.05
+              }
+            },
+            "trial": 2,
+            "dataset": "casas",
+            "queries_per_run": 10,
+            "wall_time_s": 11.72
+          }
+        ]
+      },
+      {
+        "target_triples": 100000,
+        "actual_triples_mean": 82828.0,
+        "build_time_mean": 2.6111,
+        "build_time_std": 0.0095,
+        "throughput_mean": 31721.7,
+        "avg_query_latency_mean": 210.987,
+        "avg_query_latency_std": 0.722,
+        "p95_query_latency_mean": 266.475,
+        "peak_memory_mean": 156.3,
+        "trials": 3,
+        "queries_per_run": 5,
+        "raw_trials": [
+          {
+            "target_triples": 100000,
+            "actual_triples": 82779,
+            "n_predictions": 6536,
+            "build_time_s": 2.6198,
+            "throughput_triples_per_sec": 31597.0,
+            "avg_query_latency_ms": 211.82,
+            "p95_query_latency_ms": 270.716,
+            "peak_memory_mb": 156.4,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 138.78,
+                "p95_ms": 211.0,
+                "min_ms": 102.08,
+                "max_ms": 297.83
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 260.55,
+                "p95_ms": 328.77,
+                "min_ms": 225.56,
+                "max_ms": 344.7
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 359.91,
+                "p95_ms": 439.86,
+                "min_ms": 346.56,
+                "max_ms": 442.78
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.87,
+                "p95_ms": 3.05,
+                "min_ms": 2.74,
+                "max_ms": 3.4
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 296.99,
+                "p95_ms": 370.9,
+                "min_ms": 263.74,
+                "max_ms": 394.34
+              }
+            },
+            "trial": 0,
+            "dataset": "casas",
+            "queries_per_run": 5,
+            "wall_time_s": 23.9
+          },
+          {
+            "target_triples": 100000,
+            "actual_triples": 82871,
+            "n_predictions": 6536,
+            "build_time_s": 2.601,
+            "throughput_triples_per_sec": 31861.8,
+            "avg_query_latency_ms": 210.572,
+            "p95_query_latency_ms": 264.034,
+            "peak_memory_mb": 156.3,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 128.36,
+                "p95_ms": 200.9,
+                "min_ms": 101.65,
+                "max_ms": 201.94
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 263.07,
+                "p95_ms": 347.06,
+                "min_ms": 227.43,
+                "max_ms": 371.68
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 359.1,
+                "p95_ms": 391.05,
+                "min_ms": 347.24,
+                "max_ms": 441.04
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.95,
+                "p95_ms": 3.29,
+                "min_ms": 2.75,
+                "max_ms": 3.8
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 299.38,
+                "p95_ms": 377.87,
+                "min_ms": 263.52,
+                "max_ms": 391.86
+              }
+            },
+            "trial": 1,
+            "dataset": "casas",
+            "queries_per_run": 5,
+            "wall_time_s": 23.76
+          },
+          {
+            "target_triples": 100000,
+            "actual_triples": 82833,
+            "n_predictions": 6536,
+            "build_time_s": 2.6125,
+            "throughput_triples_per_sec": 31706.3,
+            "avg_query_latency_ms": 210.568,
+            "p95_query_latency_ms": 264.676,
+            "peak_memory_mb": 156.2,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 134.31,
+                "p95_ms": 208.79,
+                "min_ms": 102.19,
+                "max_ms": 209.62
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 255.95,
+                "p95_ms": 333.74,
+                "min_ms": 226.77,
+                "max_ms": 346.31
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 360.84,
+                "p95_ms": 403.67,
+                "min_ms": 346.89,
+                "max_ms": 450.23
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.81,
+                "p95_ms": 2.97,
+                "min_ms": 2.72,
+                "max_ms": 3.04
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 298.93,
+                "p95_ms": 374.21,
+                "min_ms": 262.1,
+                "max_ms": 404.38
+              }
+            },
+            "trial": 2,
+            "dataset": "casas",
+            "queries_per_run": 5,
+            "wall_time_s": 23.77
+          }
+        ]
+      },
+      {
+        "target_triples": 200000,
+        "actual_triples_mean": 165661.0,
+        "build_time_mean": 5.4968,
+        "build_time_std": 0.0793,
+        "throughput_mean": 30141.0,
+        "avg_query_latency_mean": 419.666,
+        "avg_query_latency_std": 1.411,
+        "p95_query_latency_mean": 534.341,
+        "peak_memory_mean": 258.7,
+        "trials": 2,
+        "queries_per_run": 5,
+        "raw_trials": [
+          {
+            "target_triples": 200000,
+            "actual_triples": 165653,
+            "n_predictions": 13072,
+            "build_time_s": 5.4407,
+            "throughput_triples_per_sec": 30446.8,
+            "avg_query_latency_ms": 418.668,
+            "p95_query_latency_ms": 532.744,
+            "peak_memory_mb": 259.0,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 265.61,
+                "p95_ms": 399.81,
+                "min_ms": 206.59,
+                "max_ms": 401.99
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 517.28,
+                "p95_ms": 650.29,
+                "min_ms": 456.46,
+                "max_ms": 650.73
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 714.16,
+                "p95_ms": 872.63,
+                "min_ms": 688.17,
+                "max_ms": 873.2
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.87,
+                "p95_ms": 3.24,
+                "min_ms": 2.73,
+                "max_ms": 3.3
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 593.42,
+                "p95_ms": 737.75,
+                "min_ms": 526.89,
+                "max_ms": 742.7
+              }
+            },
+            "trial": 0,
+            "dataset": "casas",
+            "queries_per_run": 5,
+            "wall_time_s": 47.49
+          },
+          {
+            "target_triples": 200000,
+            "actual_triples": 165669,
+            "n_predictions": 13072,
+            "build_time_s": 5.5528,
+            "throughput_triples_per_sec": 29835.2,
+            "avg_query_latency_ms": 420.664,
+            "p95_query_latency_ms": 535.938,
+            "peak_memory_mb": 258.4,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 268.8,
+                "p95_ms": 400.28,
+                "min_ms": 206.26,
+                "max_ms": 406.48
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 519.12,
+                "p95_ms": 665.47,
+                "min_ms": 455.25,
+                "max_ms": 666.98
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 714.68,
+                "p95_ms": 878.26,
+                "min_ms": 688.69,
+                "max_ms": 894.69
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.88,
+                "p95_ms": 3.25,
+                "min_ms": 2.73,
+                "max_ms": 3.32
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 597.84,
+                "p95_ms": 732.43,
+                "min_ms": 529.22,
+                "max_ms": 798.14
+              }
+            },
+            "trial": 1,
+            "dataset": "casas",
+            "queries_per_run": 5,
+            "wall_time_s": 47.8
+          }
+        ]
+      },
+      {
+        "target_triples": 500000,
+        "actual_triples_mean": 414041.0,
+        "build_time_mean": 13.9439,
+        "build_time_std": 0.0585,
+        "throughput_mean": 29693.7,
+        "avg_query_latency_mean": 1067.739,
+        "avg_query_latency_std": 26.685,
+        "p95_query_latency_mean": 1352.524,
+        "peak_memory_mean": 556.4,
+        "trials": 2,
+        "queries_per_run": 3,
+        "raw_trials": [
+          {
+            "target_triples": 500000,
+            "actual_triples": 414111,
+            "n_predictions": 32680,
+            "build_time_s": 13.9852,
+            "throughput_triples_per_sec": 29610.6,
+            "avg_query_latency_ms": 1048.87,
+            "p95_query_latency_ms": 1314.65,
+            "peak_memory_mb": 556.6,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 681.75,
+                "p95_ms": 1016.58,
+                "min_ms": 532.22,
+                "max_ms": 1038.77
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 1311.35,
+                "p95_ms": 1604.67,
+                "min_ms": 1142.59,
+                "max_ms": 1627.93
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 1773.12,
+                "p95_ms": 2148.79,
+                "min_ms": 1711.83,
+                "max_ms": 2162.31
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.83,
+                "p95_ms": 3.17,
+                "min_ms": 2.74,
+                "max_ms": 3.18
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 1475.3,
+                "p95_ms": 1800.04,
+                "min_ms": 1328.1,
+                "max_ms": 1801.38
+              }
+            },
+            "trial": 0,
+            "dataset": "casas",
+            "queries_per_run": 3,
+            "wall_time_s": 119.34
+          },
+          {
+            "target_triples": 500000,
+            "actual_triples": 413971,
+            "n_predictions": 32680,
+            "build_time_s": 13.9025,
+            "throughput_triples_per_sec": 29776.7,
+            "avg_query_latency_ms": 1086.608,
+            "p95_query_latency_ms": 1390.398,
+            "peak_memory_mb": 556.2,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 671.73,
+                "p95_ms": 991.32,
+                "min_ms": 526.94,
+                "max_ms": 1011.03
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 1310.83,
+                "p95_ms": 1617.46,
+                "min_ms": 1144.26,
+                "max_ms": 1625.87
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 1785.51,
+                "p95_ms": 2156.52,
+                "min_ms": 1714.51,
+                "max_ms": 2168.52
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 3.09,
+                "p95_ms": 3.34,
+                "min_ms": 2.88,
+                "max_ms": 3.54
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 1661.88,
+                "p95_ms": 2183.35,
+                "min_ms": 1336.7,
+                "max_ms": 2332.98
+              }
+            },
+            "trial": 1,
+            "dataset": "casas",
+            "queries_per_run": 3,
+            "wall_time_s": 123.02
+          }
+        ]
+      }
+    ],
+    "sphere": [
+      {
+        "target_triples": 500,
+        "actual_triples_mean": 482.0,
+        "build_time_mean": 0.0165,
+        "build_time_std": 0.0003,
+        "throughput_mean": 29168.3,
+        "throughput_std": 451.3,
+        "avg_query_latency_mean": 7.112,
+        "avg_query_latency_std": 0.679,
+        "p95_query_latency_mean": 9.069,
+        "peak_memory_mean": 72.1,
+        "peak_memory_std": 0.0
+      },
+      {
+        "target_triples": 1000,
+        "actual_triples_mean": 924.0,
+        "build_time_mean": 0.0373,
+        "build_time_std": 0.0024,
+        "throughput_mean": 24871.3,
+        "throughput_std": 1494.5,
+        "avg_query_latency_mean": 9.729,
+        "avg_query_latency_std": 0.891,
+        "p95_query_latency_mean": 11.443,
+        "peak_memory_mean": 72.2,
+        "peak_memory_std": 0.0
+      },
+      {
+        "target_triples": 1500,
+        "actual_triples_mean": 1376.0,
+        "build_time_mean": 0.1312,
+        "build_time_std": 0.0559,
+        "throughput_mean": 13182.5,
+        "throughput_std": 6591.9,
+        "avg_query_latency_mean": 26.123,
+        "avg_query_latency_std": 3.714,
+        "p95_query_latency_mean": 41.69,
+        "peak_memory_mean": 72.5,
+        "peak_memory_std": 0.0
+      },
+      {
+        "target_triples": 2000,
+        "actual_triples_mean": 1829.0,
+        "build_time_mean": 0.0671,
+        "build_time_std": 0.0031,
+        "throughput_mean": 27304.5,
+        "throughput_std": 1176.4,
+        "avg_query_latency_mean": 13.894,
+        "avg_query_latency_std": 0.016,
+        "p95_query_latency_mean": 18.007,
+        "peak_memory_mean": 72.6,
+        "peak_memory_std": 0.1
+      },
+      {
+        "target_triples": 2500,
+        "actual_triples_mean": 2280.0,
+        "build_time_mean": 0.0788,
+        "build_time_std": 0.0011,
+        "throughput_mean": 28947.3,
+        "throughput_std": 565.3,
+        "avg_query_latency_mean": 16.365,
+        "avg_query_latency_std": 0.449,
+        "p95_query_latency_mean": 23.056,
+        "peak_memory_mean": 72.7,
+        "peak_memory_std": 0.0
+      },
+      {
+        "target_triples": 3000,
+        "actual_triples_mean": 2731.0,
+        "build_time_mean": 0.11,
+        "build_time_std": 0.0115,
+        "throughput_mean": 25137.1,
+        "throughput_std": 2855.2,
+        "avg_query_latency_mean": 19.335,
+        "avg_query_latency_std": 1.655,
+        "p95_query_latency_mean": 25.68,
+        "peak_memory_mean": 72.7,
+        "peak_memory_std": 0.0
+      },
+      {
+        "target_triples": 5000,
+        "actual_triples_mean": 4533.0,
+        "build_time_mean": 0.1696,
+        "build_time_std": 0.0183,
+        "throughput_mean": 27022.0,
+        "throughput_std": 2765.3,
+        "avg_query_latency_mean": 26.606,
+        "avg_query_latency_std": 1.772,
+        "p95_query_latency_mean": 35.895,
+        "peak_memory_mean": 72.9,
+        "peak_memory_std": 0.0
+      },
+      {
+        "target_triples": 10000,
+        "actual_triples_mean": 9058.0,
+        "build_time_mean": 0.5012,
+        "build_time_std": 0.1301,
+        "throughput_mean": 19574.7,
+        "throughput_std": 5835.7,
+        "avg_query_latency_mean": 52.442,
+        "avg_query_latency_std": 4.55,
+        "p95_query_latency_mean": 76.145,
+        "peak_memory_mean": 74.0,
+        "peak_memory_std": 0.1
+      },
+      {
+        "target_triples": 20000,
+        "actual_triples_mean": 18042.0,
+        "build_time_mean": 1.205,
+        "build_time_std": 0.4373,
+        "throughput_mean": 17194.9,
+        "throughput_std": 6342.1,
+        "avg_query_latency_mean": 154.495,
+        "avg_query_latency_std": 49.499,
+        "p95_query_latency_mean": 230.631,
+        "peak_memory_mean": 76.5,
+        "peak_memory_std": 1.1
+      },
+      {
+        "target_triples": 50000,
+        "actual_triples_mean": 45393.0,
+        "build_time_mean": 1.1703,
+        "build_time_std": 0.0618,
+        "throughput_mean": 38857.4,
+        "avg_query_latency_mean": 115.189,
+        "avg_query_latency_std": 0.427,
+        "p95_query_latency_mean": 145.796,
+        "peak_memory_mean": 153.6,
+        "trials": 3,
+        "queries_per_run": 10,
+        "raw_trials": [
+          {
+            "target_triples": 50000,
+            "actual_triples": 45422,
+            "n_predictions": 3584,
+            "build_time_s": 1.1299,
+            "throughput_triples_per_sec": 40199.3,
+            "avg_query_latency_ms": 115.448,
+            "p95_query_latency_ms": 148.294,
+            "peak_memory_mb": 153.5,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 71.61,
+                "p95_ms": 116.44,
+                "min_ms": 55.56,
+                "max_ms": 123.89
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 137.9,
+                "p95_ms": 183.61,
+                "min_ms": 123.22,
+                "max_ms": 186.64
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 202.13,
+                "p95_ms": 227.22,
+                "min_ms": 192.45,
+                "max_ms": 255.63
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.93,
+                "p95_ms": 3.18,
+                "min_ms": 2.77,
+                "max_ms": 3.45
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 162.67,
+                "p95_ms": 211.02,
+                "min_ms": 144.97,
+                "max_ms": 224.84
+              }
+            },
+            "trial": 0,
+            "dataset": "sphere",
+            "queries_per_run": 10,
+            "wall_time_s": 12.72
+          },
+          {
+            "target_triples": 50000,
+            "actual_triples": 45386,
+            "n_predictions": 3584,
+            "build_time_s": 1.2414,
+            "throughput_triples_per_sec": 36559.1,
+            "avg_query_latency_ms": 114.696,
+            "p95_query_latency_ms": 144.168,
+            "peak_memory_mb": 153.7,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 72.45,
+                "p95_ms": 117.58,
+                "min_ms": 55.97,
+                "max_ms": 118.61
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 138.73,
+                "p95_ms": 188.21,
+                "min_ms": 124.49,
+                "max_ms": 189.42
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 197.64,
+                "p95_ms": 204.32,
+                "min_ms": 191.72,
+                "max_ms": 249.11
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.89,
+                "p95_ms": 3.07,
+                "min_ms": 2.78,
+                "max_ms": 3.15
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 161.77,
+                "p95_ms": 207.66,
+                "min_ms": 144.52,
+                "max_ms": 209.67
+              }
+            },
+            "trial": 1,
+            "dataset": "sphere",
+            "queries_per_run": 10,
+            "wall_time_s": 12.76
+          },
+          {
+            "target_triples": 50000,
+            "actual_triples": 45372,
+            "n_predictions": 3584,
+            "build_time_s": 1.1396,
+            "throughput_triples_per_sec": 39813.8,
+            "avg_query_latency_ms": 115.424,
+            "p95_query_latency_ms": 144.926,
+            "peak_memory_mb": 153.7,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 72.38,
+                "p95_ms": 117.32,
+                "min_ms": 55.95,
+                "max_ms": 117.83
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 141.57,
+                "p95_ms": 188.27,
+                "min_ms": 123.91,
+                "max_ms": 191.26
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 197.48,
+                "p95_ms": 204.69,
+                "min_ms": 191.68,
+                "max_ms": 237.33
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.93,
+                "p95_ms": 3.36,
+                "min_ms": 2.79,
+                "max_ms": 3.79
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 162.76,
+                "p95_ms": 210.99,
+                "min_ms": 144.64,
+                "max_ms": 215.95
+              }
+            },
+            "trial": 2,
+            "dataset": "sphere",
+            "queries_per_run": 10,
+            "wall_time_s": 12.73
+          }
+        ]
+      },
+      {
+        "target_triples": 100000,
+        "actual_triples_mean": 90909.0,
+        "build_time_mean": 2.4514,
+        "build_time_std": 0.1668,
+        "throughput_mean": 37194.1,
+        "avg_query_latency_mean": 253.183,
+        "avg_query_latency_std": 18.111,
+        "p95_query_latency_mean": 326.207,
+        "peak_memory_mean": 170.9,
+        "trials": 3,
+        "queries_per_run": 5,
+        "raw_trials": [
+          {
+            "target_triples": 100000,
+            "actual_triples": 90880,
+            "n_predictions": 7168,
+            "build_time_s": 2.3253,
+            "throughput_triples_per_sec": 39083.1,
+            "avg_query_latency_ms": 234.334,
+            "p95_query_latency_ms": 288.178,
+            "peak_memory_mb": 165.4,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 147.25,
+                "p95_ms": 224.59,
+                "min_ms": 112.49,
+                "max_ms": 227.4
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 285.59,
+                "p95_ms": 363.7,
+                "min_ms": 247.79,
+                "max_ms": 363.84
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 390.61,
+                "p95_ms": 402.68,
+                "min_ms": 379.01,
+                "max_ms": 489.47
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.87,
+                "p95_ms": 3.04,
+                "min_ms": 2.77,
+                "max_ms": 3.07
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 345.35,
+                "p95_ms": 446.88,
+                "min_ms": 290.53,
+                "max_ms": 512.23
+              }
+            },
+            "trial": 0,
+            "dataset": "sphere",
+            "queries_per_run": 5,
+            "wall_time_s": 25.84
+          },
+          {
+            "target_triples": 100000,
+            "actual_triples": 90886,
+            "n_predictions": 7168,
+            "build_time_s": 2.3884,
+            "throughput_triples_per_sec": 38052.5,
+            "avg_query_latency_ms": 270.452,
+            "p95_query_latency_ms": 363.756,
+            "peak_memory_mb": 172.9,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 164.85,
+                "p95_ms": 265.85,
+                "min_ms": 115.04,
+                "max_ms": 267.17
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 336.78,
+                "p95_ms": 476.86,
+                "min_ms": 251.54,
+                "max_ms": 586.27
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 453.61,
+                "p95_ms": 550.28,
+                "min_ms": 388.2,
+                "max_ms": 627.85
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.89,
+                "p95_ms": 3.23,
+                "min_ms": 2.76,
+                "max_ms": 3.34
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 394.13,
+                "p95_ms": 522.56,
+                "min_ms": 296.32,
+                "max_ms": 540.67
+              }
+            },
+            "trial": 1,
+            "dataset": "sphere",
+            "queries_per_run": 5,
+            "wall_time_s": 29.51
+          },
+          {
+            "target_triples": 100000,
+            "actual_triples": 90960,
+            "n_predictions": 7168,
+            "build_time_s": 2.6406,
+            "throughput_triples_per_sec": 34446.7,
+            "avg_query_latency_ms": 254.762,
+            "p95_query_latency_ms": 326.686,
+            "peak_memory_mb": 174.4,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 160.47,
+                "p95_ms": 258.42,
+                "min_ms": 115.28,
+                "max_ms": 280.52
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 310.6,
+                "p95_ms": 431.27,
+                "min_ms": 258.51,
+                "max_ms": 434.58
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 430.62,
+                "p95_ms": 490.64,
+                "min_ms": 390.61,
+                "max_ms": 543.64
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 2.97,
+                "p95_ms": 3.35,
+                "min_ms": 2.78,
+                "max_ms": 3.82
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 369.15,
+                "p95_ms": 449.75,
+                "min_ms": 297.31,
+                "max_ms": 844.86
+              }
+            },
+            "trial": 2,
+            "dataset": "sphere",
+            "queries_per_run": 5,
+            "wall_time_s": 28.2
+          }
+        ]
+      },
+      {
+        "target_triples": 200000,
+        "actual_triples_mean": 181700.0,
+        "build_time_mean": 5.3772,
+        "build_time_std": 0.047,
+        "throughput_mean": 33792.2,
+        "avg_query_latency_mean": 495.541,
+        "avg_query_latency_std": 15.193,
+        "p95_query_latency_mean": 617.67,
+        "peak_memory_mean": 274.5,
+        "trials": 2,
+        "queries_per_run": 5,
+        "raw_trials": [
+          {
+            "target_triples": 200000,
+            "actual_triples": 181762,
+            "n_predictions": 14337,
+            "build_time_s": 5.344,
+            "throughput_triples_per_sec": 34012.6,
+            "avg_query_latency_ms": 484.798,
+            "p95_query_latency_ms": 591.614,
+            "peak_memory_mb": 274.7,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 312.24,
+                "p95_ms": 472.15,
+                "min_ms": 230.19,
+                "max_ms": 589.99
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 626.4,
+                "p95_ms": 800.53,
+                "min_ms": 521.33,
+                "max_ms": 932.19
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 805.24,
+                "p95_ms": 834.82,
+                "min_ms": 769.71,
+                "max_ms": 1027.59
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 3.02,
+                "p95_ms": 3.42,
+                "min_ms": 2.77,
+                "max_ms": 3.66
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 677.09,
+                "p95_ms": 847.15,
+                "min_ms": 595.9,
+                "max_ms": 851.28
+              }
+            },
+            "trial": 0,
+            "dataset": "sphere",
+            "queries_per_run": 5,
+            "wall_time_s": 54.02
+          },
+          {
+            "target_triples": 200000,
+            "actual_triples": 181638,
+            "n_predictions": 14337,
+            "build_time_s": 5.4104,
+            "throughput_triples_per_sec": 33571.8,
+            "avg_query_latency_ms": 506.284,
+            "p95_query_latency_ms": 643.726,
+            "peak_memory_mb": 274.4,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 312.82,
+                "p95_ms": 488.6,
+                "min_ms": 237.69,
+                "max_ms": 497.51
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 620.87,
+                "p95_ms": 758.23,
+                "min_ms": 521.3,
+                "max_ms": 779.97
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 864.8,
+                "p95_ms": 1050.65,
+                "min_ms": 788.88,
+                "max_ms": 1155.09
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 3.96,
+                "p95_ms": 5.09,
+                "min_ms": 3.47,
+                "max_ms": 6.15
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 728.97,
+                "p95_ms": 916.06,
+                "min_ms": 607.11,
+                "max_ms": 950.26
+              }
+            },
+            "trial": 1,
+            "dataset": "sphere",
+            "queries_per_run": 5,
+            "wall_time_s": 56.22
+          }
+        ]
+      },
+      {
+        "target_triples": 500000,
+        "actual_triples_mean": 453918.0,
+        "build_time_mean": 14.3186,
+        "build_time_std": 1.2473,
+        "throughput_mean": 31822.2,
+        "avg_query_latency_mean": 1432.901,
+        "avg_query_latency_std": 0.946,
+        "p95_query_latency_mean": 2046.382,
+        "peak_memory_mean": 578.6,
+        "trials": 2,
+        "queries_per_run": 3,
+        "raw_trials": [
+          {
+            "target_triples": 500000,
+            "actual_triples": 453942,
+            "n_predictions": 35842,
+            "build_time_s": 13.4366,
+            "throughput_triples_per_sec": 33784.0,
+            "avg_query_latency_ms": 1432.232,
+            "p95_query_latency_ms": 2207.908,
+            "peak_memory_mb": 589.9,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 812.99,
+                "p95_ms": 1161.99,
+                "min_ms": 592.41,
+                "max_ms": 1218.94
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 1568.04,
+                "p95_ms": 1940.78,
+                "min_ms": 1303.06,
+                "max_ms": 2040.45
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 2761.19,
+                "p95_ms": 5480.76,
+                "min_ms": 2060.75,
+                "max_ms": 6421.79
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 3.59,
+                "p95_ms": 4.82,
+                "min_ms": 2.91,
+                "max_ms": 4.99
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 2015.35,
+                "p95_ms": 2451.19,
+                "min_ms": 1652.98,
+                "max_ms": 3060.21
+              }
+            },
+            "trial": 0,
+            "dataset": "sphere",
+            "queries_per_run": 3,
+            "wall_time_s": 157.03
+          },
+          {
+            "target_triples": 500000,
+            "actual_triples": 453894,
+            "n_predictions": 35842,
+            "build_time_s": 15.2005,
+            "throughput_triples_per_sec": 29860.5,
+            "avg_query_latency_ms": 1433.57,
+            "p95_query_latency_ms": 1884.856,
+            "peak_memory_mb": 567.4,
+            "per_query": {
+              "Q1_count_predictions": {
+                "count": 20,
+                "avg_ms": 895.89,
+                "p95_ms": 1290.04,
+                "min_ms": 637.89,
+                "max_ms": 1292.64
+              },
+              "Q2_events_with_person": {
+                "count": 20,
+                "avg_ms": 1729.17,
+                "p95_ms": 2158.3,
+                "min_ms": 1413.86,
+                "max_ms": 2179.6
+              },
+              "Q3_high_confidence": {
+                "count": 20,
+                "avg_ms": 2474.67,
+                "p95_ms": 3253.69,
+                "min_ms": 2177.03,
+                "max_ms": 3444.54
+              },
+              "Q4_sensor_locations": {
+                "count": 20,
+                "avg_ms": 4.52,
+                "p95_ms": 7.49,
+                "min_ms": 3.57,
+                "max_ms": 7.68
+              },
+              "Q5_temporal_join": {
+                "count": 20,
+                "avg_ms": 2063.6,
+                "p95_ms": 2714.76,
+                "min_ms": 1680.2,
+                "max_ms": 2749.58
+              }
+            },
+            "trial": 1,
+            "dataset": "sphere",
+            "queries_per_run": 3,
+            "wall_time_s": 159.02
+          }
+        ]
+      }
+    ]
+  },
+  "scaling_fits": {
+    "casas": {
+      "max_measured_triples": 414041,
+      "projection_model": "linear_regime",
+      "why_not_power_law": "The full-range power law is fitted across sizes where fixed per-query overhead dominates, which makes scaling look sub-linear (b~0.73) and under-predicts at deployment scale \u2014 for memory it predicts less at 1M triples than was measured at 414K. Above 40000 triples the relationship is linear to within noise (R^2 >= 0.99), so the linear-regime fit is used for all projections.",
+      "query_latency_ms": {
+        "full_range_power_law": {
+          "fitted": true,
+          "model": "value = a * triples^b",
+          "exponent_b": 0.7279,
+          "coefficient_a": 0.06248542,
+          "r_squared": 0.9842,
+          "n_points": 13,
+          "interpretation": "b = 0.73: sub-linear scaling."
+        },
+        "linear_regime": {
+          "fitted": true,
+          "model": "value = a + b * triples",
+          "cutoff_triples": 40000,
+          "slope_b_per_triple": 0.0025825484088934122,
+          "intercept_a": -3.176,
+          "r_squared": 0.99993,
+          "n_points": 4
+        },
+        "projections": {
+          "1000000": {
+            "predicted_value": 2579.4,
+            "status": "EXTRAPOLATED"
+          },
+          "1608336": {
+            "predicted_value": 4150.4,
+            "status": "EXTRAPOLATED"
+          },
+          "10000000": {
+            "predicted_value": 25822.3,
+            "status": "EXTRAPOLATED"
+          },
+          "32166720": {
+            "predicted_value": 83068.9,
+            "status": "EXTRAPOLATED"
+          }
+        },
+        "power_law_projections_for_contrast": {
+          "1000000": {
+            "predicted_value": 1456.06,
+            "status": "EXTRAPOLATED"
+          },
+          "1608336": {
+            "predicted_value": 2057.79,
+            "status": "EXTRAPOLATED"
+          },
+          "10000000": {
+            "predicted_value": 7781.78,
+            "status": "EXTRAPOLATED"
+          },
+          "32166720": {
+            "predicted_value": 18214.62,
+            "status": "EXTRAPOLATED"
+          }
+        }
+      },
+      "peak_memory_mb": {
+        "full_range_power_law": {
+          "fitted": true,
+          "model": "value = a * triples^b",
+          "exponent_b": 0.3164,
+          "coefficient_a": 5.03938971,
+          "r_squared": 0.8424,
+          "n_points": 13,
+          "interpretation": "b = 0.32: sub-linear scaling."
+        },
+        "linear_regime": {
+          "fitted": true,
+          "model": "value = a + b * triples",
+          "cutoff_triples": 40000,
+          "slope_b_per_triple": 0.0012150281021149425,
+          "intercept_a": 54.451,
+          "r_squared": 0.99983,
+          "n_points": 4
+        },
+        "projections": {
+          "1000000": {
+            "predicted_value": 1269.5,
+            "status": "EXTRAPOLATED"
+          },
+          "1608336": {
+            "predicted_value": 2008.6,
+            "status": "EXTRAPOLATED"
+          },
+          "10000000": {
+            "predicted_value": 12204.7,
+            "status": "EXTRAPOLATED"
+          },
+          "32166720": {
+            "predicted_value": 39137.9,
+            "status": "EXTRAPOLATED"
+          }
+        }
+      }
+    },
+    "sphere": {
+      "max_measured_triples": 453918,
+      "projection_model": "linear_regime",
+      "why_not_power_law": "The full-range power law is fitted across sizes where fixed per-query overhead dominates, which makes scaling look sub-linear (b~0.73) and under-predicts at deployment scale \u2014 for memory it predicts less at 1M triples than was measured at 414K. Above 40000 triples the relationship is linear to within noise (R^2 >= 0.99), so the linear-regime fit is used for all projections.",
+      "query_latency_ms": {
+        "full_range_power_law": {
+          "fitted": true,
+          "model": "value = a * triples^b",
+          "exponent_b": 0.7399,
+          "coefficient_a": 0.06573821,
+          "r_squared": 0.9618,
+          "n_points": 13,
+          "interpretation": "b = 0.74: sub-linear scaling."
+        },
+        "linear_regime": {
+          "fitted": true,
+          "model": "value = a + b * triples",
+          "cutoff_triples": 40000,
+          "slope_b_per_triple": 0.0032411631439003543,
+          "intercept_a": -51.276,
+          "r_squared": 0.99772,
+          "n_points": 4
+        },
+        "projections": {
+          "1000000": {
+            "predicted_value": 3189.9,
+            "status": "EXTRAPOLATED"
+          },
+          "1608336": {
+            "predicted_value": 5161.6,
+            "status": "EXTRAPOLATED"
+          },
+          "10000000": {
+            "predicted_value": 32360.4,
+            "status": "EXTRAPOLATED"
+          },
+          "32166720": {
+            "predicted_value": 104206.3,
+            "status": "EXTRAPOLATED"
+          }
+        },
+        "power_law_projections_for_contrast": {
+          "1000000": {
+            "predicted_value": 1808.08,
+            "status": "EXTRAPOLATED"
+          },
+          "1608336": {
+            "predicted_value": 2569.9,
+            "status": "EXTRAPOLATED"
+          },
+          "10000000": {
+            "predicted_value": 9933.86,
+            "status": "EXTRAPOLATED"
+          },
+          "32166720": {
+            "predicted_value": 23580.24,
+            "status": "EXTRAPOLATED"
+          }
+        }
+      },
+      "peak_memory_mb": {
+        "full_range_power_law": {
+          "fitted": true,
+          "model": "value = a * triples^b",
+          "exponent_b": 0.2753,
+          "coefficient_a": 8.8166048,
+          "r_squared": 0.793,
+          "n_points": 13,
+          "interpretation": "b = 0.28: sub-linear scaling."
+        },
+        "linear_regime": {
+          "fitted": true,
+          "model": "value = a + b * triples",
+          "cutoff_triples": 40000,
+          "slope_b_per_triple": 0.0010732229786291696,
+          "intercept_a": 87.289,
+          "r_squared": 0.99499,
+          "n_points": 4
+        },
+        "projections": {
+          "1000000": {
+            "predicted_value": 1160.5,
+            "status": "EXTRAPOLATED"
+          },
+          "1608336": {
+            "predicted_value": 1813.4,
+            "status": "EXTRAPOLATED"
+          },
+          "10000000": {
+            "predicted_value": 10819.5,
+            "status": "EXTRAPOLATED"
+          },
+          "32166720": {
+            "predicted_value": 34609.4,
+            "status": "EXTRAPOLATED"
+          }
+        }
+      }
+    }
+  },
+  "deployment_reference_points": {
+    "derivation": "Windows are emitted one per stride, so a 5-minute stride gives 288 windows/day. The published sweep's own calibration measures 15.30 triples per CASAS prediction (one prediction per window), giving 4406 triples/day for a single home. Window length (30 min) affects how much evidence each window carries, not how many windows are emitted.",
+    "window_minutes": 30,
+    "stride_minutes": 5,
+    "windows_per_day": 288.0,
+    "triples_per_prediction_measured": 15.3,
+    "triples_per_day_single_home": 4406.4,
+    "single_home_horizons": {
+      "one_day": 4406.0,
+      "one_week": 30845.0,
+      "one_month_30d": 132192.0,
+      "one_year": 1608336.0
+    },
+    "multi_home_one_year": {
+      "5_homes_one_year": 8041680.0,
+      "20_homes_one_year": 32166720.0,
+      "100_homes_one_year": 160833600.0
+    },
+    "published_sweep_in_deployment_terms": {
+      "5000_triples_days": 1.13,
+      "20000_triples_days": 4.54,
+      "interpretation": "The published 5K-20K range corresponds to roughly 1.1 to 4.5 days of a single home's continuous operation. The reviewer's concern is therefore well founded: that range characterises a few days of one home, not a long-running federated deployment."
+    }
+  }
+}
