@@ -1,0 +1,305 @@
+{
+  "_meta": {
+    "script": "evaluation/run_baseline_audit.py",
+    "commit": "767e01c",
+    "generated": "2026-08-05T00:08:14",
+    "purpose": "R1-8 fidelity validation and the post-E2 coverage extension. This is an audit because the neuro-symbolic baselines R1-8 refers to are not in this repository."
+  },
+  "neurosymbolic_baselines": {
+    "question": "Do implementations of the three reimplemented neuro-symbolic baselines exist?",
+    "answer": "No. No implementation, no stored scores, and nothing in git history.",
+    "searches_performed": [
+      "grep -ri 'DeepProbLog|Logic Tensor|LTN|NeurASP|NS-CL|baseline|SOTA' over the repository",
+      "find for any path matching *baseline*, *compar*, *sota*",
+      "git log --all --diff-filter=AD --name-only for deleted or added baseline-named files",
+      "enumeration of every model constructor reachable from evaluation/common.py::build_model",
+      "enumeration of every metrics.json under outputs/"
+    ],
+    "what_was_found_instead": "evaluation/common.py::build_model constructs exactly two estimators: LogisticRegression (CASAS default) and RandomForestClassifier (SPHERE default, or CASAS when --model rf is passed). README maps evaluation/run_experiments.py --mode baseline to Table 2 (paper section 4.1). Nothing in the repository targets Table 12.",
+    "implication_for_R1_8": "The fidelity-validation procedure the reviewer asks about cannot be reconstructed from this repository, because the artefacts it would describe are not here. The paper session must establish the provenance of the Table 12 numbers - implemented elsewhere, quoted from the original papers, or otherwise - before the table can be defended. Reporting a fidelity procedure that cannot be evidenced would be worse than disclosing the gap."
+  },
+  "classical_baselines_found": [
+    {
+      "run_id": "20260401_232226",
+      "dataset": "casas",
+      "model": "LogisticRegression",
+      "source": "outputs/evaluation/20260401_232226/casas/metrics.json",
+      "paper_table": "Table 2 (section 4.1) per README",
+      "protocol": {
+        "data_source": "data/processed/casas_windows.parquet (preprocess CLI output)",
+        "split": "single stratified train/val/test split, not cross-validation",
+        "n_train": 123,
+        "n_val": 26,
+        "n_test": 27,
+        "n_features": 1205,
+        "n_classes": 4,
+        "classes": [
+          "Clean",
+          "Cook",
+          "Eat",
+          "PhoneCall"
+        ],
+        "seed": 42,
+        "confidence_gate": null,
+        "coverage": 1.0,
+        "coverage_note": "evaluation/common.py calls model.predict over the entire test set. No confidence threshold is applied anywhere in the classical-baseline path, so every test window is answered.",
+        "feature_sample": [
+          "M13=ON",
+          "M13=OFF",
+          "M17=ON",
+          "M17=OFF",
+          "M18=ON",
+          "M18=OFF",
+          "M14=OFF",
+          "M14=ON",
+          "M16=OFF",
+          "M15=ON"
+        ]
+      },
+      "scores": {
+        "accuracy": 1.0,
+        "f1_macro": 1.0,
+        "f1_weighted": 1.0
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 5000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": 42,
+        "solver": "saga",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "degeneracy_flags": [
+        "n_features (1205) exceeds n_train (123) by 9.8x - a linear model is guaranteed to separate the training set, so a high score is not evidence of a strong baseline",
+        "perfect weighted F1 (1.000) - treat as degenerate rather than as a baseline result worth quoting"
+      ]
+    },
+    {
+      "run_id": "20260401_232226",
+      "dataset": "sphere",
+      "model": "RandomForestClassifier",
+      "source": "outputs/evaluation/20260401_232226/sphere/metrics.json",
+      "paper_table": "Table 2 (section 4.1) per README",
+      "protocol": {
+        "data_source": "data/processed/sphere_windows.parquet (preprocess CLI output)",
+        "split": "single stratified train/val/test split, not cross-validation",
+        "n_train": 97,
+        "n_val": 21,
+        "n_test": 21,
+        "n_features": 3,
+        "n_classes": 6,
+        "classes": [
+          "a_ascend",
+          "a_walk",
+          "p_lie",
+          "p_sit",
+          "p_stand",
+          "t_turn"
+        ],
+        "seed": 42,
+        "confidence_gate": null,
+        "coverage": 1.0,
+        "coverage_note": "evaluation/common.py calls model.predict over the entire test set. No confidence threshold is applied anywhere in the classical-baseline path, so every test window is answered.",
+        "feature_sample": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "scores": {
+        "accuracy": 0.6190476190476191,
+        "f1_macro": 0.41055900621118013,
+        "f1_weighted": 0.5804495711328009
+      },
+      "hyperparameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced_subsample",
+        "criterion": "gini",
+        "max_depth": null,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 300,
+        "n_jobs": -1,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "degeneracy_flags": []
+    },
+    {
+      "run_id": "20260401_233022",
+      "dataset": "casas",
+      "model": "LogisticRegression",
+      "source": "outputs/evaluation/20260401_233022/casas/metrics.json",
+      "paper_table": "Table 2 (section 4.1) per README",
+      "protocol": {
+        "data_source": "data/processed/casas_windows.parquet (preprocess CLI output)",
+        "split": "single stratified train/val/test split, not cross-validation",
+        "n_train": 123,
+        "n_val": 26,
+        "n_test": 27,
+        "n_features": 1205,
+        "n_classes": 4,
+        "classes": [
+          "Clean",
+          "Cook",
+          "Eat",
+          "PhoneCall"
+        ],
+        "seed": 42,
+        "confidence_gate": null,
+        "coverage": 1.0,
+        "coverage_note": "evaluation/common.py calls model.predict over the entire test set. No confidence threshold is applied anywhere in the classical-baseline path, so every test window is answered.",
+        "feature_sample": [
+          "M13=ON",
+          "M13=OFF",
+          "M17=ON",
+          "M17=OFF",
+          "M18=ON",
+          "M18=OFF",
+          "M14=OFF",
+          "M14=ON",
+          "M16=OFF",
+          "M15=ON"
+        ]
+      },
+      "scores": {
+        "accuracy": 1.0,
+        "f1_macro": 1.0,
+        "f1_weighted": 1.0
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 5000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": 42,
+        "solver": "saga",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "degeneracy_flags": [
+        "n_features (1205) exceeds n_train (123) by 9.8x - a linear model is guaranteed to separate the training set, so a high score is not evidence of a strong baseline",
+        "perfect weighted F1 (1.000) - treat as degenerate rather than as a baseline result worth quoting"
+      ]
+    },
+    {
+      "run_id": "20260401_233022",
+      "dataset": "sphere",
+      "model": "RandomForestClassifier",
+      "source": "outputs/evaluation/20260401_233022/sphere/metrics.json",
+      "paper_table": "Table 2 (section 4.1) per README",
+      "protocol": {
+        "data_source": "data/processed/sphere_windows.parquet (preprocess CLI output)",
+        "split": "single stratified train/val/test split, not cross-validation",
+        "n_train": 97,
+        "n_val": 21,
+        "n_test": 21,
+        "n_features": 3,
+        "n_classes": 6,
+        "classes": [
+          "a_ascend",
+          "a_walk",
+          "p_lie",
+          "p_sit",
+          "p_stand",
+          "t_turn"
+        ],
+        "seed": 42,
+        "confidence_gate": null,
+        "coverage": 1.0,
+        "coverage_note": "evaluation/common.py calls model.predict over the entire test set. No confidence threshold is applied anywhere in the classical-baseline path, so every test window is answered.",
+        "feature_sample": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "scores": {
+        "accuracy": 0.6190476190476191,
+        "f1_macro": 0.41055900621118013,
+        "f1_weighted": 0.5804495711328009
+      },
+      "hyperparameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced_subsample",
+        "criterion": "gini",
+        "max_depth": null,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 300,
+        "n_jobs": -1,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "degeneracy_flags": []
+    }
+  ],
+  "pipeline_protocol_for_comparison": {
+    "source": "evaluation/results_aruba/ablation_cv.json",
+    "data_source": "windows rebuilt from raw via build_casas_windows_from_raw (experiment config)",
+    "split": "5-fold stratified cross-validation",
+    "total_windows": 1792,
+    "n_classes": 10,
+    "classes": [
+      "Eating",
+      "EnterHome",
+      "Housekeeping",
+      "LeaveHome",
+      "MealPreparation",
+      "Medication",
+      "PersonalHygiene",
+      "PhoneCall",
+      "Relax",
+      "Sleeping"
+    ],
+    "seed": 42,
+    "confidence_gate": 0.7,
+    "confidence_gate_after_feedback": 0.75,
+    "coverage": 0.505,
+    "coverage_note": "Only predictions at or above the gate are scored (E2b): coverage is 56.1 % at the 0.70 gate and 50.5 % at the post-feedback 0.75 gate."
+  },
+  "comparability": {
+    "available": true,
+    "coverage_matched": false,
+    "mismatches": [
+      "class count differs: baseline 4 vs pipeline 10",
+      "window count differs: baseline 176 windows (from data/processed) vs pipeline 1792 (rebuilt from raw)",
+      "split scheme differs: baseline uses a single stratified train/val/test split, not cross-validation, pipeline uses 5-fold stratified cross-validation",
+      "coverage differs: baseline 100.0 % (no gate) vs pipeline 50.5 % (gated)"
+    ],
+    "verdict": "The classical baselines and the pipeline results are not directly comparable. They differ in dataset preparation, class count, split scheme and - decisively for the extension question - in coverage: the baselines answer every test window while the pipeline answers about half. Any table placing these numbers side by side needs to state all four differences, or be rebuilt on a shared protocol.",
+    "how_to_make_it_apples_to_apples": "Two options. (a) Score the baselines under the pipeline's protocol: same rebuilt windows, same 5-fold split, and either no gate for both or the same gate for both. (b) Report the pipeline at 100 % coverage alongside its gated figure, so the reader can compare like with like. Option (b) costs nothing - AI-Only at a 0.0 gate is already derivable from the validated reconstruction in E2 - and is the honest minimum if the table is kept in its current form."
+  }
+}
