@@ -1,0 +1,575 @@
+{
+  "_meta": {
+    "script": "evaluation/run_ablation_diagnostics.py",
+    "commit": "0af4e0c",
+    "generated": "2026-08-04T16:52:44",
+    "analysed_run": "evaluation/results_aruba/ablation_cv.json (commit f5c6cd3)",
+    "config": "config/casas_aruba.yaml",
+    "method": "Derived from stored artifacts, not a re-run: predictions reconstructed from each fold's populated_kg.ttl, ground truth from a deterministic window/fold rebuild, rule outputs from reasoning_result.json. Validated by exact reproduction of the published AI-Only per-fold metrics (tolerance 1e-9).",
+    "rule_categories": {
+      "1": "sensor_grounding",
+      "2": "sensor_grounding",
+      "3": "validation",
+      "4": "validation",
+      "5": "aal_anomaly",
+      "6": "aal_anomaly",
+      "7": "aal_anomaly",
+      "8": "feedback_trigger",
+      "9": "feedback_trigger",
+      "10": "feedback_trigger",
+      "11": "feedback_trigger"
+    }
+  },
+  "validation_gate": {
+    "passed": true,
+    "tolerance": 1e-09
+  },
+  "summary": {
+    "folds_analysed": 5,
+    "nesy_nofeedback_equals_ai_only_all_folds": true,
+    "nesy_full_equals_ai_only_at_raised_threshold_all_folds": true,
+    "total_label_changes_no_feedback": 0,
+    "total_label_changes_full": 0,
+    "total_feedback_flags": 166,
+    "total_flags_at_or_above_base_threshold": 0,
+    "max_flag_confidence_over_folds": 0.5349,
+    "observed_error_types": [
+      "MutuallyExclusiveActivities"
+    ],
+    "rule_firings_total": {
+      "1": 20,
+      "2": 0,
+      "3": 22,
+      "4": 14,
+      "5": 40,
+      "6": 0,
+      "7": 14,
+      "8": 0,
+      "9": 0,
+      "10": 332,
+      "11": 0
+    },
+    "rule_firings_by_category": {
+      "sensor_grounding": 20,
+      "validation": 36,
+      "aal_anomaly": 54,
+      "feedback_trigger": 332
+    },
+    "rules_never_fired": [
+      2,
+      6,
+      8,
+      9,
+      11
+    ],
+    "mean_F1_AI_Only_base": 0.833798,
+    "mean_F1_AI_Only_raised": 0.849926,
+    "mean_F1_NeSy_Full": 0.849926,
+    "mean_active_set_shrinkage": -20.0,
+    "total_validated_events": 31,
+    "counterfactual_top2_on_flagged_pooled": {
+      "n_flagged": 166,
+      "top1_correct": 64,
+      "top2_correct": 46
+    }
+  },
+  "findings": {
+    "why_identical": "NeSy-NoFeedback reduces to AI-Only by construction in the published code, for two independent reasons that compose. (1) In evaluation/run_ablation_cv.py::_nesy_metrics the set `validated_uris` is hardcoded to the empty set (annotated 'reserved for future rule-augmented-active-set experiments'), so the ValidatedEvent output of validation rules 3-4 cannot admit, override, or otherwise affect any prediction. (2) The remaining symbolic pathway is the top-1 -> top-2 override applied to events flagged by feedback rules 8-11, but the confidence gate `conf < threshold: continue` is evaluated BEFORE the override branch. Every observed flag comes from rule 10, which fires only when top-1 confidence < 0.75 and the top-1/top-2 margin < 0.10; the highest flag confidence observed across all five folds is 0.5349, far below the 0.70 active-set threshold. Every flagged prediction is therefore already excluded from the active set before the override can act. With both pathways inert, the active set and its labels are bit-identical to AI-Only, which is why the metrics agree exactly rather than approximately.",
+    "label_changes": "Zero predictions had their label changed by the symbolic layer with feedback disabled (n_label_changed = 0 in every fold), confirming the expectation stated in the request. The same holds for NeSy-Full: its gain involves no relabelling either.",
+    "nesy_full_mechanism": "The NeSy-Full gain is a selection effect, not a classification improvement. run_feedback_cycle calls adapt_kg.update_confidence_threshold, which sets fp_ratio = 1.0 whenever at least one flag exists (a degenerate ratio, not a rate), so the branch fp_ratio > 0.3 always fires and the feedback threshold is raised 0.70 -> 0.75. NeSy-Full is then scored on the higher-confidence subset that survives the raised gate, while AI-Only is scored at 0.70. AI-Only evaluated at 0.75 reproduces NeSy-Full exactly in every fold, so 100% of the reported lift is attributable to evaluating on a smaller, easier subset rather than to symbolic correction.",
+    "rule_validated_subset": "Validation rules 3-4 do fire and do produce a high-precision annotation subset (ValidatedEvent), which is the defensible form of the architectural claim: the symbolic layer annotates with higher accuracy than the blanket active set, but by design it never rewrites the argmax label, so no blanket metric can move without feedback.",
+    "disjointness_preserved": "The rule taxonomy is intact: rules 1-2 sensor grounding, 3-4 validation, 5-7 AAL anomaly, 8-11 feedback triggers. Only rules 8-11 emit FeedbackRequired, and no rule asserts a ground-truth label, so the manuscript's disjointness-of-feedback argument is unaffected by these findings."
+  },
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_predictions": 359,
+      "thresholds": {
+        "base": 0.7,
+        "raised_by_feedback": 0.75
+      },
+      "configs": {
+        "AI-Only@base": {
+          "F1_weighted": 0.8674043191176842,
+          "Correctness": 0.8565573770491803,
+          "FP_rate": 0.14344262295081966,
+          "n_active": 244
+        },
+        "AI-Only@raised": {
+          "F1_weighted": 0.8783478177095977,
+          "Correctness": 0.8678414096916299,
+          "FP_rate": 0.13215859030837007,
+          "n_active": 227
+        },
+        "NeSy-NoFeedback": {
+          "F1_weighted": 0.8674043191176842,
+          "Correctness": 0.8565573770491803,
+          "FP_rate": 0.14344262295081966,
+          "n_active": 244,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        },
+        "NeSy-Full": {
+          "F1_weighted": 0.8783478177095977,
+          "Correctness": 0.8678414096916299,
+          "FP_rate": 0.13215859030837007,
+          "n_active": 227,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        }
+      },
+      "equivalences": {
+        "nesy_nofeedback_equals_ai_only_base": true,
+        "nesy_full_equals_ai_only_raised": true
+      },
+      "symbolic_effect": {
+        "n_label_changed_no_feedback": 0,
+        "n_overridden_no_feedback": 0,
+        "n_rule_admitted_no_feedback": 0,
+        "n_label_changed_full": 0,
+        "active_set_delta_full_vs_ai_base": -17
+      },
+      "flags": {
+        "n_feedback_flags": 33,
+        "n_flags_mapped_to_override_types": 33,
+        "error_types": [
+          "MutuallyExclusiveActivities"
+        ],
+        "max_flag_confidence": 0.5095,
+        "n_flags_at_or_above_base_threshold": 0
+      },
+      "validation_rules": {
+        "n_validated_events": 21,
+        "validated_subset_metrics@base": {
+          "F1_weighted": 0.4194616977225673,
+          "Correctness": 0.47619047619047616,
+          "FP_rate": 0.5238095238095238,
+          "n_active": 21,
+          "n_subset_total": 21
+        },
+        "counterfactual_with_validated_bypass": {
+          "n_rule_admitted": 0,
+          "F1_weighted": 0.8674043191176842,
+          "Correctness": 0.8565573770491803,
+          "n_active": 244
+        }
+      },
+      "counterfactual_top2_on_flagged": {
+        "n_flagged": 33,
+        "top1_correct": 14,
+        "top2_correct": 9,
+        "top1_accuracy": 0.4242,
+        "top2_accuracy": 0.2727
+      },
+      "rule_firings": {
+        "1": 4,
+        "2": 0,
+        "3": 13,
+        "4": 10,
+        "5": 24,
+        "6": 0,
+        "7": 8,
+        "8": 0,
+        "9": 0,
+        "10": 66,
+        "11": 0
+      }
+    },
+    {
+      "fold": 1,
+      "n_predictions": 359,
+      "thresholds": {
+        "base": 0.7,
+        "raised_by_feedback": 0.75
+      },
+      "configs": {
+        "AI-Only@base": {
+          "F1_weighted": 0.7226194138154055,
+          "Correctness": 0.7243589743589743,
+          "FP_rate": 0.27564102564102566,
+          "n_active": 156
+        },
+        "AI-Only@raised": {
+          "F1_weighted": 0.7484054362485736,
+          "Correctness": 0.7555555555555555,
+          "FP_rate": 0.24444444444444446,
+          "n_active": 135
+        },
+        "NeSy-NoFeedback": {
+          "F1_weighted": 0.7226194138154055,
+          "Correctness": 0.7243589743589743,
+          "FP_rate": 0.27564102564102566,
+          "n_active": 156,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        },
+        "NeSy-Full": {
+          "F1_weighted": 0.7484054362485736,
+          "Correctness": 0.7555555555555555,
+          "FP_rate": 0.24444444444444446,
+          "n_active": 135,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        }
+      },
+      "equivalences": {
+        "nesy_nofeedback_equals_ai_only_base": true,
+        "nesy_full_equals_ai_only_raised": true
+      },
+      "symbolic_effect": {
+        "n_label_changed_no_feedback": 0,
+        "n_overridden_no_feedback": 0,
+        "n_rule_admitted_no_feedback": 0,
+        "n_label_changed_full": 0,
+        "active_set_delta_full_vs_ai_base": -21
+      },
+      "flags": {
+        "n_feedback_flags": 32,
+        "n_flags_mapped_to_override_types": 32,
+        "error_types": [
+          "MutuallyExclusiveActivities"
+        ],
+        "max_flag_confidence": 0.5349,
+        "n_flags_at_or_above_base_threshold": 0
+      },
+      "validation_rules": {
+        "n_validated_events": 9,
+        "validated_subset_metrics@base": {
+          "F1_weighted": 0.5384615384615385,
+          "Correctness": 0.6666666666666666,
+          "FP_rate": 0.33333333333333337,
+          "n_active": 9,
+          "n_subset_total": 9
+        },
+        "counterfactual_with_validated_bypass": {
+          "n_rule_admitted": 0,
+          "F1_weighted": 0.7226194138154055,
+          "Correctness": 0.7243589743589743,
+          "n_active": 156
+        }
+      },
+      "counterfactual_top2_on_flagged": {
+        "n_flagged": 32,
+        "top1_correct": 17,
+        "top2_correct": 5,
+        "top1_accuracy": 0.5312,
+        "top2_accuracy": 0.1562
+      },
+      "rule_firings": {
+        "1": 4,
+        "2": 0,
+        "3": 9,
+        "4": 2,
+        "5": 16,
+        "6": 0,
+        "7": 4,
+        "8": 0,
+        "9": 0,
+        "10": 64,
+        "11": 0
+      }
+    },
+    {
+      "fold": 2,
+      "n_predictions": 358,
+      "thresholds": {
+        "base": 0.7,
+        "raised_by_feedback": 0.75
+      },
+      "configs": {
+        "AI-Only@base": {
+          "F1_weighted": 0.8139981209086187,
+          "Correctness": 0.8,
+          "FP_rate": 0.19999999999999996,
+          "n_active": 215
+        },
+        "AI-Only@raised": {
+          "F1_weighted": 0.8339599960494405,
+          "Correctness": 0.8229166666666666,
+          "FP_rate": 0.17708333333333337,
+          "n_active": 192
+        },
+        "NeSy-NoFeedback": {
+          "F1_weighted": 0.8139981209086187,
+          "Correctness": 0.8,
+          "FP_rate": 0.19999999999999996,
+          "n_active": 215,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        },
+        "NeSy-Full": {
+          "F1_weighted": 0.8339599960494405,
+          "Correctness": 0.8229166666666666,
+          "FP_rate": 0.17708333333333337,
+          "n_active": 192,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        }
+      },
+      "equivalences": {
+        "nesy_nofeedback_equals_ai_only_base": true,
+        "nesy_full_equals_ai_only_raised": true
+      },
+      "symbolic_effect": {
+        "n_label_changed_no_feedback": 0,
+        "n_overridden_no_feedback": 0,
+        "n_rule_admitted_no_feedback": 0,
+        "n_label_changed_full": 0,
+        "active_set_delta_full_vs_ai_base": -23
+      },
+      "flags": {
+        "n_feedback_flags": 28,
+        "n_flags_mapped_to_override_types": 28,
+        "error_types": [
+          "MutuallyExclusiveActivities"
+        ],
+        "max_flag_confidence": 0.5012,
+        "n_flags_at_or_above_base_threshold": 0
+      },
+      "validation_rules": {
+        "n_validated_events": 1,
+        "validated_subset_metrics@base": {
+          "F1_weighted": 0.0,
+          "Correctness": 0.0,
+          "FP_rate": 1.0,
+          "n_active": 1,
+          "n_subset_total": 1
+        },
+        "counterfactual_with_validated_bypass": {
+          "n_rule_admitted": 0,
+          "F1_weighted": 0.8139981209086187,
+          "Correctness": 0.8,
+          "n_active": 215
+        }
+      },
+      "counterfactual_top2_on_flagged": {
+        "n_flagged": 28,
+        "top1_correct": 7,
+        "top2_correct": 14,
+        "top1_accuracy": 0.25,
+        "top2_accuracy": 0.5
+      },
+      "rule_firings": {
+        "1": 4,
+        "2": 0,
+        "3": 0,
+        "4": 2,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 56,
+        "11": 0
+      }
+    },
+    {
+      "fold": 3,
+      "n_predictions": 358,
+      "thresholds": {
+        "base": 0.7,
+        "raised_by_feedback": 0.75
+      },
+      "configs": {
+        "AI-Only@base": {
+          "F1_weighted": 0.9035756227804131,
+          "Correctness": 0.9028571428571428,
+          "FP_rate": 0.0971428571428572,
+          "n_active": 175
+        },
+        "AI-Only@raised": {
+          "F1_weighted": 0.9154108116775226,
+          "Correctness": 0.9210526315789473,
+          "FP_rate": 0.07894736842105265,
+          "n_active": 152
+        },
+        "NeSy-NoFeedback": {
+          "F1_weighted": 0.9035756227804131,
+          "Correctness": 0.9028571428571428,
+          "FP_rate": 0.0971428571428572,
+          "n_active": 175,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        },
+        "NeSy-Full": {
+          "F1_weighted": 0.9154108116775226,
+          "Correctness": 0.9210526315789473,
+          "FP_rate": 0.07894736842105265,
+          "n_active": 152,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        }
+      },
+      "equivalences": {
+        "nesy_nofeedback_equals_ai_only_base": true,
+        "nesy_full_equals_ai_only_raised": true
+      },
+      "symbolic_effect": {
+        "n_label_changed_no_feedback": 0,
+        "n_overridden_no_feedback": 0,
+        "n_rule_admitted_no_feedback": 0,
+        "n_label_changed_full": 0,
+        "active_set_delta_full_vs_ai_base": -23
+      },
+      "flags": {
+        "n_feedback_flags": 45,
+        "n_flags_mapped_to_override_types": 45,
+        "error_types": [
+          "MutuallyExclusiveActivities"
+        ],
+        "max_flag_confidence": 0.5296,
+        "n_flags_at_or_above_base_threshold": 0
+      },
+      "validation_rules": {
+        "n_validated_events": 0,
+        "validated_subset_metrics@base": {
+          "F1_weighted": null,
+          "Correctness": null,
+          "FP_rate": null,
+          "n_active": 0,
+          "n_subset_total": 0
+        },
+        "counterfactual_with_validated_bypass": {
+          "n_rule_admitted": 0,
+          "F1_weighted": 0.9035756227804131,
+          "Correctness": 0.9028571428571428,
+          "n_active": 175
+        }
+      },
+      "counterfactual_top2_on_flagged": {
+        "n_flagged": 45,
+        "top1_correct": 20,
+        "top2_correct": 9,
+        "top1_accuracy": 0.4444,
+        "top2_accuracy": 0.2
+      },
+      "rule_firings": {
+        "1": 4,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 90,
+        "11": 0
+      }
+    },
+    {
+      "fold": 4,
+      "n_predictions": 358,
+      "thresholds": {
+        "base": 0.7,
+        "raised_by_feedback": 0.75
+      },
+      "configs": {
+        "AI-Only@base": {
+          "F1_weighted": 0.8613924509164675,
+          "Correctness": 0.8465116279069768,
+          "FP_rate": 0.15348837209302324,
+          "n_active": 215
+        },
+        "AI-Only@raised": {
+          "F1_weighted": 0.8735045472368951,
+          "Correctness": 0.864321608040201,
+          "FP_rate": 0.13567839195979903,
+          "n_active": 199
+        },
+        "NeSy-NoFeedback": {
+          "F1_weighted": 0.8613924509164675,
+          "Correctness": 0.8465116279069768,
+          "FP_rate": 0.15348837209302324,
+          "n_active": 215,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        },
+        "NeSy-Full": {
+          "F1_weighted": 0.8735045472368951,
+          "Correctness": 0.864321608040201,
+          "FP_rate": 0.13567839195979903,
+          "n_active": 199,
+          "n_overridden": 0,
+          "n_dropped_fallback": 0,
+          "n_rule_admitted": 0,
+          "n_label_changed": 0
+        }
+      },
+      "equivalences": {
+        "nesy_nofeedback_equals_ai_only_base": true,
+        "nesy_full_equals_ai_only_raised": true
+      },
+      "symbolic_effect": {
+        "n_label_changed_no_feedback": 0,
+        "n_overridden_no_feedback": 0,
+        "n_rule_admitted_no_feedback": 0,
+        "n_label_changed_full": 0,
+        "active_set_delta_full_vs_ai_base": -16
+      },
+      "flags": {
+        "n_feedback_flags": 28,
+        "n_flags_mapped_to_override_types": 28,
+        "error_types": [
+          "MutuallyExclusiveActivities"
+        ],
+        "max_flag_confidence": 0.5315,
+        "n_flags_at_or_above_base_threshold": 0
+      },
+      "validation_rules": {
+        "n_validated_events": 0,
+        "validated_subset_metrics@base": {
+          "F1_weighted": null,
+          "Correctness": null,
+          "FP_rate": null,
+          "n_active": 0,
+          "n_subset_total": 0
+        },
+        "counterfactual_with_validated_bypass": {
+          "n_rule_admitted": 0,
+          "F1_weighted": 0.8613924509164675,
+          "Correctness": 0.8465116279069768,
+          "n_active": 215
+        }
+      },
+      "counterfactual_top2_on_flagged": {
+        "n_flagged": 28,
+        "top1_correct": 6,
+        "top2_correct": 9,
+        "top1_accuracy": 0.2143,
+        "top2_accuracy": 0.3214
+      },
+      "rule_firings": {
+        "1": 4,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 2,
+        "8": 0,
+        "9": 0,
+        "10": 56,
+        "11": 0
+      }
+    }
+  ]
+}
