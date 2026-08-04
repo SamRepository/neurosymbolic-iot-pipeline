@@ -1,0 +1,282 @@
+{
+  "_meta": {
+    "script": "evaluation/run_safety_metrics.py",
+    "commit": "eb6ed4c",
+    "generated": "2026-08-04T17:57:33",
+    "analysed_run": "evaluation/results_aruba/ablation_cv.json (commit f5c6cd3)",
+    "config": "config/casas_aruba.yaml",
+    "thresholds": {
+      "base": 0.7,
+      "raised": 0.75
+    },
+    "method": "Reuses the reconstruction validated in run_ablation_diagnostics.py, which reproduces the published per-fold AI-Only metrics to 1e-9.",
+    "definitions": {
+      "false_flag": "a FeedbackRequired flag (rules 8-11) on a correctly classified window",
+      "false_retraction": "a triple deletion (rule 8 path) affecting a correctly classified window",
+      "abstention_over_correction": "a correct prediction that stopped being answered when the feedback cycle raised the confidence gate",
+      "false_premise_alert": "an AAL alert (rules 5-7) raised on a window whose activity classification was wrong"
+    }
+  },
+  "summary": {
+    "headline_false_flag_rate": 0.3855,
+    "flagging_rules_8_11": {
+      "n_flags_total": 166,
+      "n_on_correct_predictions": 64,
+      "false_flag_rate_pooled": 0.3855,
+      "false_flag_rate_per_fold": [
+        0.4242,
+        0.5312,
+        0.25,
+        0.4444,
+        0.2143
+      ],
+      "false_flag_rate_mean_of_folds": 0.3728,
+      "by_rule": {
+        "10": {
+          "n_flags": 166,
+          "n_on_correct": 64,
+          "false_flag_rate": 0.3855,
+          "category": "feedback_trigger"
+        }
+      }
+    },
+    "retraction_rule_8": {
+      "n_retraction_eligible_flags_total": 0,
+      "triples_retracted_total": 0,
+      "status": "MECHANISM NEVER ACTIVATED"
+    },
+    "abstention": {
+      "n_active_at_base_gate_total": 1005,
+      "n_abstained_total": 100,
+      "n_abstained_that_were_correct": 65,
+      "over_correction_rate_within_abstained": 0.65,
+      "correct_predictions_dropped_as_pct_of_active_set": 0.0647
+    },
+    "aal_alerts_rules_5_7": {
+      "n_alerts_total": 24,
+      "n_on_misclassified_windows": 10,
+      "false_premise_rate_pooled": 0.4167,
+      "by_rule": {
+        "5": {
+          "n_alerts": 20,
+          "n_on_misclassified": 6,
+          "false_premise_rate": 0.3,
+          "category": "aal_anomaly"
+        },
+        "7": {
+          "n_alerts": 4,
+          "n_on_misclassified": 4,
+          "false_premise_rate": 1.0,
+          "category": "aal_anomaly"
+        }
+      }
+    }
+  },
+  "findings": {
+    "headline": "64 of 166 feedback flags (38.6 %) were raised on windows the network had classified correctly. This is the false-flag rate the manuscript should report beside the false-positive-reduction figure.",
+    "retraction": "No triples were retracted anywhere in the run. adapt_kg.retract_false_positives acts only on FalsePositiveHallucination flags, which only rule 8 emits, and rule 8 never fired on Aruba (0 eligible flags). The false-retraction rate is therefore undefined rather than zero, and the manuscript must not report it as evidence that retraction is safe: the mechanism was never exercised on this dataset.",
+    "abstention": "The over-correction that did occur is abstention. Raising the gate dropped 100 windows across the five folds, of which 65 (65.0 %) carried correct predictions. Those are valid behaviours the system silently stopped reporting - the closest analogue in this pipeline to the reviewer's 'valid atypical behaviour erroneously retracted', and the number that matters for an AAL deployment, since an unanswered window raises no alert at all.",
+    "aal_alerts": "Of 24 AAL alerts raised by rules 5-7, 10 (41.7 %) were raised on windows whose underlying activity classification was wrong, so the alert rests on a false premise. This is a lower bound on the alert false-alarm rate, not the rate itself.",
+    "measurement_ceiling": "CASAS Aruba provides activity labels, not anomaly labels. An alert raised on a correctly classified window therefore cannot be adjudicated as a true or false anomaly from the data - only alerts built on a misclassification can be identified with certainty. Any fuller safety claim needs a dataset with annotated anomalies or expert adjudication, and the manuscript should say so rather than implying the false-alarm rate is fully characterised."
+  },
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_predictions": 359,
+      "flagging_rules_8_11": {
+        "n_flags": 33,
+        "n_flags_on_correct_predictions": 14,
+        "false_flag_rate": 0.4242,
+        "by_rule": {
+          "10": {
+            "n_flags": 33,
+            "n_on_correct": 14,
+            "false_flag_rate": 0.4242
+          }
+        }
+      },
+      "retraction_rule_8": {
+        "n_retraction_eligible_flags": 0,
+        "n_eligible_on_correct_predictions": 0,
+        "false_retraction_rate": null,
+        "triples_retracted": 0
+      },
+      "abstention": {
+        "n_active_at_base_gate": 244,
+        "n_abstained_by_gate_rise": 17,
+        "n_abstained_that_were_correct": 12,
+        "over_correction_rate_within_abstained": 0.7059,
+        "correct_predictions_lost_as_pct_of_correct_at_base": 0.0574
+      },
+      "aal_alerts_rules_5_7": {
+        "n_alerts": 15,
+        "n_alerts_on_misclassified_windows": 6,
+        "false_premise_rate": 0.4,
+        "by_rule": {
+          "5": {
+            "n_alerts": 12,
+            "n_on_misclassified": 3,
+            "false_premise_rate": 0.25
+          },
+          "7": {
+            "n_alerts": 3,
+            "n_on_misclassified": 3,
+            "false_premise_rate": 1.0
+          }
+        }
+      }
+    },
+    {
+      "fold": 1,
+      "n_predictions": 359,
+      "flagging_rules_8_11": {
+        "n_flags": 32,
+        "n_flags_on_correct_predictions": 17,
+        "false_flag_rate": 0.5312,
+        "by_rule": {
+          "10": {
+            "n_flags": 32,
+            "n_on_correct": 17,
+            "false_flag_rate": 0.5312
+          }
+        }
+      },
+      "retraction_rule_8": {
+        "n_retraction_eligible_flags": 0,
+        "n_eligible_on_correct_predictions": 0,
+        "false_retraction_rate": null,
+        "triples_retracted": 0
+      },
+      "abstention": {
+        "n_active_at_base_gate": 156,
+        "n_abstained_by_gate_rise": 21,
+        "n_abstained_that_were_correct": 11,
+        "over_correction_rate_within_abstained": 0.5238,
+        "correct_predictions_lost_as_pct_of_correct_at_base": 0.0973
+      },
+      "aal_alerts_rules_5_7": {
+        "n_alerts": 8,
+        "n_alerts_on_misclassified_windows": 3,
+        "false_premise_rate": 0.375,
+        "by_rule": {
+          "5": {
+            "n_alerts": 8,
+            "n_on_misclassified": 3,
+            "false_premise_rate": 0.375
+          }
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "n_predictions": 358,
+      "flagging_rules_8_11": {
+        "n_flags": 28,
+        "n_flags_on_correct_predictions": 7,
+        "false_flag_rate": 0.25,
+        "by_rule": {
+          "10": {
+            "n_flags": 28,
+            "n_on_correct": 7,
+            "false_flag_rate": 0.25
+          }
+        }
+      },
+      "retraction_rule_8": {
+        "n_retraction_eligible_flags": 0,
+        "n_eligible_on_correct_predictions": 0,
+        "false_retraction_rate": null,
+        "triples_retracted": 0
+      },
+      "abstention": {
+        "n_active_at_base_gate": 215,
+        "n_abstained_by_gate_rise": 23,
+        "n_abstained_that_were_correct": 14,
+        "over_correction_rate_within_abstained": 0.6087,
+        "correct_predictions_lost_as_pct_of_correct_at_base": 0.0814
+      },
+      "aal_alerts_rules_5_7": {
+        "n_alerts": 0,
+        "n_alerts_on_misclassified_windows": 0,
+        "false_premise_rate": null,
+        "by_rule": {}
+      }
+    },
+    {
+      "fold": 3,
+      "n_predictions": 358,
+      "flagging_rules_8_11": {
+        "n_flags": 45,
+        "n_flags_on_correct_predictions": 20,
+        "false_flag_rate": 0.4444,
+        "by_rule": {
+          "10": {
+            "n_flags": 45,
+            "n_on_correct": 20,
+            "false_flag_rate": 0.4444
+          }
+        }
+      },
+      "retraction_rule_8": {
+        "n_retraction_eligible_flags": 0,
+        "n_eligible_on_correct_predictions": 0,
+        "false_retraction_rate": null,
+        "triples_retracted": 0
+      },
+      "abstention": {
+        "n_active_at_base_gate": 175,
+        "n_abstained_by_gate_rise": 23,
+        "n_abstained_that_were_correct": 18,
+        "over_correction_rate_within_abstained": 0.7826,
+        "correct_predictions_lost_as_pct_of_correct_at_base": 0.1139
+      },
+      "aal_alerts_rules_5_7": {
+        "n_alerts": 0,
+        "n_alerts_on_misclassified_windows": 0,
+        "false_premise_rate": null,
+        "by_rule": {}
+      }
+    },
+    {
+      "fold": 4,
+      "n_predictions": 358,
+      "flagging_rules_8_11": {
+        "n_flags": 28,
+        "n_flags_on_correct_predictions": 6,
+        "false_flag_rate": 0.2143,
+        "by_rule": {
+          "10": {
+            "n_flags": 28,
+            "n_on_correct": 6,
+            "false_flag_rate": 0.2143
+          }
+        }
+      },
+      "retraction_rule_8": {
+        "n_retraction_eligible_flags": 0,
+        "n_eligible_on_correct_predictions": 0,
+        "false_retraction_rate": null,
+        "triples_retracted": 0
+      },
+      "abstention": {
+        "n_active_at_base_gate": 215,
+        "n_abstained_by_gate_rise": 16,
+        "n_abstained_that_were_correct": 10,
+        "over_correction_rate_within_abstained": 0.625,
+        "correct_predictions_lost_as_pct_of_correct_at_base": 0.0549
+      },
+      "aal_alerts_rules_5_7": {
+        "n_alerts": 1,
+        "n_alerts_on_misclassified_windows": 1,
+        "false_premise_rate": 1.0,
+        "by_rule": {
+          "7": {
+            "n_alerts": 1,
+            "n_on_misclassified": 1,
+            "false_premise_rate": 1.0
+          }
+        }
+      }
+    }
+  ]
+}
