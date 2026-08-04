@@ -1,4 +1,16 @@
-"""Generate cross-dataset federated reasoning figure and LaTeX table."""
+"""Generate cross-dataset federated reasoning figure and LaTeX table.
+
+DEPRECATED (E8, 4 Aug 2026) — superseded by ``fig/generate_federation_figure7.py``.
+
+This script produced the *published* Figure 7 from the legacy 3-trial run and is
+retained for provenance only. It must not be used to regenerate the manuscript
+figure, because it plots the retired "+88 %" aggregate-lift annotation (E1 showed
+that figure was inflated by a double count) and renders panel (b) on a dual y-axis,
+which is the readability problem reviewer R2-5 reported.
+
+Its outputs are now written with a ``_legacy`` suffix so that running it cannot
+overwrite the current Figure 7.
+"""
 from __future__ import annotations
 
 import json
@@ -135,10 +147,12 @@ def main() -> int:
 
     out_dir = Path("fig")
     out_dir.mkdir(exist_ok=True)
-    fig.savefig(out_dir / "Figure_7_cross_dataset_federation.pdf", format="pdf", bbox_inches="tight", dpi=300)
-    fig.savefig(out_dir / "Figure_7_cross_dataset_federation.png", format="png", bbox_inches="tight", dpi=300)
-    print(f"Saved: {out_dir / 'Figure_7_cross_dataset_federation.pdf'}")
-    print(f"Saved: {out_dir / 'Figure_7_cross_dataset_federation.png'}")
+    print("WARNING: deprecated script — the manuscript Figure 7 is produced by "
+          "fig/generate_federation_figure7.py. Writing to *_legacy filenames instead.")
+    fig.savefig(out_dir / "Figure_7_cross_dataset_federation_legacy.pdf", format="pdf", bbox_inches="tight", dpi=300)
+    fig.savefig(out_dir / "Figure_7_cross_dataset_federation_legacy.png", format="png", bbox_inches="tight", dpi=300)
+    print(f"Saved: {out_dir / 'Figure_7_cross_dataset_federation_legacy.pdf'}")
+    print(f"Saved: {out_dir / 'Figure_7_cross_dataset_federation_legacy.png'}")
     plt.close(fig)
 
     # ---- LaTeX table ----
