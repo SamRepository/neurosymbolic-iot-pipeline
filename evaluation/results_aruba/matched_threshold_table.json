@@ -1,0 +1,525 @@
+{
+  "_meta": {
+    "script": "evaluation/run_ablation_diagnostics.py",
+    "commit": "778aae3",
+    "generated": "2026-08-04T17:17:51",
+    "analysed_run": "evaluation/results_aruba/ablation_cv.json (commit f5c6cd3)",
+    "config": "config/casas_aruba.yaml",
+    "method": "Derived from stored artifacts, not a re-run: predictions reconstructed from each fold's populated_kg.ttl, ground truth from a deterministic window/fold rebuild, rule outputs from reasoning_result.json. Validated by exact reproduction of the published AI-Only per-fold metrics (tolerance 1e-9).",
+    "rule_categories": {
+      "1": "sensor_grounding",
+      "2": "sensor_grounding",
+      "3": "validation",
+      "4": "validation",
+      "5": "aal_anomaly",
+      "6": "aal_anomaly",
+      "7": "aal_anomaly",
+      "8": "feedback_trigger",
+      "9": "feedback_trigger",
+      "10": "feedback_trigger",
+      "11": "feedback_trigger"
+    }
+  },
+  "explanation": "Because the symbolic layer changes zero labels (see ablation_diagnostics.json), AI-Only, NeSy-NoFeedback and NeSy-Full are numerically identical whenever they are scored at the same confidence threshold. The lift reported in the published Table 11 arises solely because NeSy-Full is scored at 0.75 while AI-Only is scored at 0.70. No re-run is required to establish this: the values below are derived from the same validated reconstruction that reproduces the published AI-Only numbers to 1e-9.",
+  "per_threshold": {
+    "0.70": {
+      "threshold": 0.7,
+      "configurations": {
+        "AI-Only": {
+          "F1_weighted": {
+            "mean": 0.833798,
+            "sd": 0.069844,
+            "ci95_half": 0.086708,
+            "n": 5,
+            "per_fold": [
+              0.867404,
+              0.722619,
+              0.813998,
+              0.903576,
+              0.861392
+            ]
+          },
+          "Correctness": {
+            "mean": 0.826057,
+            "sd": 0.06758,
+            "ci95_half": 0.083899,
+            "n": 5,
+            "per_fold": [
+              0.856557,
+              0.724359,
+              0.8,
+              0.902857,
+              0.846512
+            ]
+          },
+          "FP_rate": {
+            "mean": 0.173943,
+            "sd": 0.06758,
+            "ci95_half": 0.083899,
+            "n": 5,
+            "per_fold": [
+              0.143443,
+              0.275641,
+              0.2,
+              0.097143,
+              0.153488
+            ]
+          },
+          "n_active_per_fold": [
+            244,
+            156,
+            215,
+            175,
+            215
+          ],
+          "coverage": {
+            "mean": 0.56083,
+            "sd": 0.097995,
+            "ci95_half": 0.121658,
+            "n": 5,
+            "per_fold": [
+              0.679666,
+              0.43454,
+              0.600559,
+              0.488827,
+              0.600559
+            ]
+          }
+        },
+        "NeSy-NoFeedback": {
+          "F1_weighted": {
+            "mean": 0.833798,
+            "sd": 0.069844,
+            "ci95_half": 0.086708,
+            "n": 5,
+            "per_fold": [
+              0.867404,
+              0.722619,
+              0.813998,
+              0.903576,
+              0.861392
+            ]
+          },
+          "Correctness": {
+            "mean": 0.826057,
+            "sd": 0.06758,
+            "ci95_half": 0.083899,
+            "n": 5,
+            "per_fold": [
+              0.856557,
+              0.724359,
+              0.8,
+              0.902857,
+              0.846512
+            ]
+          },
+          "FP_rate": {
+            "mean": 0.173943,
+            "sd": 0.06758,
+            "ci95_half": 0.083899,
+            "n": 5,
+            "per_fold": [
+              0.143443,
+              0.275641,
+              0.2,
+              0.097143,
+              0.153488
+            ]
+          },
+          "n_active_per_fold": [
+            244,
+            156,
+            215,
+            175,
+            215
+          ],
+          "coverage": {
+            "mean": 0.56083,
+            "sd": 0.097995,
+            "ci95_half": 0.121658,
+            "n": 5,
+            "per_fold": [
+              0.679666,
+              0.43454,
+              0.600559,
+              0.488827,
+              0.600559
+            ]
+          }
+        },
+        "NeSy-Full": {
+          "F1_weighted": {
+            "mean": 0.833798,
+            "sd": 0.069844,
+            "ci95_half": 0.086708,
+            "n": 5,
+            "per_fold": [
+              0.867404,
+              0.722619,
+              0.813998,
+              0.903576,
+              0.861392
+            ]
+          },
+          "Correctness": {
+            "mean": 0.826057,
+            "sd": 0.06758,
+            "ci95_half": 0.083899,
+            "n": 5,
+            "per_fold": [
+              0.856557,
+              0.724359,
+              0.8,
+              0.902857,
+              0.846512
+            ]
+          },
+          "FP_rate": {
+            "mean": 0.173943,
+            "sd": 0.06758,
+            "ci95_half": 0.083899,
+            "n": 5,
+            "per_fold": [
+              0.143443,
+              0.275641,
+              0.2,
+              0.097143,
+              0.153488
+            ]
+          },
+          "n_active_per_fold": [
+            244,
+            156,
+            215,
+            175,
+            215
+          ],
+          "coverage": {
+            "mean": 0.56083,
+            "sd": 0.097995,
+            "ci95_half": 0.121658,
+            "n": 5,
+            "per_fold": [
+              0.679666,
+              0.43454,
+              0.600559,
+              0.488827,
+              0.600559
+            ]
+          }
+        }
+      },
+      "identical_across_the_three_configurations": true
+    },
+    "0.75": {
+      "threshold": 0.75,
+      "configurations": {
+        "AI-Only": {
+          "F1_weighted": {
+            "mean": 0.849926,
+            "sd": 0.063666,
+            "ci95_half": 0.079039,
+            "n": 5,
+            "per_fold": [
+              0.878348,
+              0.748405,
+              0.83396,
+              0.915411,
+              0.873505
+            ]
+          },
+          "Correctness": {
+            "mean": 0.846338,
+            "sd": 0.061559,
+            "ci95_half": 0.076423,
+            "n": 5,
+            "per_fold": [
+              0.867841,
+              0.755556,
+              0.822917,
+              0.921053,
+              0.864322
+            ]
+          },
+          "FP_rate": {
+            "mean": 0.153662,
+            "sd": 0.061559,
+            "ci95_half": 0.076423,
+            "n": 5,
+            "per_fold": [
+              0.132159,
+              0.244444,
+              0.177083,
+              0.078947,
+              0.135678
+            ]
+          },
+          "n_active_per_fold": [
+            227,
+            135,
+            192,
+            152,
+            199
+          ],
+          "coverage": {
+            "mean": 0.505023,
+            "sd": 0.103529,
+            "ci95_half": 0.128527,
+            "n": 5,
+            "per_fold": [
+              0.632312,
+              0.376045,
+              0.536313,
+              0.424581,
+              0.555866
+            ]
+          }
+        },
+        "NeSy-NoFeedback": {
+          "F1_weighted": {
+            "mean": 0.849926,
+            "sd": 0.063666,
+            "ci95_half": 0.079039,
+            "n": 5,
+            "per_fold": [
+              0.878348,
+              0.748405,
+              0.83396,
+              0.915411,
+              0.873505
+            ]
+          },
+          "Correctness": {
+            "mean": 0.846338,
+            "sd": 0.061559,
+            "ci95_half": 0.076423,
+            "n": 5,
+            "per_fold": [
+              0.867841,
+              0.755556,
+              0.822917,
+              0.921053,
+              0.864322
+            ]
+          },
+          "FP_rate": {
+            "mean": 0.153662,
+            "sd": 0.061559,
+            "ci95_half": 0.076423,
+            "n": 5,
+            "per_fold": [
+              0.132159,
+              0.244444,
+              0.177083,
+              0.078947,
+              0.135678
+            ]
+          },
+          "n_active_per_fold": [
+            227,
+            135,
+            192,
+            152,
+            199
+          ],
+          "coverage": {
+            "mean": 0.505023,
+            "sd": 0.103529,
+            "ci95_half": 0.128527,
+            "n": 5,
+            "per_fold": [
+              0.632312,
+              0.376045,
+              0.536313,
+              0.424581,
+              0.555866
+            ]
+          }
+        },
+        "NeSy-Full": {
+          "F1_weighted": {
+            "mean": 0.849926,
+            "sd": 0.063666,
+            "ci95_half": 0.079039,
+            "n": 5,
+            "per_fold": [
+              0.878348,
+              0.748405,
+              0.83396,
+              0.915411,
+              0.873505
+            ]
+          },
+          "Correctness": {
+            "mean": 0.846338,
+            "sd": 0.061559,
+            "ci95_half": 0.076423,
+            "n": 5,
+            "per_fold": [
+              0.867841,
+              0.755556,
+              0.822917,
+              0.921053,
+              0.864322
+            ]
+          },
+          "FP_rate": {
+            "mean": 0.153662,
+            "sd": 0.061559,
+            "ci95_half": 0.076423,
+            "n": 5,
+            "per_fold": [
+              0.132159,
+              0.244444,
+              0.177083,
+              0.078947,
+              0.135678
+            ]
+          },
+          "n_active_per_fold": [
+            227,
+            135,
+            192,
+            152,
+            199
+          ],
+          "coverage": {
+            "mean": 0.505023,
+            "sd": 0.103529,
+            "ci95_half": 0.128527,
+            "n": 5,
+            "per_fold": [
+              0.632312,
+              0.376045,
+              0.536313,
+              0.424581,
+              0.555866
+            ]
+          }
+        }
+      },
+      "identical_across_the_three_configurations": true
+    }
+  },
+  "KG+Rules": {
+    "F1_weighted": {
+      "mean": null,
+      "sd": null,
+      "ci95_half": null,
+      "n": 0
+    },
+    "Correctness": {
+      "mean": 0.0,
+      "sd": 0.0,
+      "ci95_half": 0.0,
+      "n": 3,
+      "per_fold": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "FP_rate": {
+      "mean": 1.0,
+      "sd": 0.0,
+      "ci95_half": 0.0,
+      "n": 3,
+      "per_fold": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "note": "Threshold-independent: _kg_only_metrics applies no confidence gate. F1 is undefined for the rule-only baseline (sparse ValidatedEvent subset); correctness is 0 in the folds where it is defined, on 1-21 events."
+  },
+  "matched_threshold_paired_tests": {
+    "F1_weighted__AI-Only_vs_NeSy-Full@0.70": {
+      "W": null,
+      "p_value": null,
+      "cohens_d": 0.0,
+      "n_paired": 5,
+      "mean_difference": 0.0,
+      "note": "All per-fold differences are exactly zero, so the Wilcoxon signed-rank statistic is undefined (no non-zero ranks to sum). The configurations are not merely statistically indistinguishable \u2014 they are numerically identical."
+    },
+    "F1_weighted__AI-Only_vs_NeSy-Full@0.75": {
+      "W": null,
+      "p_value": null,
+      "cohens_d": 0.0,
+      "n_paired": 5,
+      "mean_difference": 0.0,
+      "note": "All per-fold differences are exactly zero, so the Wilcoxon signed-rank statistic is undefined (no non-zero ranks to sum). The configurations are not merely statistically indistinguishable \u2014 they are numerically identical."
+    },
+    "note": "Contrast with the published test (W = 15, p = 0.0312, d = +2.48), which compares AI-Only at 0.70 against NeSy-Full at 0.75 \u2014 a threshold contrast, not an architecture contrast."
+  },
+  "adaptive_abstention_tradeoff": {
+    "description": "The defensible reading of the feedback loop's effect: it autonomously raises the confidence gate, trading coverage for accuracy on the windows it still answers. This is abstention, not label correction.",
+    "coverage@0.70": {
+      "mean": 0.56083,
+      "sd": 0.097995,
+      "ci95_half": 0.121658,
+      "n": 5,
+      "per_fold": [
+        0.679666,
+        0.43454,
+        0.600559,
+        0.488827,
+        0.600559
+      ]
+    },
+    "coverage@0.75": {
+      "mean": 0.505023,
+      "sd": 0.103529,
+      "ci95_half": 0.128527,
+      "n": 5,
+      "per_fold": [
+        0.632312,
+        0.376045,
+        0.536313,
+        0.424581,
+        0.555866
+      ]
+    },
+    "F1@0.70": {
+      "mean": 0.833798,
+      "sd": 0.069844,
+      "ci95_half": 0.086708,
+      "n": 5,
+      "per_fold": [
+        0.867404,
+        0.722619,
+        0.813998,
+        0.903576,
+        0.861392
+      ]
+    },
+    "F1@0.75": {
+      "mean": 0.849926,
+      "sd": 0.063666,
+      "ci95_half": 0.079039,
+      "n": 5,
+      "per_fold": [
+        0.878348,
+        0.748405,
+        0.83396,
+        0.915411,
+        0.873505
+      ]
+    },
+    "mean_coverage_drop_pp": 5.58,
+    "mean_F1_gain_pp": 1.61,
+    "windows_abstained_per_fold": [
+      17,
+      21,
+      23,
+      23,
+      16
+    ],
+    "n_predictions_per_fold": [
+      359,
+      359,
+      358,
+      358,
+      358
+    ]
+  }
+}

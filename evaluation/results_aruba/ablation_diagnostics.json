@@ -1,8 +1,8 @@
 {
   "_meta": {
     "script": "evaluation/run_ablation_diagnostics.py",
-    "commit": "0af4e0c",
-    "generated": "2026-08-04T16:52:44",
+    "commit": "778aae3",
+    "generated": "2026-08-04T17:17:51",
     "analysed_run": "evaluation/results_aruba/ablation_cv.json (commit f5c6cd3)",
     "config": "config/casas_aruba.yaml",
     "method": "Derived from stored artifacts, not a re-run: predictions reconstructed from each fold's populated_kg.ttl, ground truth from a deterministic window/fold rebuild, rule outputs from reasoning_result.json. Validated by exact reproduction of the published AI-Only per-fold metrics (tolerance 1e-9).",

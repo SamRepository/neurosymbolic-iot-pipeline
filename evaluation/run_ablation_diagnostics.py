@@ -380,6 +380,237 @@ def _same_metrics(a: Dict[str, Any], b: Dict[str, Any], tol: float = 1e-9) -> bo
     ) and a["n_active"] == b["n_active"]
 
 
+# ---------------------------------------------------------------------------
+# Matched-threshold table (rebuttal artifact for R1-5 / R1-7)
+# ---------------------------------------------------------------------------
+
+def _agg_with_ci(values: List[Optional[float]]) -> Dict[str, Any]:
+    """Mean, sd and 95 % CI half-width using the n=5 Student-t the paper uses."""
+    vals = [float(v) for v in values if v is not None]
+    if not vals:
+        return {"mean": None, "sd": None, "ci95_half": None, "n": 0}
+    mean = float(np.mean(vals))
+    sd = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
+    t_crit = 2.776  # df = 4
+    return {
+        "mean": round(mean, 6),
+        "sd": round(sd, 6),
+        "ci95_half": round(t_crit * sd / float(np.sqrt(len(vals))), 6) if len(vals) > 1 else 0.0,
+        "n": len(vals),
+        "per_fold": [round(v, 6) for v in vals],
+    }
+
+
+def _paired_test(baseline: List[float], target: List[float]) -> Dict[str, Any]:
+    """One-sided paired Wilcoxon (target > baseline), reported honestly when degenerate."""
+    from scipy.stats import wilcoxon
+
+    diffs = [t - b for b, t in zip(baseline, target)]
+    if all(abs(d) < 1e-12 for d in diffs):
+        return {
+            "W": None, "p_value": None, "cohens_d": 0.0,
+            "n_paired": len(diffs),
+            "mean_difference": 0.0,
+            "note": (
+                "All per-fold differences are exactly zero, so the Wilcoxon signed-rank "
+                "statistic is undefined (no non-zero ranks to sum). The configurations are "
+                "not merely statistically indistinguishable — they are numerically identical."
+            ),
+        }
+    arr_b = np.asarray(baseline, dtype=float)
+    arr_t = np.asarray(target, dtype=float)
+    d_arr = arr_t - arr_b
+    sd = float(np.std(d_arr, ddof=1)) if len(d_arr) > 1 else 0.0
+    try:
+        stat = wilcoxon(arr_t, arr_b, alternative="greater", zero_method="wilcox")
+        W: Optional[float] = float(stat.statistic)
+        p: Optional[float] = float(stat.pvalue)
+    except ValueError as exc:
+        W, p = None, None
+        log.warning("Wilcoxon undefined: %s", exc)
+    return {
+        "W": W,
+        "p_value": round(p, 6) if p is not None else None,
+        "cohens_d": round(float(np.mean(d_arr) / sd), 4) if sd > 0 else 0.0,
+        "n_paired": len(d_arr),
+        "mean_difference": round(float(np.mean(d_arr)), 6),
+    }
+
+
+def build_matched_threshold_table(
+    fold_results: List[Dict[str, Any]],
+    stored: Dict[str, Any],
+    base_threshold: float,
+    raised_threshold: float,
+) -> Dict[str, Any]:
+    """Every configuration scored at each threshold, so the reader sees one evaluation set.
+
+    This is the artifact that answers R1-5 without a re-run: because the symbolic
+    layer changes no labels, the matched-threshold comparison is fully determined
+    by the validated reconstruction.
+    """
+    n_pred = [fr["n_predictions"] for fr in fold_results]
+
+    def _cfg_at(key: str, metric: str) -> List[Optional[float]]:
+        return [fr["configs"][key][metric] for fr in fold_results]
+
+    def _coverage(key: str) -> List[float]:
+        return [
+            fr["configs"][key]["n_active"] / fr["n_predictions"] for fr in fold_results
+        ]
+
+    # At a matched threshold the three neural-containing configurations coincide,
+    # because no rule rewrites a label and every flag sits below either gate.
+    per_threshold: Dict[str, Any] = {}
+    for thr_label, cfg_key, thr_value in (
+        ("0.70", "AI-Only@base", base_threshold),
+        ("0.75", "AI-Only@raised", raised_threshold),
+    ):
+        per_threshold[thr_label] = {
+            "threshold": thr_value,
+            "configurations": {
+                name: {
+                    "F1_weighted": _agg_with_ci(_cfg_at(cfg_key, "F1_weighted")),
+                    "Correctness": _agg_with_ci(_cfg_at(cfg_key, "Correctness")),
+                    "FP_rate": _agg_with_ci(_cfg_at(cfg_key, "FP_rate")),
+                    "n_active_per_fold": [fr["configs"][cfg_key]["n_active"] for fr in fold_results],
+                    "coverage": _agg_with_ci(_coverage(cfg_key)),
+                }
+                for name in ("AI-Only", "NeSy-NoFeedback", "NeSy-Full")
+            },
+            "identical_across_the_three_configurations": True,
+        }
+
+    # KG+Rules carries through from the published run: _kg_only_metrics takes no
+    # confidence threshold, so it is threshold-independent by construction.
+    kg_rules = {
+        m: _agg_with_ci([
+            stored["fold_records"][fr["fold"]]["KG+Rules"].get(m) for fr in fold_results
+        ])
+        for m in ("F1_weighted", "Correctness", "FP_rate")
+    }
+
+    f1_base = [float(v) for v in _cfg_at("AI-Only@base", "F1_weighted")]
+    f1_raised = [float(v) for v in _cfg_at("AI-Only@raised", "F1_weighted")]
+    cov_base = _coverage("AI-Only@base")
+    cov_raised = _coverage("AI-Only@raised")
+
+    return {
+        "explanation": (
+            "Because the symbolic layer changes zero labels (see ablation_diagnostics.json), "
+            "AI-Only, NeSy-NoFeedback and NeSy-Full are numerically identical whenever they are "
+            "scored at the same confidence threshold. The lift reported in the published Table 11 "
+            "arises solely because NeSy-Full is scored at 0.75 while AI-Only is scored at 0.70. "
+            "No re-run is required to establish this: the values below are derived from the same "
+            "validated reconstruction that reproduces the published AI-Only numbers to 1e-9."
+        ),
+        "per_threshold": per_threshold,
+        "KG+Rules": {
+            **kg_rules,
+            "note": (
+                "Threshold-independent: _kg_only_metrics applies no confidence gate. "
+                "F1 is undefined for the rule-only baseline (sparse ValidatedEvent subset); "
+                "correctness is 0 in the folds where it is defined, on 1-21 events."
+            ),
+        },
+        "matched_threshold_paired_tests": {
+            "F1_weighted__AI-Only_vs_NeSy-Full@0.70": _paired_test(f1_base, f1_base),
+            "F1_weighted__AI-Only_vs_NeSy-Full@0.75": _paired_test(f1_raised, f1_raised),
+            "note": (
+                "Contrast with the published test (W = 15, p = 0.0312, d = +2.48), which compares "
+                "AI-Only at 0.70 against NeSy-Full at 0.75 — a threshold contrast, not an "
+                "architecture contrast."
+            ),
+        },
+        "adaptive_abstention_tradeoff": {
+            "description": (
+                "The defensible reading of the feedback loop's effect: it autonomously raises the "
+                "confidence gate, trading coverage for accuracy on the windows it still answers. "
+                "This is abstention, not label correction."
+            ),
+            "coverage@0.70": _agg_with_ci(cov_base),
+            "coverage@0.75": _agg_with_ci(cov_raised),
+            "F1@0.70": _agg_with_ci(f1_base),
+            "F1@0.75": _agg_with_ci(f1_raised),
+            "mean_coverage_drop_pp": round(
+                100.0 * (float(np.mean(cov_base)) - float(np.mean(cov_raised))), 2
+            ),
+            "mean_F1_gain_pp": round(
+                100.0 * (float(np.mean(f1_raised)) - float(np.mean(f1_base))), 2
+            ),
+            "windows_abstained_per_fold": [
+                fr["configs"]["AI-Only@base"]["n_active"] - fr["configs"]["AI-Only@raised"]["n_active"]
+                for fr in fold_results
+            ],
+            "n_predictions_per_fold": n_pred,
+        },
+    }
+
+
+def render_matched_threshold_markdown(table: Dict[str, Any]) -> str:
+    """Markdown the paper session can convert to LaTeX for the response letter."""
+    lines: List[str] = []
+    lines.append("# Matched-threshold ablation table (E2 rebuttal artifact)")
+    lines.append("")
+    lines.append("Derived from the published Aruba run (commit `f5c6cd3`) via a reconstruction that")
+    lines.append("reproduces its per-fold AI-Only metrics to 1e-9. **No re-run was required.**")
+    lines.append("")
+    lines.append(table["explanation"])
+    lines.append("")
+    for thr_label in ("0.70", "0.75"):
+        block = table["per_threshold"][thr_label]
+        lines.append(f"## All configurations scored at confidence threshold {thr_label}")
+        lines.append("")
+        lines.append("| Configuration | F1-w (%) | Correctness (%) | FP (%) | Coverage (%) |")
+        lines.append("|---|---|---|---|---|")
+        for name, vals in block["configurations"].items():
+            f1 = vals["F1_weighted"]
+            co = vals["Correctness"]
+            fp = vals["FP_rate"]
+            cv = vals["coverage"]
+            lines.append(
+                f"| {name} | {f1['mean']*100:.1f} ± {f1['sd']*100:.1f} "
+                f"| {co['mean']*100:.1f} ± {co['sd']*100:.1f} "
+                f"| {fp['mean']*100:.1f} ± {fp['sd']*100:.1f} "
+                f"| {cv['mean']*100:.1f} |"
+            )
+        kg = table["KG+Rules"]
+        kg_corr = kg["Correctness"]["mean"]
+        lines.append(
+            f"| KG+Rules † | N/A | {'N/A' if kg_corr is None else f'{kg_corr*100:.1f}'} "
+            f"| — | — |"
+        )
+        lines.append("")
+        lines.append("*The three neural-containing configurations are numerically identical at a")
+        lines.append("matched threshold — the symbolic layer changes no labels.*")
+        lines.append("")
+        lines.append("† KG+Rules is threshold-independent (it applies no confidence gate). Its")
+        lines.append("correctness is defined in only 3 of 5 folds and rests on 1–21 rule-asserted")
+        lines.append("events; the 0.0 is that degenerate measurement, not a 0 % accuracy result on")
+        lines.append("a full evaluation set. Coverage is not comparable for a rule-only baseline.")
+        lines.append("")
+        lines.append("**Coverage is not 100 %.** Both thresholds answer only part of the held-out")
+        lines.append("set — the published F1 figures describe the answered subset, and the")
+        lines.append("manuscript should say so alongside them.")
+        lines.append("")
+
+    tr = table["adaptive_abstention_tradeoff"]
+    lines.append("## What the feedback loop actually does: adaptive abstention")
+    lines.append("")
+    lines.append("| Gate | Coverage (%) | F1-w (%) |")
+    lines.append("|---|---|---|")
+    lines.append(f"| 0.70 (before feedback) | {tr['coverage@0.70']['mean']*100:.1f} | {tr['F1@0.70']['mean']*100:.1f} |")
+    lines.append(f"| 0.75 (after one cycle) | {tr['coverage@0.75']['mean']*100:.1f} | {tr['F1@0.75']['mean']*100:.1f} |")
+    lines.append("")
+    lines.append(
+        f"The loop abstains on {tr['mean_coverage_drop_pp']:.1f} pp more windows "
+        f"(per-fold: {tr['windows_abstained_per_fold']}) and gains "
+        f"{tr['mean_F1_gain_pp']:.1f} pp F1 on those it still answers."
+    )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def validate_against_stored(fold_results: List[Dict[str, Any]], stored: Dict[str, Any]) -> None:
     """Abort unless the reconstruction reproduces the published AI-Only numbers."""
     problems: List[str] = []
@@ -586,6 +817,16 @@ def main() -> int:
     }
     out_path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
 
+    # ----- matched-threshold rebuttal artifact -----
+    matched = build_matched_threshold_table(
+        fold_results, stored, args.base_threshold, args.raised_threshold
+    )
+    matched_payload = {"_meta": payload["_meta"], **matched}
+    matched_path = results_dir / "matched_threshold_table.json"
+    matched_path.write_text(json.dumps(matched_payload, indent=2, default=str), encoding="utf-8")
+    matched_md_path = results_dir / "matched_threshold_table.md"
+    matched_md_path.write_text(render_matched_threshold_markdown(matched), encoding="utf-8")
+
     # ----- console summary -----
     print()
     print("=" * 88)
@@ -612,7 +853,17 @@ def main() -> int:
           f" top-2 correct {cf['top2_correct']}/{cf['n_flagged']}")
     print("=" * 88)
 
-    log.info("Wrote %s", out_path)
+    tr = matched["adaptive_abstention_tradeoff"]
+    print()
+    print("  MATCHED-THRESHOLD TABLE (rebuttal artifact — no re-run needed)")
+    print(f"    All three neural configs identical at 0.70 : F1 {matched['per_threshold']['0.70']['configurations']['AI-Only']['F1_weighted']['mean']:.4f}")
+    print(f"    All three neural configs identical at 0.75 : F1 {matched['per_threshold']['0.75']['configurations']['AI-Only']['F1_weighted']['mean']:.4f}")
+    print(f"    Adaptive abstention: coverage {tr['coverage@0.70']['mean']*100:.1f}% -> {tr['coverage@0.75']['mean']*100:.1f}%"
+          f"  (-{tr['mean_coverage_drop_pp']:.1f} pp) for +{tr['mean_F1_gain_pp']:.1f} pp F1")
+    print(f"    Windows abstained per fold                 : {tr['windows_abstained_per_fold']}")
+    print("=" * 88)
+
+    log.info("Wrote %s, %s, %s", out_path, matched_path, matched_md_path)
     return 0
 
 
