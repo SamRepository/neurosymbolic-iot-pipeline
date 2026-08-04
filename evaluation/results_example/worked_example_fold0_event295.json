@@ -1,0 +1,2223 @@
+{
+  "_meta": {
+    "script": "evaluation/run_worked_example.py",
+    "commit": "ed87de7",
+    "generated": "2026-08-04T20:02:19",
+    "source_run": "evaluation/results_aruba (commit f5c6cd3)",
+    "config": "config/casas_aruba.yaml",
+    "fold": 0,
+    "event_index": 295,
+    "event_uri": "nsiot:event_295",
+    "max_events_shown": 25,
+    "max_triples_shown": 30,
+    "attribution_method": "Each rule body is executed against the stored graph and counted as fired only if it yields a triple whose subject is this event. Reading the event's type assertions instead would not separate rules sharing a consequent (3 and 4 both assert ValidatedEvent) and would not be re-derivable by a reader."
+  },
+  "stage_1_raw_sensor_events": {
+    "window_start": "2012-09-09T09:08:54.512364+00:00",
+    "window_end": "2012-09-09T09:38:54.512364+00:00",
+    "ground_truth_label": "MealPreparation",
+    "n_events": 256,
+    "events": [
+      {
+        "offset_seconds": 16.9,
+        "timestamp": "2012-09-09T09:09:11.414906+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 18.1,
+        "timestamp": "2012-09-09T09:09:12.582698+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 18.8,
+        "timestamp": "2012-09-09T09:09:13.295204+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 20.9,
+        "timestamp": "2012-09-09T09:09:15.393094+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 25.2,
+        "timestamp": "2012-09-09T09:09:19.701751+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 28.2,
+        "timestamp": "2012-09-09T09:09:22.750366+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 29.3,
+        "timestamp": "2012-09-09T09:09:23.855713+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 29.8,
+        "timestamp": "2012-09-09T09:09:24.359506+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 30.1,
+        "timestamp": "2012-09-09T09:09:24.623303+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 31.0,
+        "timestamp": "2012-09-09T09:09:25.551571+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 31.9,
+        "timestamp": "2012-09-09T09:09:26.431865+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 32.7,
+        "timestamp": "2012-09-09T09:09:27.169468+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 32.9,
+        "timestamp": "2012-09-09T09:09:27.368920+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 34.1,
+        "timestamp": "2012-09-09T09:09:28.578943+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 35.3,
+        "timestamp": "2012-09-09T09:09:29.816606+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 35.7,
+        "timestamp": "2012-09-09T09:09:30.243575+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 36.1,
+        "timestamp": "2012-09-09T09:09:30.585611+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 36.2,
+        "timestamp": "2012-09-09T09:09:30.662922+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 36.8,
+        "timestamp": "2012-09-09T09:09:31.351722+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 37.4,
+        "timestamp": "2012-09-09T09:09:31.930615+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 38.5,
+        "timestamp": "2012-09-09T09:09:33.055765+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 38.9,
+        "timestamp": "2012-09-09T09:09:33.369907+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 40.7,
+        "timestamp": "2012-09-09T09:09:35.222467+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 44.3,
+        "timestamp": "2012-09-09T09:09:38.776682+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 46.2,
+        "timestamp": "2012-09-09T09:09:40.665307+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 48.4,
+        "timestamp": "2012-09-09T09:09:42.940737+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 49.6,
+        "timestamp": "2012-09-09T09:09:44.093230+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 53.0,
+        "timestamp": "2012-09-09T09:09:47.471026+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 53.8,
+        "timestamp": "2012-09-09T09:09:48.277473+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 53.9,
+        "timestamp": "2012-09-09T09:09:48.393216+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 54.8,
+        "timestamp": "2012-09-09T09:09:49.303895+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 58.4,
+        "timestamp": "2012-09-09T09:09:52.907936+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 58.9,
+        "timestamp": "2012-09-09T09:09:53.450390+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 59.7,
+        "timestamp": "2012-09-09T09:09:54.222290+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 61.2,
+        "timestamp": "2012-09-09T09:09:55.669985+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 62.3,
+        "timestamp": "2012-09-09T09:09:56.820591+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 63.7,
+        "timestamp": "2012-09-09T09:09:58.184155+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 66.3,
+        "timestamp": "2012-09-09T09:10:00.773275+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 78.6,
+        "timestamp": "2012-09-09T09:10:13.146524+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 79.7,
+        "timestamp": "2012-09-09T09:10:14.233869+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 100.6,
+        "timestamp": "2012-09-09T09:10:35.068334+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 101.7,
+        "timestamp": "2012-09-09T09:10:36.172902+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 102.2,
+        "timestamp": "2012-09-09T09:10:36.743002+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 103.4,
+        "timestamp": "2012-09-09T09:10:37.923126+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 146.3,
+        "timestamp": "2012-09-09T09:11:20.774317+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 148.5,
+        "timestamp": "2012-09-09T09:11:23.005628+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 177.8,
+        "timestamp": "2012-09-09T09:11:52.326843+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 178.9,
+        "timestamp": "2012-09-09T09:11:53.434056+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 179.7,
+        "timestamp": "2012-09-09T09:11:54.186236+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 180.8,
+        "timestamp": "2012-09-09T09:11:55.335398+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 184.9,
+        "timestamp": "2012-09-09T09:11:59.401842+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 187.5,
+        "timestamp": "2012-09-09T09:12:02.016896+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 189.2,
+        "timestamp": "2012-09-09T09:12:03.751898+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 190.1,
+        "timestamp": "2012-09-09T09:12:04.569110+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 193.8,
+        "timestamp": "2012-09-09T09:12:08.294371+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 194.9,
+        "timestamp": "2012-09-09T09:12:09.404840+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 199.4,
+        "timestamp": "2012-09-09T09:12:13.952927+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 199.9,
+        "timestamp": "2012-09-09T09:12:14.395888+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 202.6,
+        "timestamp": "2012-09-09T09:12:17.105224+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 205.1,
+        "timestamp": "2012-09-09T09:12:19.655532+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 206.9,
+        "timestamp": "2012-09-09T09:12:21.445209+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 208.1,
+        "timestamp": "2012-09-09T09:12:22.600476+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 210.8,
+        "timestamp": "2012-09-09T09:12:25.275522+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 211.3,
+        "timestamp": "2012-09-09T09:12:25.815293+00:00",
+        "token": "OutsideDoor:ON",
+        "sensor_id": "OutsideDoor",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 211.6,
+        "timestamp": "2012-09-09T09:12:26.086444+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 212.4,
+        "timestamp": "2012-09-09T09:12:26.949166+00:00",
+        "token": "OutsideDoor:OFF",
+        "sensor_id": "OutsideDoor",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 216.1,
+        "timestamp": "2012-09-09T09:12:30.642928+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 222.1,
+        "timestamp": "2012-09-09T09:12:36.572503+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 223.2,
+        "timestamp": "2012-09-09T09:12:37.705029+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 235.2,
+        "timestamp": "2012-09-09T09:12:49.682539+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 236.5,
+        "timestamp": "2012-09-09T09:12:50.994566+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 238.2,
+        "timestamp": "2012-09-09T09:12:52.709590+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 241.5,
+        "timestamp": "2012-09-09T09:12:56.034999+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 244.0,
+        "timestamp": "2012-09-09T09:12:58.538822+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 313.2,
+        "timestamp": "2012-09-09T09:14:07.685302+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 314.3,
+        "timestamp": "2012-09-09T09:14:08.820336+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 314.9,
+        "timestamp": "2012-09-09T09:14:09.375186+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 316.0,
+        "timestamp": "2012-09-09T09:14:10.480364+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 319.2,
+        "timestamp": "2012-09-09T09:14:13.717508+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 321.4,
+        "timestamp": "2012-09-09T09:14:15.945520+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 332.3,
+        "timestamp": "2012-09-09T09:14:26.802728+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 333.4,
+        "timestamp": "2012-09-09T09:14:27.946353+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 343.9,
+        "timestamp": "2012-09-09T09:14:38.447325+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 345.0,
+        "timestamp": "2012-09-09T09:14:39.555436+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 348.4,
+        "timestamp": "2012-09-09T09:14:42.950127+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 349.6,
+        "timestamp": "2012-09-09T09:14:44.083761+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 351.5,
+        "timestamp": "2012-09-09T09:14:45.968670+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 352.5,
+        "timestamp": "2012-09-09T09:14:47.058238+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 383.1,
+        "timestamp": "2012-09-09T09:15:17.634773+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 384.2,
+        "timestamp": "2012-09-09T09:15:18.757174+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 397.4,
+        "timestamp": "2012-09-09T09:15:31.943486+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 398.5,
+        "timestamp": "2012-09-09T09:15:32.969674+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 400.3,
+        "timestamp": "2012-09-09T09:15:34.861260+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 403.3,
+        "timestamp": "2012-09-09T09:15:37.851665+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 406.4,
+        "timestamp": "2012-09-09T09:15:40.865255+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 407.5,
+        "timestamp": "2012-09-09T09:15:41.979739+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 412.5,
+        "timestamp": "2012-09-09T09:15:47.043971+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 413.7,
+        "timestamp": "2012-09-09T09:15:48.208093+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 419.5,
+        "timestamp": "2012-09-09T09:15:54.013829+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 420.6,
+        "timestamp": "2012-09-09T09:15:55.115194+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 442.4,
+        "timestamp": "2012-09-09T09:16:16.866160+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 443.5,
+        "timestamp": "2012-09-09T09:16:17.990850+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 449.8,
+        "timestamp": "2012-09-09T09:16:24.339637+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 451.0,
+        "timestamp": "2012-09-09T09:16:25.469024+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 457.0,
+        "timestamp": "2012-09-09T09:16:31.515676+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 458.1,
+        "timestamp": "2012-09-09T09:16:32.624332+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 471.0,
+        "timestamp": "2012-09-09T09:16:45.548865+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 472.2,
+        "timestamp": "2012-09-09T09:16:46.698536+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 475.6,
+        "timestamp": "2012-09-09T09:16:50.070993+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 476.7,
+        "timestamp": "2012-09-09T09:16:51.168443+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 477.3,
+        "timestamp": "2012-09-09T09:16:51.768597+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 478.4,
+        "timestamp": "2012-09-09T09:16:52.874877+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 490.7,
+        "timestamp": "2012-09-09T09:17:05.235696+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 491.8,
+        "timestamp": "2012-09-09T09:17:06.345915+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 493.9,
+        "timestamp": "2012-09-09T09:17:08.458062+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 495.0,
+        "timestamp": "2012-09-09T09:17:09.527185+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 495.6,
+        "timestamp": "2012-09-09T09:17:10.088050+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 501.4,
+        "timestamp": "2012-09-09T09:17:15.947337+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 502.3,
+        "timestamp": "2012-09-09T09:17:16.853746+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 503.5,
+        "timestamp": "2012-09-09T09:17:17.981747+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 504.0,
+        "timestamp": "2012-09-09T09:17:18.504476+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 506.3,
+        "timestamp": "2012-09-09T09:17:20.815034+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 527.9,
+        "timestamp": "2012-09-09T09:17:42.392605+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 530.1,
+        "timestamp": "2012-09-09T09:17:44.621207+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 532.3,
+        "timestamp": "2012-09-09T09:17:46.849921+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 533.5,
+        "timestamp": "2012-09-09T09:17:48.000662+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 549.4,
+        "timestamp": "2012-09-09T09:18:03.896921+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 551.5,
+        "timestamp": "2012-09-09T09:18:05.971789+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 575.3,
+        "timestamp": "2012-09-09T09:18:29.816690+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 576.4,
+        "timestamp": "2012-09-09T09:18:30.939761+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 654.1,
+        "timestamp": "2012-09-09T09:19:48.593445+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 655.2,
+        "timestamp": "2012-09-09T09:19:49.678211+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 663.2,
+        "timestamp": "2012-09-09T09:19:57.756883+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 665.2,
+        "timestamp": "2012-09-09T09:19:59.756917+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 674.3,
+        "timestamp": "2012-09-09T09:20:08.795237+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 676.5,
+        "timestamp": "2012-09-09T09:20:11.061346+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 684.0,
+        "timestamp": "2012-09-09T09:20:18.522191+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 685.2,
+        "timestamp": "2012-09-09T09:20:19.669757+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 706.7,
+        "timestamp": "2012-09-09T09:20:41.201275+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 707.9,
+        "timestamp": "2012-09-09T09:20:42.378367+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 718.3,
+        "timestamp": "2012-09-09T09:20:52.856593+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 719.5,
+        "timestamp": "2012-09-09T09:20:53.970516+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 730.9,
+        "timestamp": "2012-09-09T09:21:05.423158+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 732.0,
+        "timestamp": "2012-09-09T09:21:06.511547+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 747.0,
+        "timestamp": "2012-09-09T09:21:21.535248+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 748.2,
+        "timestamp": "2012-09-09T09:21:22.663499+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 763.4,
+        "timestamp": "2012-09-09T09:21:37.869724+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 766.7,
+        "timestamp": "2012-09-09T09:21:41.235047+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 779.1,
+        "timestamp": "2012-09-09T09:21:53.584919+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 780.2,
+        "timestamp": "2012-09-09T09:21:54.732656+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 780.8,
+        "timestamp": "2012-09-09T09:21:55.265884+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 781.9,
+        "timestamp": "2012-09-09T09:21:56.401480+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 782.4,
+        "timestamp": "2012-09-09T09:21:56.953259+00:00",
+        "token": "Bathroom:ON",
+        "sensor_id": "Bathroom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 786.9,
+        "timestamp": "2012-09-09T09:22:01.440767+00:00",
+        "token": "Bathroom:OFF",
+        "sensor_id": "Bathroom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 789.2,
+        "timestamp": "2012-09-09T09:22:03.690968+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 790.1,
+        "timestamp": "2012-09-09T09:22:04.652128+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 790.2,
+        "timestamp": "2012-09-09T09:22:04.761523+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 790.8,
+        "timestamp": "2012-09-09T09:22:05.299550+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 793.2,
+        "timestamp": "2012-09-09T09:22:07.677483+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 793.7,
+        "timestamp": "2012-09-09T09:22:08.226328+00:00",
+        "token": "LivingRoom:ON",
+        "sensor_id": "LivingRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 797.4,
+        "timestamp": "2012-09-09T09:22:11.883251+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 798.0,
+        "timestamp": "2012-09-09T09:22:12.475125+00:00",
+        "token": "LivingRoom:OFF",
+        "sensor_id": "LivingRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 800.6,
+        "timestamp": "2012-09-09T09:22:15.065699+00:00",
+        "token": "DiningRoom:ON",
+        "sensor_id": "DiningRoom",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 801.9,
+        "timestamp": "2012-09-09T09:22:16.454026+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 802.8,
+        "timestamp": "2012-09-09T09:22:17.337461+00:00",
+        "token": "DiningRoom:OFF",
+        "sensor_id": "DiningRoom",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 804.0,
+        "timestamp": "2012-09-09T09:22:18.498116+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 804.7,
+        "timestamp": "2012-09-09T09:22:19.249946+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 806.6,
+        "timestamp": "2012-09-09T09:22:21.122197+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 812.4,
+        "timestamp": "2012-09-09T09:22:26.940165+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 813.6,
+        "timestamp": "2012-09-09T09:22:28.070064+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 815.5,
+        "timestamp": "2012-09-09T09:22:29.982162+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 815.5,
+        "timestamp": "2012-09-09T09:22:30.057119+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 816.3,
+        "timestamp": "2012-09-09T09:22:30.767537+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 816.4,
+        "timestamp": "2012-09-09T09:22:30.935221+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 819.5,
+        "timestamp": "2012-09-09T09:22:34.055133+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 819.8,
+        "timestamp": "2012-09-09T09:22:34.297939+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 821.6,
+        "timestamp": "2012-09-09T09:22:36.113774+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 822.5,
+        "timestamp": "2012-09-09T09:22:37.031048+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 823.1,
+        "timestamp": "2012-09-09T09:22:37.579595+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 824.3,
+        "timestamp": "2012-09-09T09:22:38.822223+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 825.4,
+        "timestamp": "2012-09-09T09:22:39.934778+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 825.9,
+        "timestamp": "2012-09-09T09:22:40.431774+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 829.1,
+        "timestamp": "2012-09-09T09:22:43.603397+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 829.7,
+        "timestamp": "2012-09-09T09:22:44.175801+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 830.9,
+        "timestamp": "2012-09-09T09:22:45.411132+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 831.6,
+        "timestamp": "2012-09-09T09:22:46.121953+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 834.9,
+        "timestamp": "2012-09-09T09:22:49.448811+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 836.0,
+        "timestamp": "2012-09-09T09:22:50.557900+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 837.0,
+        "timestamp": "2012-09-09T09:22:51.475438+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 837.1,
+        "timestamp": "2012-09-09T09:22:51.581089+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 838.3,
+        "timestamp": "2012-09-09T09:22:52.770203+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 838.7,
+        "timestamp": "2012-09-09T09:22:53.245898+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 840.2,
+        "timestamp": "2012-09-09T09:22:54.671496+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 840.7,
+        "timestamp": "2012-09-09T09:22:55.202134+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 841.5,
+        "timestamp": "2012-09-09T09:22:56.031390+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 841.8,
+        "timestamp": "2012-09-09T09:22:56.361288+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 842.8,
+        "timestamp": "2012-09-09T09:22:57.268543+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 842.9,
+        "timestamp": "2012-09-09T09:22:57.452964+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 870.3,
+        "timestamp": "2012-09-09T09:23:24.776754+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 870.4,
+        "timestamp": "2012-09-09T09:23:24.893981+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 871.9,
+        "timestamp": "2012-09-09T09:23:26.381497+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 873.0,
+        "timestamp": "2012-09-09T09:23:27.505737+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 876.7,
+        "timestamp": "2012-09-09T09:23:31.203715+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 877.0,
+        "timestamp": "2012-09-09T09:23:31.481273+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 877.7,
+        "timestamp": "2012-09-09T09:23:32.203180+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 879.7,
+        "timestamp": "2012-09-09T09:23:34.205028+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 885.9,
+        "timestamp": "2012-09-09T09:23:40.408283+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 887.0,
+        "timestamp": "2012-09-09T09:23:41.538090+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 888.1,
+        "timestamp": "2012-09-09T09:23:42.625285+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 890.4,
+        "timestamp": "2012-09-09T09:23:44.931894+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 893.8,
+        "timestamp": "2012-09-09T09:23:48.294385+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 894.9,
+        "timestamp": "2012-09-09T09:23:49.391145+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 895.3,
+        "timestamp": "2012-09-09T09:23:49.809034+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 896.2,
+        "timestamp": "2012-09-09T09:23:50.704634+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 897.6,
+        "timestamp": "2012-09-09T09:23:52.134589+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 899.0,
+        "timestamp": "2012-09-09T09:23:53.560185+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 899.8,
+        "timestamp": "2012-09-09T09:23:54.290116+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 900.9,
+        "timestamp": "2012-09-09T09:23:55.391747+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 909.2,
+        "timestamp": "2012-09-09T09:24:03.696979+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 911.0,
+        "timestamp": "2012-09-09T09:24:05.560413+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 928.6,
+        "timestamp": "2012-09-09T09:24:23.150742+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 929.8,
+        "timestamp": "2012-09-09T09:24:24.294802+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 930.0,
+        "timestamp": "2012-09-09T09:24:24.463199+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 931.1,
+        "timestamp": "2012-09-09T09:24:25.620036+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 936.0,
+        "timestamp": "2012-09-09T09:24:30.517532+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 939.1,
+        "timestamp": "2012-09-09T09:24:33.661557+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 940.4,
+        "timestamp": "2012-09-09T09:24:34.933819+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 941.5,
+        "timestamp": "2012-09-09T09:24:35.973553+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 941.6,
+        "timestamp": "2012-09-09T09:24:36.110688+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 942.1,
+        "timestamp": "2012-09-09T09:24:36.638463+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 943.5,
+        "timestamp": "2012-09-09T09:24:37.999699+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 944.6,
+        "timestamp": "2012-09-09T09:24:39.124816+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 945.4,
+        "timestamp": "2012-09-09T09:24:39.885685+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 946.1,
+        "timestamp": "2012-09-09T09:24:40.651033+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 946.3,
+        "timestamp": "2012-09-09T09:24:40.770523+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 948.2,
+        "timestamp": "2012-09-09T09:24:42.683792+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 949.1,
+        "timestamp": "2012-09-09T09:24:43.589157+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 949.4,
+        "timestamp": "2012-09-09T09:24:43.864031+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 950.8,
+        "timestamp": "2012-09-09T09:24:45.271831+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 951.7,
+        "timestamp": "2012-09-09T09:24:46.251496+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 952.9,
+        "timestamp": "2012-09-09T09:24:47.374800+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 956.8,
+        "timestamp": "2012-09-09T09:24:51.294578+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 958.1,
+        "timestamp": "2012-09-09T09:24:52.573375+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 959.2,
+        "timestamp": "2012-09-09T09:24:53.702622+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 960.2,
+        "timestamp": "2012-09-09T09:24:54.671252+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 960.3,
+        "timestamp": "2012-09-09T09:24:54.856487+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 961.5,
+        "timestamp": "2012-09-09T09:24:55.982932+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 962.3,
+        "timestamp": "2012-09-09T09:24:56.764476+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 969.5,
+        "timestamp": "2012-09-09T09:25:04.022969+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 970.7,
+        "timestamp": "2012-09-09T09:25:05.188572+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 971.4,
+        "timestamp": "2012-09-09T09:25:05.894749+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 971.8,
+        "timestamp": "2012-09-09T09:25:06.343124+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 972.9,
+        "timestamp": "2012-09-09T09:25:07.462175+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 974.2,
+        "timestamp": "2012-09-09T09:25:08.745007+00:00",
+        "token": "Kitchen:ON",
+        "sensor_id": "Kitchen",
+        "state": "ON"
+      },
+      {
+        "offset_seconds": 975.4,
+        "timestamp": "2012-09-09T09:25:09.871361+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      },
+      {
+        "offset_seconds": 978.9,
+        "timestamp": "2012-09-09T09:25:13.396860+00:00",
+        "token": "Kitchen:OFF",
+        "sensor_id": "Kitchen",
+        "state": "OFF"
+      }
+    ]
+  },
+  "stage_2_neural_prediction": {
+    "top1_label": "MealPreparation",
+    "top1_confidence": 0.9357162117958069,
+    "top2_label": "Housekeeping",
+    "top2_confidence": 0.05134272947907448,
+    "margin": 0.8844,
+    "model_tag": "unknown",
+    "generated_at": "2012-09-09T09:08:54.512364+00:00",
+    "emitted_triples": [
+      [
+        "pred_295",
+        "generatedAt",
+        "2012-09-09T09:08:54.512364+00:00"
+      ],
+      [
+        "pred_295",
+        "generatedByModel",
+        "unknown"
+      ],
+      [
+        "pred_295",
+        "hasConfidenceScore",
+        "0.9357162117958069"
+      ],
+      [
+        "pred_295",
+        "isAlternativePrediction",
+        "false"
+      ],
+      [
+        "pred_295",
+        "predictsActivity",
+        "MealPreparation"
+      ],
+      [
+        "pred_295",
+        "type",
+        "NeuralPrediction"
+      ],
+      [
+        "pred_295_alt",
+        "hasConfidenceScore",
+        "0.05134272947907448"
+      ],
+      [
+        "pred_295_alt",
+        "isAlternativePrediction",
+        "true"
+      ],
+      [
+        "pred_295_alt",
+        "predictsActivity",
+        "Housekeeping"
+      ],
+      [
+        "pred_295_alt",
+        "type",
+        "NeuralPrediction"
+      ],
+      [
+        "event_295",
+        "hasAlertType",
+        "UnattendedAppliance"
+      ],
+      [
+        "event_295",
+        "hasTemporalEntity",
+        "time_295"
+      ],
+      [
+        "event_295",
+        "involvesPerson",
+        "Participant1"
+      ],
+      [
+        "event_295",
+        "isBasedOnPrediction",
+        "pred_295"
+      ],
+      [
+        "event_295",
+        "isBasedOnPrediction",
+        "pred_295_alt"
+      ],
+      [
+        "event_295",
+        "type",
+        "CriticalAnomaly"
+      ],
+      [
+        "event_295",
+        "type",
+        "Event"
+      ],
+      [
+        "event_295",
+        "type",
+        "ValidatedEvent"
+      ],
+      [
+        "time_295",
+        "inXSDDateTimeStamp",
+        "2012-09-09T09:08:54.512364+00:00"
+      ],
+      [
+        "time_295",
+        "type",
+        "Instant"
+      ]
+    ],
+    "n_emitted_triples": 20
+  },
+  "stage_3_emitted_triples_count": 20,
+  "stage_4_rule_firings": [
+    {
+      "rule_id": 1,
+      "category": "sensor grounding",
+      "label": "PIR motion implies person location",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 4
+    },
+    {
+      "rule_id": 2,
+      "category": "sensor grounding",
+      "label": "Appliance interaction implies person location",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 0
+    },
+    {
+      "rule_id": 3,
+      "category": "validation",
+      "label": "High-confidence Cook in Kitchen validation",
+      "fired_on_this_event": true,
+      "asserted_about_event": [
+        [
+          "event_295",
+          "type",
+          "ValidatedEvent"
+        ]
+      ],
+      "asserted_about_person": [
+        [
+          "Participant1",
+          "performsActivity",
+          "MealPreparation"
+        ]
+      ],
+      "total_matches_graph_wide": 13
+    },
+    {
+      "rule_id": 4,
+      "category": "validation",
+      "label": "High-confidence Eat in Kitchen validation",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 10
+    },
+    {
+      "rule_id": 5,
+      "category": "AAL anomaly",
+      "label": "Cook without kitchen appliance activation",
+      "fired_on_this_event": true,
+      "asserted_about_event": [
+        [
+          "event_295",
+          "hasAlertType",
+          "UnattendedAppliance"
+        ],
+        [
+          "event_295",
+          "type",
+          "CriticalAnomaly"
+        ]
+      ],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 24
+    },
+    {
+      "rule_id": 6,
+      "category": "AAL anomaly",
+      "label": "Unattended fire hazard (kitchen plug ON, person elsewhere)",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 0
+    },
+    {
+      "rule_id": 7,
+      "category": "AAL anomaly",
+      "label": "Nocturnal kitchen activity",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 8
+    },
+    {
+      "rule_id": 8,
+      "category": "feedback trigger",
+      "label": "Spatial hallucination (kitchen activity without kitchen motion)",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 0
+    },
+    {
+      "rule_id": 9,
+      "category": "feedback trigger",
+      "label": "Contextual mismatch (Cook predicted, person not in Kitchen)",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 0
+    },
+    {
+      "rule_id": 10,
+      "category": "feedback trigger",
+      "label": "Low-margin AND low-confidence top-2 disagreement",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 66
+    },
+    {
+      "rule_id": 11,
+      "category": "feedback trigger",
+      "label": "Unsupported claim (low conf + no sensor evidence)",
+      "fired_on_this_event": false,
+      "asserted_about_event": [],
+      "asserted_about_person": [],
+      "total_matches_graph_wide": 0
+    }
+  ],
+  "stage_4b_supporting_evidence": {
+    "sensors_in_window": [
+      "Bathroom",
+      "DiningRoom",
+      "Kitchen",
+      "LivingRoom",
+      "OutsideDoor"
+    ],
+    "sensor_facts_in_kg": [
+      [
+        "sensor_Bathroom",
+        "hasState",
+        "StateMotionDetected"
+      ],
+      [
+        "sensor_Bathroom",
+        "hasState",
+        "StateQuiet"
+      ],
+      [
+        "sensor_Bathroom",
+        "isLocatedIn",
+        "Bathroom"
+      ],
+      [
+        "sensor_Bathroom",
+        "type",
+        "PIRMotionSensor"
+      ],
+      [
+        "sensor_DiningRoom",
+        "hasState",
+        "StateMotionDetected"
+      ],
+      [
+        "sensor_DiningRoom",
+        "isLocatedIn",
+        "Kitchen"
+      ],
+      [
+        "sensor_DiningRoom",
+        "type",
+        "PIRMotionSensor"
+      ],
+      [
+        "sensor_Kitchen",
+        "hasState",
+        "StateMotionDetected"
+      ],
+      [
+        "sensor_Kitchen",
+        "isLocatedIn",
+        "Kitchen"
+      ],
+      [
+        "sensor_Kitchen",
+        "type",
+        "PIRMotionSensor"
+      ],
+      [
+        "sensor_LivingRoom",
+        "hasState",
+        "StateMotionDetected"
+      ],
+      [
+        "sensor_LivingRoom",
+        "hasState",
+        "StateQuiet"
+      ],
+      [
+        "sensor_LivingRoom",
+        "isLocatedIn",
+        "LivingRoom"
+      ],
+      [
+        "sensor_LivingRoom",
+        "type",
+        "PIRMotionSensor"
+      ],
+      [
+        "sensor_OutsideDoor",
+        "hasState",
+        "StateOpen"
+      ],
+      [
+        "sensor_OutsideDoor",
+        "isLocatedIn",
+        "Entrance"
+      ],
+      [
+        "sensor_OutsideDoor",
+        "type",
+        "DoorContactSensor"
+      ]
+    ],
+    "person_facts_in_kg": [
+      [
+        "Participant1",
+        "isLocatedIn",
+        "Bathroom"
+      ],
+      [
+        "Participant1",
+        "isLocatedIn",
+        "Bedroom"
+      ],
+      [
+        "Participant1",
+        "isLocatedIn",
+        "Kitchen"
+      ],
+      [
+        "Participant1",
+        "isLocatedIn",
+        "LivingRoom"
+      ],
+      [
+        "Participant1",
+        "performsActivity",
+        "Eating"
+      ],
+      [
+        "Participant1",
+        "performsActivity",
+        "MealPreparation"
+      ],
+      [
+        "Participant1",
+        "type",
+        "Person"
+      ]
+    ],
+    "provenance_note": "The KG asserts sensor state and location globally rather than linking sensors to the event that observed them: there is no event->sensor edge. The sensor facts above are therefore matched by sensor id from the window's raw tokens, not followed from the event node. This is the same gap that forced E1 to add explicit event->room provenance triples before cross-source location conflicts could be scoped to events."
+  },
+  "stage_5_final_decision": {
+    "predicted_label": "MealPreparation",
+    "ground_truth_label": "MealPreparation",
+    "prediction_correct": true,
+    "confidence": 0.9357162117958069,
+    "answered_at_base_gate": true,
+    "answered_at_raised_gate": true,
+    "base_gate": 0.7,
+    "raised_gate": 0.75,
+    "rules_fired": [
+      3,
+      5
+    ],
+    "validated_by": [
+      3
+    ],
+    "alerts_raised": [
+      {
+        "rule_id": 5,
+        "assertion": [
+          [
+            "event_295",
+            "hasAlertType",
+            "UnattendedAppliance"
+          ],
+          [
+            "event_295",
+            "type",
+            "CriticalAnomaly"
+          ]
+        ]
+      }
+    ],
+    "feedback_flags": [],
+    "label_changed_by_symbolic_layer": false,
+    "label_change_note": "The symbolic layer never rewrites the argmax label (E2): validation annotates, and feedback flags are applied only to predictions already below the confidence gate. The final label is the network's top-1."
+  }
+}
