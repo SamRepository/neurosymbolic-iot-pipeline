@@ -231,18 +231,17 @@ def _panel_b(ax: plt.Axes, prf: Dict[str, Any]) -> None:
             fontsize=7.6, color=INK_MUTED, style="italic", clip_on=False)
 
     # Handles are built explicitly so every entry matches a mark that is actually
-    # drawn: two bar patches and the zero rule. Placed below the axes because all
-    # three bar groups reach the top of the plot, leaving no interior space that
-    # does not collide with data.
+    # drawn: two bar patches and the zero rule. Kept inside the axes to avoid
+    # spending vertical space on a legend strip; the near-opaque background keeps
+    # it readable where it sits over the bars.
     handles = [
         Patch(facecolor=COLOR_PRECISION, edgecolor="white", label="Federated — precision"),
         Patch(facecolor=COLOR_RECALL, edgecolor="white", hatch="///", label="Federated — recall"),
         Line2D([], [], color=INK_MUTED, linewidth=2.6,
                label="Single-source — recall (0.00)"),
     ]
-    ax.legend(handles=handles, fontsize=7.4, loc="upper center",
-              bbox_to_anchor=(0.5, -0.20), ncol=3, framealpha=0.0,
-              borderpad=0.4, handlelength=1.8, columnspacing=1.4, frameon=False)
+    ax.legend(handles=handles, fontsize=7.6, loc="lower center", framealpha=0.95,
+              edgecolor=GRID, borderpad=0.5, handlelength=1.6, ncol=1)
 
 
 CAPTION = """Figure 7: Cross-dataset federated reasoning, over 20 randomized injection trials
