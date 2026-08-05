@@ -48,3 +48,8 @@ evaluation/results/_smoke/
 evaluation/results_aruba/fold_*/
 evaluation/results_aruba_remote.json
 evaluation/results/ablation_cv copy.json
+
+# Table 12 baseline working folder: publisher PDFs of the three source papers
+# (copyright), prompt scratch files, and a working copy of the fidelity note.
+# Source material and drafting notes, not code or results.
+evaluation/Table12_works/
