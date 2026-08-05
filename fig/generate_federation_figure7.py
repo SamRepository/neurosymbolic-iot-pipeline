@@ -240,7 +240,10 @@ def _panel_b(ax: plt.Axes, prf: Dict[str, Any]) -> None:
         Line2D([], [], color=INK_MUTED, linewidth=2.6,
                label="Single-source — recall (0.00)"),
     ]
-    ax.legend(handles=handles, fontsize=7.6, loc="lower center", framealpha=0.95,
+    # Lifted clear of the axis so it does not crowd the x tick labels or the
+    # 0.00 annotations sitting on the baseline.
+    ax.legend(handles=handles, fontsize=7.6, loc="lower center",
+              bbox_to_anchor=(0.5, 0.16), framealpha=0.95,
               edgecolor=GRID, borderpad=0.5, handlelength=1.6, ncol=1)
 
 
