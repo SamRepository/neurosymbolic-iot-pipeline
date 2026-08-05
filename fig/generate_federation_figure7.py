@@ -35,6 +35,7 @@ from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 # CVD-safe, print-contrast-safe. Semantic mapping preserved from the legacy figure
@@ -190,20 +191,21 @@ def _panel_b(ax: plt.Axes, prf: Dict[str, Any]) -> None:
 
     single_source_recall = float(prf.get("single_source_recall_on_cross_source_categories", 0.0))
 
-    ax.bar(x - width, precision, width, label="Federated — precision",
+    ax.bar(x - width, precision, width,
            color=COLOR_PRECISION, edgecolor="white", linewidth=0.7)
-    ax.bar(x, recall, width, label="Federated — recall", hatch="///",
+    ax.bar(x, recall, width, hatch="///",
            color=COLOR_RECALL, edgecolor="white", linewidth=0.7)
-    # A measured zero, drawn as a visible stub with an outline so it reads as
-    # plotted-and-zero rather than as missing data.
-    ax.bar(x + width, [single_source_recall] * len(x), width,
-           label="Single-source — recall", color="white", edgecolor=INK_MUTED,
-           linewidth=0.9, hatch="xx")
+
+    # Single-source recall is exactly zero, so a bar would have no height and
+    # render as nothing at all — a legend swatch for it would promise a mark the
+    # reader cannot find. It is drawn instead as an explicit rule on the axis,
+    # which is visible, and the legend carries that same rule as its handle.
     for xi in x:
         ax.plot([xi + width - width / 2, xi + width + width / 2],
                 [single_source_recall, single_source_recall],
-                color=INK_MUTED, linewidth=1.6, solid_capstyle="butt", zorder=5)
-        ax.text(xi + width, single_source_recall + 0.025, "0.00", ha="center", va="bottom",
+                color=INK_MUTED, linewidth=2.6, solid_capstyle="butt",
+                zorder=6, clip_on=False)
+        ax.text(xi + width, single_source_recall + 0.028, "0.00", ha="center", va="bottom",
                 fontsize=6.8, color=INK_MUTED)
 
     for xi, (p_val, r_val, f1, fp) in enumerate(zip(precision, recall, f1_vals, fp_counts)):
@@ -228,8 +230,19 @@ def _panel_b(ax: plt.Axes, prf: Dict[str, Any]) -> None:
             transform=ax.transAxes, ha="center", va="bottom",
             fontsize=7.6, color=INK_MUTED, style="italic", clip_on=False)
 
-    ax.legend(fontsize=7.6, loc="lower center", framealpha=0.95, edgecolor=GRID,
-              borderpad=0.5, handlelength=1.6, ncol=1)
+    # Handles are built explicitly so every entry matches a mark that is actually
+    # drawn: two bar patches and the zero rule. Placed below the axes because all
+    # three bar groups reach the top of the plot, leaving no interior space that
+    # does not collide with data.
+    handles = [
+        Patch(facecolor=COLOR_PRECISION, edgecolor="white", label="Federated — precision"),
+        Patch(facecolor=COLOR_RECALL, edgecolor="white", hatch="///", label="Federated — recall"),
+        Line2D([], [], color=INK_MUTED, linewidth=2.6,
+               label="Single-source — recall (0.00)"),
+    ]
+    ax.legend(handles=handles, fontsize=7.4, loc="upper center",
+              bbox_to_anchor=(0.5, -0.20), ncol=3, framealpha=0.0,
+              borderpad=0.4, handlelength=1.8, columnspacing=1.4, frameon=False)
 
 
 CAPTION = """Figure 7: Cross-dataset federated reasoning, over 20 randomized injection trials
