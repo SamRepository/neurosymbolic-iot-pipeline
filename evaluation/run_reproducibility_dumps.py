@@ -303,6 +303,35 @@ def _dataset_meta(meta_path: Path) -> Optional[Dict[str, Any]]:
     return json.loads(meta_path.read_text(encoding="utf-8"))
 
 
+def _processed_class_stats(path: Path) -> Optional[Dict[str, Any]]:
+    """Classes materialised as window labels in a processed parquet store.
+
+    This is a different counting basis from the CV corpus: it reflects what the windowing that
+    produced ``data/processed`` actually labelled, not what the experiment configs rebuild.
+    """
+    if not path.exists():
+        return None
+    try:
+        import pandas as pd
+
+        df = pd.read_parquet(path, columns=["label"])
+    except Exception as exc:  # noqa: BLE001 - reported, never silently skipped
+        log.warning("processed class stats unavailable for %s: %s", path, exc)
+        return None
+    # Null labels are counted separately, never as a class: stringifying them would invent a
+    # spurious "None" class and inflate the count (Aruba has 23 such windows).
+    labels = df["label"]
+    n_unlabelled = int(labels.isna().sum())
+    counts = labels.dropna().astype(str).value_counts()
+    return {
+        "source": path.as_posix(),
+        "n_classes": int(counts.size),
+        "n_unlabelled_windows": n_unlabelled,
+        "class_labels": sorted(counts.index.tolist()),
+        "class_counts": {str(k): int(v) for k, v in counts.items()},
+    }
+
+
 def build_dataset_statistics(repo: Path) -> Dict[str, Any]:
     sensor_map = json.loads(
         (repo / "neurosymbolic_iot/kg_semantic_layer/ontology/sensor_map.json").read_text(encoding="utf-8")
@@ -312,13 +341,16 @@ def build_dataset_statistics(repo: Path) -> Dict[str, Any]:
 
     specs = [
         ("casas_kyoto", "data/processed/casas_meta.json", "evaluation/results/ablation_cv.json",
-         "evaluation/results/fold_0/kg/casas/populated_kg.ttl", "casas"),
+         "evaluation/results/fold_0/kg/casas/populated_kg.ttl", "casas",
+         "data/processed/casas_windows.parquet"),
         ("casas_aruba", "data/processed/casas_aruba_meta.json", "evaluation/results_aruba/ablation_cv.json",
-         "evaluation/results_aruba/fold_0/kg/casas/populated_kg.ttl", "casas"),
-        ("sphere", "data/processed/sphere_meta.json", None, None, "sphere"),
+         "evaluation/results_aruba/fold_0/kg/casas/populated_kg.ttl", "casas",
+         "data/processed/casas_aruba_windows.parquet"),
+        ("sphere", "data/processed/sphere_meta.json", None, None, "sphere",
+         "data/processed/sphere_windows.parquet"),
     ]
 
-    for name, meta_rel, ablation_rel, kg_rel, map_key in specs:
+    for name, meta_rel, ablation_rel, kg_rel, map_key, windows_rel in specs:
         entry: Dict[str, Any] = {"sensor_map_key": map_key}
         meta = _dataset_meta(repo / meta_rel)
         entry["processed_metadata"] = meta
@@ -368,6 +400,31 @@ def build_dataset_statistics(repo: Path) -> Dict[str, Any]:
                         "via build_casas_windows_from_raw using the experiment config, rather "
                         "than reading data/processed. Not an error, but the paper must not mix "
                         "the two figures."
+                    ),
+                }
+
+        # Classes actually materialised in the processed store. Reported separately from the CV
+        # class count because the two bases disagree in both directions: a class can survive
+        # windowing into the store and still never attain a majority in the CV protocol's
+        # windows (Aruba `Work`), or be absent from the store's partition while present in the
+        # pooled CV corpus (Kyoto `WashHands`).
+        proc_cls = _processed_class_stats(repo / windows_rel)
+        if proc_cls:
+            entry["processed_classes"] = proc_cls
+            cv = entry.get("cv_protocol") or {}
+            cv_n, proc_n = cv.get("activity_classes"), proc_cls["n_classes"]
+            if cv_n and proc_n and cv_n != proc_n:
+                cv_labels = set(cv.get("class_labels") or [])
+                proc_labels = set(proc_cls["class_labels"])
+                entry["class_count_discrepancy"] = {
+                    "cv_run": cv_n,
+                    "processed_parquet": proc_n,
+                    "in_cv_only": sorted(cv_labels - proc_labels),
+                    "in_processed_only": sorted(proc_labels - cv_labels),
+                    "note": (
+                        "Class counts differ by counting basis. The appendix table must label "
+                        "which basis each column reports; quoting one as the other misstates "
+                        "which classes the experiments actually saw."
                     ),
                 }
 
@@ -510,21 +567,39 @@ def render_dataset_markdown(stats: Dict[str, Any], onto: Dict[str, Any]) -> str:
     lines: List[str] = []
     lines.append("# Per-dataset and knowledge-graph statistics (E6 — reviewer item R2-3)")
     lines.append("")
-    lines.append("| Dataset | Windows (experiment) | Windows (processed) | Classes | Train | Test | KG triples | Predicates | nsiot entities |")
-    lines.append("|---|---|---|---|---|---|---|---|---|")
+    lines.append("| Dataset | Windows (experiment) | Windows (processed) | Classes (CV) | Classes (processed) | Train | Test | KG triples | Predicates | nsiot entities |")
+    lines.append("|---|---|---|---|---|---|---|---|---|---|")
     for name, entry in stats.items():
         cv = entry.get("cv_protocol") or {}
         kg = entry.get("knowledge_graph") or {}
         splits = entry.get("processed_splits") or {}
+        proc_cls = entry.get("processed_classes") or {}
         train = cv.get("train_windows_per_fold") or splits.get("train") or "—"
         test = cv.get("test_windows_per_fold") or splits.get("test") or "—"
         lines.append(
             f"| {name} | {cv.get('total_windows', '—')} | {entry.get('processed_windows', '—')} "
-            f"| {cv.get('activity_classes') or entry.get('n_activity_map_entries', '—')} "
+            # No fallback to the activity-map size here: that is the size of the mapping table,
+            # not the number of classes the CV run saw, and reporting it in this column is what
+            # put "20" against SPHERE in the appendix.
+            f"| {cv.get('activity_classes', '—')} "
+            f"| {proc_cls.get('n_classes', '—')} "
             f"| {train} | {test} "
             f"| {kg.get('triples', '—')} | {kg.get('distinct_predicates', '—')} "
             f"| {kg.get('nsiot_entities', '—')} |"
         )
+    lines.append("")
+    lines.append(
+        "Classes are reported on both counting bases because they disagree; see "
+        "`class_count_discrepancy` in the JSON for the per-dataset label differences."
+    )
+    for name, entry in stats.items():
+        d = entry.get("class_count_discrepancy")
+        if d:
+            lines.append(
+                f"- `{name}`: CV corpus {d['cv_run']} classes vs processed store "
+                f"{d['processed_parquet']}; CV-only {d['in_cv_only'] or '—'}, "
+                f"processed-only {d['in_processed_only'] or '—'}."
+            )
     lines.append("")
     lines.append("KG statistics are measured on fold 0's serialized graph, after rule firing.")
     lines.append("")

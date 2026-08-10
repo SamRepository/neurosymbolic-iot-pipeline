@@ -1,8 +1,8 @@
 {
   "_meta": {
     "script": "evaluation/run_reproducibility_dumps.py",
-    "commit": "6025e12",
-    "generated": "2026-08-04T18:23:37",
+    "commit": "0b33eea",
+    "generated": "2026-08-10T19:16:45",
     "note": "Machine-generated from the code and stored artifacts so the appendix cannot drift from what runs."
   },
   "datasets": {
@@ -51,6 +51,32 @@
         "processed_parquet": 176,
         "cv_run": 400,
         "note": "Different windowing settings: the CV scripts rebuild windows from raw via build_casas_windows_from_raw using the experiment config, rather than reading data/processed. Not an error, but the paper must not mix the two figures."
+      },
+      "processed_classes": {
+        "source": "C:/Users/DELL/Desktop/Neuro-SymolicAI_IoT Paper/neurosymbolic-iot-pipeline/data/processed/casas_windows.parquet",
+        "n_classes": 4,
+        "n_unlabelled_windows": 0,
+        "class_labels": [
+          "Clean",
+          "Cook",
+          "Eat",
+          "PhoneCall"
+        ],
+        "class_counts": {
+          "Cook": 115,
+          "PhoneCall": 32,
+          "Clean": 17,
+          "Eat": 12
+        }
+      },
+      "class_count_discrepancy": {
+        "cv_run": 5,
+        "processed_parquet": 4,
+        "in_cv_only": [
+          "WashHands"
+        ],
+        "in_processed_only": [],
+        "note": "Class counts differ by counting basis. The appendix table must label which basis each column reports; quoting one as the other misstates which classes the experiments actually saw."
       },
       "sensor_types": [
         "nsiot:DoorContactSensor",
@@ -120,6 +146,46 @@
         "processed_parquet": 10771,
         "cv_run": 1792,
         "note": "Different windowing settings: the CV scripts rebuild windows from raw via build_casas_windows_from_raw using the experiment config, rather than reading data/processed. Not an error, but the paper must not mix the two figures."
+      },
+      "processed_classes": {
+        "source": "C:/Users/DELL/Desktop/Neuro-SymolicAI_IoT Paper/neurosymbolic-iot-pipeline/data/processed/casas_aruba_windows.parquet",
+        "n_classes": 11,
+        "n_unlabelled_windows": 23,
+        "class_labels": [
+          "Eating",
+          "EnterHome",
+          "Housekeeping",
+          "LeaveHome",
+          "MealPreparation",
+          "Medication",
+          "PersonalHygiene",
+          "PhoneCall",
+          "Relax",
+          "Sleeping",
+          "Work"
+        ],
+        "class_counts": {
+          "Relax": 4691,
+          "PersonalHygiene": 2009,
+          "Sleeping": 1857,
+          "MealPreparation": 764,
+          "LeaveHome": 290,
+          "Eating": 286,
+          "Housekeeping": 285,
+          "EnterHome": 255,
+          "Medication": 234,
+          "PhoneCall": 70,
+          "Work": 7
+        }
+      },
+      "class_count_discrepancy": {
+        "cv_run": 10,
+        "processed_parquet": 11,
+        "in_cv_only": [],
+        "in_processed_only": [
+          "Work"
+        ],
+        "note": "Class counts differ by counting basis. The appendix table must label which basis each column reports; quoting one as the other misstates which classes the experiments actually saw."
       },
       "sensor_types": [
         "nsiot:DoorContactSensor",
@@ -207,6 +273,29 @@
         "train": 97,
         "val": 21,
         "test": 21
+      },
+      "processed_classes": {
+        "source": "C:/Users/DELL/Desktop/Neuro-SymolicAI_IoT Paper/neurosymbolic-iot-pipeline/data/processed/sphere_windows.parquet",
+        "n_classes": 7,
+        "n_unlabelled_windows": 0,
+        "class_labels": [
+          "a_ascend",
+          "a_walk",
+          "p_kneel",
+          "p_lie",
+          "p_sit",
+          "p_stand",
+          "t_turn"
+        ],
+        "class_counts": {
+          "p_stand": 73,
+          "p_lie": 30,
+          "p_sit": 22,
+          "a_walk": 10,
+          "t_turn": 2,
+          "a_ascend": 1,
+          "p_kneel": 1
+        }
       },
       "sensor_types": [
         "nsiot:PIRMotionSensor"

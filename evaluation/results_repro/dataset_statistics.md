@@ -1,10 +1,14 @@
 # Per-dataset and knowledge-graph statistics (E6 — reviewer item R2-3)
 
-| Dataset | Windows (experiment) | Windows (processed) | Classes | Train | Test | KG triples | Predicates | nsiot entities |
-|---|---|---|---|---|---|---|---|---|
-| casas_kyoto | 400 | 176 | 5 | 320 | 80 | 1666 | 26 | 401 |
-| casas_aruba | 1792 | 10771 | 10 | 1434 | 358 | 6568 | 27 | 1591 |
-| sphere | — | 139 | 20 | 97 | 21 | — | — | — |
+| Dataset | Windows (experiment) | Windows (processed) | Classes (CV) | Classes (processed) | Train | Test | KG triples | Predicates | nsiot entities |
+|---|---|---|---|---|---|---|---|---|---|
+| casas_kyoto | 400 | 176 | 5 | 4 | 320 | 80 | 1666 | 26 | 401 |
+| casas_aruba | 1792 | 10771 | 10 | 11 | 1434 | 358 | 6568 | 27 | 1591 |
+| sphere | — | 139 | — | 7 | 97 | 21 | — | — | — |
+
+Classes are reported on both counting bases because they disagree; see `class_count_discrepancy` in the JSON for the per-dataset label differences.
+- `casas_kyoto`: CV corpus 5 classes vs processed store 4; CV-only ['WashHands'], processed-only —.
+- `casas_aruba`: CV corpus 10 classes vs processed store 11; CV-only —, processed-only ['Work'].
 
 KG statistics are measured on fold 0's serialized graph, after rule firing.
 
