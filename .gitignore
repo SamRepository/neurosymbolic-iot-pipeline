@@ -53,3 +53,8 @@ evaluation/results/ablation_cv copy.json
 # (copyright), prompt scratch files, and a working copy of the fidelity note.
 # Source material and drafting notes, not code or results.
 evaluation/Table12_works/
+
+# Ontology-figure design references: screenshots of published SSN/SOSA figures
+# (copyright). Visual reference for fig/generate_ontology_figure.py, not an input
+# to it -- the figure is generated from the TTL.
+fig/ontology/ref/
