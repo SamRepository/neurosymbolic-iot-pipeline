@@ -30,6 +30,7 @@ Usage:
 from __future__ import annotations
 
 import sys
+from itertools import combinations
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -143,6 +144,20 @@ class Ontology:
             return [local(k) for k in kids]
         return [local(i) for i in self.individuals.get(root, [])]
 
+    def pairwise_disjoint(self, root: str) -> bool:
+        """True when every pair of ``root``'s subclasses is declared owl:disjointWith.
+
+        Computed rather than asserted: the panel note then cannot outlive the axioms.
+        """
+        kids = self.children.get(root, [])
+        if len(kids) < 2:
+            return False
+        declared = {
+            frozenset((qname(a), qname(b)))
+            for a, b in self.graph.subject_objects(OWL.disjointWith)
+        }
+        return {frozenset(pair) for pair in combinations(kids, 2)} <= declared
+
     def datatype_props_of(self, cls: str) -> List[str]:
         return sorted(local(p) for p in self.datatype_properties if self.prop_domain.get(p) == cls)
 
@@ -171,10 +186,15 @@ class Panel:
     def cy(self) -> float:
         return self.y + self.h / 2
 
-    def anchor(self, side: str) -> Tuple[float, float]:
+    def anchor(self, side: str, t: float = 0.5) -> Tuple[float, float]:
+        """A point on one side. ``t`` runs 0->1 along that side (0.5 = centre).
+
+        Fractional anchors let an edge leave a panel away from its mid-point, which is how
+        the diagram keeps long diagonals clear of the panels they would otherwise cross.
+        """
         return {
-            "l": (self.x, self.cy), "r": (self.x + self.w, self.cy),
-            "t": (self.cx, self.y + self.h), "b": (self.cx, self.y),
+            "l": (self.x, self.y + self.h * t), "r": (self.x + self.w, self.y + self.h * t),
+            "t": (self.x + self.w * t, self.y + self.h), "b": (self.x + self.w * t, self.y),
         }[side]
 
     def draw(self, ax: plt.Axes) -> None:
@@ -201,20 +221,40 @@ class Panel:
                     fontsize=5.8, style="italic", color=INK_MUTED, zorder=3)
 
 
+def arc_apex(p0: Tuple[float, float], p1: Tuple[float, float],
+             rad: float) -> Tuple[float, float]:
+    """Where a matplotlib ``arc3`` curve actually bulges to, at its half-way point.
+
+    Matplotlib places the Bezier control point at ``M + rad * (dy, -dx)``, so the curve's
+    apex is half that offset from the chord mid-point. Knowing it lets a label sit on its
+    own arc instead of drifting onto a neighbouring one.
+    """
+    mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+    return mx + rad * dy / 2.0, my - rad * dx / 2.0
+
+
 def edge(ax: plt.Axes, src: Panel, s_side: str, dst: Panel, d_side: str, label: str,
          *, rad: float = 0.0, color: str = INK_MUTED, dashed: bool = False,
-         lx: float = 0.0, ly: float = 0.0, fs: float = 5.9) -> None:
-    p0, p1 = src.anchor(s_side), dst.anchor(d_side)
+         lx: float = 0.0, ly: float = 0.0, fs: float = 5.9,
+         s_t: float = 0.5, d_t: float = 0.5,
+         label_at: Optional[Tuple[float, float]] = None) -> None:
+    p0, p1 = src.anchor(s_side, s_t), dst.anchor(d_side, d_t)
     ax.add_patch(FancyArrowPatch(
         p0, p1, connectionstyle=f"arc3,rad={rad}",
-        arrowstyle="-|>", mutation_scale=7.5, linewidth=0.75, color=color,
-        linestyle=(0, (3, 2)) if dashed else "solid",
-        shrinkA=1.5, shrinkB=1.5, zorder=1,
+        arrowstyle="-|>", mutation_scale=7.0, linewidth=0.75, color=color,
+        # A finer dash repeat keeps rdfs:subClassOf legible over a short span.
+        linestyle=(0, (2.2, 1.6)) if dashed else "solid",
+        # Wider shrink keeps arrow ends off the panel borders they point at.
+        shrinkA=3.0, shrinkB=3.5, zorder=1,
     ))
-    mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
-    my += rad * 8.0 * (1 if abs(p1[0] - p0[0]) > abs(p1[1] - p0[1]) else 0)
-    mx += rad * 8.0 * (1 if abs(p1[1] - p0[1]) >= abs(p1[0] - p0[0]) else 0)
-    ax.text(mx + lx, my + ly, label, ha="center", va="center", fontsize=fs,
+    if label_at is not None:
+        tx, ty = label_at
+    else:
+        tx, ty = arc_apex(p0, p1, rad)
+        tx += lx
+        ty += ly
+    ax.text(tx, ty, label, ha="center", va="center", fontsize=fs,
             color=color, zorder=4,
             bbox=dict(boxstyle="round,pad=0.16", facecolor="white", edgecolor="none", alpha=0.92))
 
@@ -233,9 +273,20 @@ def draw_legend(ax: plt.Axes, x: float, y: float, w: float, h: float) -> None:
                                     linewidth=0.7, edgecolor=c, facecolor=_tint(c, 0.93), zorder=3))
         ax.text(sx + 3.4, sy - 0.1, lab, ha="left", va="center", fontsize=5.8,
                 color=INK_PRIMARY, zorder=3)
-    ax.text(x + w / 2, y + 1.5,
-            "dashed arrow = rdfs:subClassOf   ·   solid arrow = object property",
-            ha="center", va="bottom", fontsize=5.6, style="italic", color=INK_MUTED, zorder=3)
+    # Draw the two line styles rather than naming them: a reader can match what they see.
+    ly = y + 1.7
+    x0 = x + 2.0
+    ax.add_patch(FancyArrowPatch((x0, ly), (x0 + 5.4, ly), arrowstyle="-|>",
+                                 mutation_scale=7.0, linewidth=0.85, color=INK_MUTED,
+                                 linestyle=(0, (2.2, 1.6)), shrinkA=0, shrinkB=0, zorder=3))
+    ax.text(x0 + 6.3, ly, "rdfs:subClassOf", ha="left", va="center",
+            fontsize=5.6, style="italic", color=INK_MUTED, zorder=3)
+    x1 = x + w / 2 + 1.0
+    ax.add_patch(FancyArrowPatch((x1, ly), (x1 + 5.4, ly), arrowstyle="-|>",
+                                 mutation_scale=7.0, linewidth=0.85, color=INK_MUTED,
+                                 linestyle="solid", shrinkA=0, shrinkB=0, zorder=3))
+    ax.text(x1 + 6.3, ly, "object property", ha="left", va="center",
+            fontsize=5.6, style="italic", color=INK_MUTED, zorder=3)
 
 
 # -- Figure ---------------------------------------------------------------------------
@@ -251,19 +302,21 @@ def build_figure(o: Ontology) -> Tuple[plt.Figure, List[str], List[str]]:
     # The extra width past the right-hand column is the routing margin the two Event -> vocabulary
     # arcs travel through, and where their labels sit clear of the panels.
     ax.set_xlim(0, 127)
-    ax.set_ylim(0, 82)
+    ax.set_ylim(0, 86)
     ax.axis("off")
 
     # --- external standards, drawn only where the ontology actually references them ----
-    sosa = Panel(3.5, 70.5, 30, 9.5, "sosa:Sensor", [], COLOR_EXTERNAL, note="SSN/SOSA")
-    tempo = Panel(85.0, 70.5, 27, 9.5, "time:TemporalEntity", [], COLOR_EXTERNAL, note="OWL-Time")
+    sosa = Panel(3.5, 74.5, 30, 9.5, "sosa:Sensor", [], COLOR_EXTERNAL, note="SSN/SOSA")
+    tempo = Panel(85.0, 74.5, 27, 9.5, "time:TemporalEntity", [], COLOR_EXTERNAL, note="OWL-Time")
 
     # --- sensing column ---------------------------------------------------------------
     sensors = Panel(3.5, 51.0, 30, 16.5, "Sensor types", o.members("sosa:Sensor"), COLOR_CORE)
-    states = Panel(3.5, 34.0, 30, 13.5, "nsiot:SensorState",
+    states = Panel(3.5, 32.0, 30, 13.5, "nsiot:SensorState",
                    o.members("nsiot:SensorState"), COLOR_CORE, ncol=2)
-    rooms = Panel(3.5, 8.0, 30, 18.5, "nsiot:Location → Room",
-                  o.members("nsiot:Room"), COLOR_CORE, note="pairwise owl:disjointWith")
+    disjoint_note = "pairwise owl:disjointWith"
+    rooms = Panel(3.5, 8.0, 30, 18.5, "nsiot:Location → Room", o.members("nsiot:Room"),
+                  COLOR_CORE,
+                  note=disjoint_note if o.pairwise_disjoint("nsiot:Room") else None)
 
     # --- bridge / behaviour column -----------------------------------------------------
     npred = Panel(41.5, 51.0, 34.5, 16.5, "nsiot:NeuralPrediction",
@@ -272,13 +325,14 @@ def build_figure(o: Ontology) -> Tuple[plt.Figure, List[str], List[str]]:
     person = Panel(52.0, 38.5, 18, 7.5, "nsiot:Person", [], COLOR_CORE)
     activity = Panel(38.5, 6.0, 21, 21.0, "nsiot:Activity", o.members("nsiot:Activity"), COLOR_CORE)
     posture = Panel(62.5, 6.0, 19, 21.0, "nsiot:Posture", o.members("nsiot:Posture"),
-                    COLOR_CORE, note="pairwise disjoint")
+                    COLOR_CORE,
+                    note=disjoint_note if o.pairwise_disjoint("nsiot:Posture") else None)
 
     # --- event / reasoning column (narrowed to leave a routing margin at the right) ----
     event = Panel(85.0, 51.0, 27, 16.5, "nsiot:Event", o.members("nsiot:Event"), COLOR_REASON)
-    tctx = Panel(85.0, 39.0, 27, 9.0, "nsiot:TimeContext",
+    tctx = Panel(85.0, 36.5, 19, 9.0, "nsiot:TimeContext",
                  o.members("nsiot:TimeContext"), COLOR_REASON)
-    alert = Panel(85.0, 22.5, 27, 13.5, "nsiot:AlertType",
+    alert = Panel(85.0, 21.0, 27, 13.5, "nsiot:AlertType",
                   o.members("nsiot:AlertType"), COLOR_REASON)
     err = Panel(85.0, 6.0, 27, 13.5, "nsiot:ErrorType",
                 o.members("nsiot:ErrorType"), COLOR_REASON)
@@ -287,7 +341,7 @@ def build_figure(o: Ontology) -> Tuple[plt.Figure, List[str], List[str]]:
               event, tctx, alert, err]:
         p.draw(ax)
 
-    draw_legend(ax, 40.5, 68.5, 40, 11.5)
+    draw_legend(ax, 40.5, 73.5, 40, 10.5)
 
     drawn: List[str] = []
 
@@ -295,26 +349,51 @@ def build_figure(o: Ontology) -> Tuple[plt.Figure, List[str], List[str]]:
         drawn.append(f"nsiot:{name}")
         edge(ax, src, ss, dst, ds, name, **kw)
 
+    # Labels on the four short vertical arrows sit beside the shaft, not across it: centred,
+    # their white background would blank out the whole visible run of a ~28 pt arrow.
     edge(ax, sensors, "t", sosa, "b", "rdfs:subClassOf", dashed=True,
-         color=COLOR_EXTERNAL, fs=5.7)
+         color=COLOR_EXTERNAL, fs=5.7, lx=6.5)
 
-    prop(sensors, "b", states, "t", "hasState")
-    prop(person, "l", rooms, "r", "isLocatedIn", rad=0.10, lx=-1.0, ly=1.6)
-    prop(person, "b", activity, "t", "performsActivity", rad=0.14, lx=-3.2)
-    prop(person, "b", posture, "t", "hasPosture", rad=-0.14, lx=3.6)
-    prop(npred, "l", activity, "t", "predictsActivity", rad=0.12, lx=-3.4, ly=6.5,
-         color=COLOR_BRIDGE)
-    prop(npred, "r", posture, "t", "predictsPosture", rad=-0.12, lx=4.2, ly=-6.0,
-         color=COLOR_BRIDGE)
-    prop(event, "l", npred, "r", "isBasedOnPrediction", color=COLOR_REASON, ly=1.1)
-    prop(event, "l", person, "r", "involvesPerson", rad=0.16, color=COLOR_REASON, ly=-1.4)
-    prop(event, "t", tempo, "b", "hasTemporalEntity", color=COLOR_REASON, fs=5.7)
-    # All three vocabulary properties have domain nsiot:Event. Drawing them as a chain down the
-    # column (Event -> TimeContext -> AlertType -> ErrorType) would assert the wrong domains, so
-    # the two lower ones are routed out through the right-hand margin from Event itself.
-    prop(event, "b", tctx, "t", "hasTimeContext", color=COLOR_REASON)
-    prop(event, "r", alert, "r", "hasAlertType", rad=-0.34, color=COLOR_REASON, lx=10.0, ly=3.0)
-    prop(event, "r", err, "r", "hasErrorType", rad=-0.50, color=COLOR_REASON, lx=10.6, ly=-4.0)
+    prop(sensors, "b", states, "t", "hasState", lx=4.3)
+    # Leaves Person low and enters Room high, so the chord passes above nsiot:Activity
+    # instead of clipping its top-left corner.
+    prop(person, "l", rooms, "r", "isLocatedIn", rad=0.10, s_t=0.30, d_t=0.90,
+         lx=-1.5, ly=1.5)
+    # The four edges converging below Person leave little clear space; these label positions
+    # are set explicitly so each sits on its own edge and crosses none of the others.
+    prop(person, "b", activity, "t", "performsActivity", rad=0.14, d_t=0.68,
+         label_at=(55.2, 36.5))
+    prop(person, "b", posture, "t", "hasPosture", rad=-0.14, label_at=(66.8, 36.5))
+    # The two prediction edges bow away from each other (left / right) so the pair reads
+    # as a symmetric fork out of NeuralPrediction.
+    # Leaving from the bottom corners rather than the side mid-points: a side anchor sends
+    # these two steep edges back across the panel's own lower border on the way down.
+    # Label raised to sit level with involvesPerson on the other side of the figure;
+    # lx tracks the curve, which is wider here than at the apex.
+    prop(npred, "b", activity, "t", "predictsActivity", s_t=0.217, rad=0.08,
+         color=COLOR_BRIDGE, lx=-6.0, ly=7.94)
+    prop(npred, "b", posture, "t", "predictsPosture", s_t=0.88, rad=-0.08,
+         color=COLOR_BRIDGE, lx=6.0)
+    # The two Event -> left-hand arrows leave from different heights so they neither
+    # overlap at the panel edge nor cross on the way out.
+    # "isBasedOnPrediction" is wider than the 9-unit gap between the two panels, so the edge
+    # arcs over their tops and the label sits in the free band above, touching neither border.
+    prop(event, "t", npred, "t", "isBasedOnPrediction", rad=0.32, color=COLOR_REASON,
+         s_t=0.06, d_t=0.94, ly=1.7)
+    # Straight, so it stays clear of the NeuralPrediction bottom-right corner.
+    prop(event, "l", person, "r", "involvesPerson", rad=-0.18, color=COLOR_REASON,
+         s_t=0.18, d_t=0.60, ly=-0.2, lx=0.5)
+    prop(event, "t", tempo, "b", "hasTemporalEntity", color=COLOR_REASON, fs=5.7, lx=7.3)
+    # All three vocabulary properties have domain nsiot:Event. A chain down the column
+    # (Event -> TimeContext -> AlertType -> ErrorType) would assert the wrong domains, so
+    # hasAlertType runs down the lane left free by the narrow TimeContext panel and only
+    # hasErrorType swings out through the right-hand margin. Keeping one arc in the margin
+    # is what lets each label sit on its own edge and touch no other.
+    prop(event, "b", tctx, "t", "hasTimeContext", rad=0.30, color=COLOR_REASON, lx=6.0)
+    prop(event, "b", alert, "t", "hasAlertType", color=COLOR_REASON,
+         s_t=0.90, d_t=0.90, label_at=(114.8, 43.0))
+    prop(event, "r", err, "r", "hasErrorType", rad=-0.62, color=COLOR_REASON,
+         s_t=0.15, d_t=0.80, label_at=(122.0, 35.1))
 
     # --- coverage bookkeeping ----------------------------------------------------------
     shown = set()
